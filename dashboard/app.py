@@ -372,13 +372,15 @@ LAYOUT = dict(
 )
 
 COLORS = {
-    'green':  '#00BF7A',
-    'blue':   '#3B82F6',
-    'purple': '#8B5CF6',
-    'amber':  '#F59E0B',
-    'red':    '#EF4444',
-    'slate':  '#475569',
-    'muted':  '#3D3D42',
+    'green':      '#00BF7A',
+    'blue':       '#3B82F6',
+    'purple':     '#8B5CF6',
+    'amber':      '#F59E0B',
+    'red':        '#EF4444',
+    'cyan':       '#0891B2',       # NOVO — IOTA teal
+    'slate':      '#475569',
+    'muted':      '#3D3D42',
+    'blue_iota':  '#2563F5',       # NOVO — IOTA primary blue
 }
 
 def lo(*exclude):
@@ -743,6 +745,7 @@ def main():
         cvm = opts[sel]
 
         st.markdown("---")
+        dark_mode = st.toggle("🌙 Dark Mode", value=True, key="dark_mode")
         dark_dense = st.checkbox("Modo Denso", value=False, key="dense_mode")
         st.markdown("---")
         st.markdown(
@@ -751,12 +754,26 @@ def main():
             unsafe_allow_html=True,
         )
 
-    # Aplica modo denso via classe CSS no container raiz
+    # Aplica tema dark/light e modo denso via JS
+    theme_classes = []
+    if not dark_mode:
+        theme_classes.append('light-mode')
     if dark_dense:
-        st.markdown(
-            '<script>document.querySelector(".stApp").classList.add("modo-denso")</script>',
-            unsafe_allow_html=True,
-        )
+        theme_classes.append('modo-denso')
+
+    if theme_classes:
+        class_str = ' '.join(theme_classes)
+        st_components.html(f"""<script>
+        (function(){{
+            try {{
+                var app = window.parent.document.querySelector('.stApp');
+                if (app) {{
+                    app.classList.remove('light-mode', 'modo-denso');
+                    app.classList.add('{class_str}');
+                }}
+            }} catch(e) {{}}
+        }})();
+        </script>""", height=0)
 
     # ── DADOS ─────────────────────────────────────────────────────────────────
     df          = load_all(cvm)
