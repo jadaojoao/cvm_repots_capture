@@ -54,42 +54,93 @@ streamlit run dashboard/app.py --server.port 8502
 
 1. **Selecionar empresa** — use a barra lateral (busca por nome ou código CVM).
 2. **Comparar empresas** — na aba **Visão Geral**, selecione uma segunda empresa
-   no seletor **"Comparar com:"** para ver gráficos sobrepostos de Receita, Lucro,
-   Margem Líquida e ROE.
-3. **Mercado** — veja heatmap setorial de margem/ROE por ano.
-4. **Exportar** — baixe os dados em Excel.
+   no seletor **"Comparar com:"** para ver 4 gráficos sobrepostos:
+   Receita Líquida · Lucro Líquido · Margem Líquida · ROE.
+3. **Valuation** — abaixo dos KPI cards, veja Preço, Market Cap, P/L, P/VP,
+   EV/EBITDA e Div. Yield via Yahoo Finance (atualizado a cada 15 min).
+4. **Mercado** — heatmap setorial de Margem/ROE por ano para todas as empresas.
+5. **Exportar** — baixe os dados em Excel.
 
 ---
 
-## 5. Atualizar dados (scraper)
+## 5. Atualizar dados — opção A: botão no dashboard
+
+Na barra lateral do dashboard, clique em **"🔄 Atualizar Dados"**.
+O scraper rodará para todas as 69 empresas do banco (ano atual e anterior).
+Aguarde o spinner — pode levar alguns minutos.
+
+---
+
+## 6. Atualizar dados — opção B: linha de comando
+
+**Todas as empresas do banco (recomendado):**
 ```bash
-python main.py --companies PETROBRAS VALE --start_year 2022 --end_year 2025 --type consolidated
+python scripts/atualizar_todos.py
 ```
-Omita `--companies` para rodar todas as empresas configuradas no scraper.
+
+**Com anos específicos:**
+```bash
+python scripts/atualizar_todos.py --anos 2024 2025
+```
+
+**Dry-run (lista empresas sem baixar):**
+```bash
+python scripts/atualizar_todos.py --dry-run
+```
+
+**Via PowerShell (com log automático):**
+```powershell
+.\scripts\atualizar_dados.ps1
+.\scripts\atualizar_dados.ps1 -DryRun
+.\scripts\atualizar_dados.ps1 -Anos 2024,2025
+```
+
+Logs salvos em: `logs/atualizar_YYYYMMDD_HHMMSS.log`
 
 ---
 
-## 6. Adicionar nova empresa ao mapa de tickers (Yahoo Finance)
+## 7. Atualização automática (Task Scheduler)
 
-Abra `dashboard/app.py`, localize o bloco `TICKER_MAP` (~linha 167) e adicione:
-```python
-TICKER_MAP: dict[int, str] = {
-    ...
-    99999: 'NOVO3.SA',   # NOME DA EMPRESA
-}
+Uma tarefa chamada **`CVM_Atualizar_Dados`** já está registrada no Windows Task Scheduler.
+Ela roda automaticamente **todo domingo às 07h**, mesmo que o PC estivesse desligado
+no horário (opção StartWhenAvailable).
+
+Para verificar / editar:
+```powershell
+# Ver status
+Get-ScheduledTask -TaskName CVM_Atualizar_Dados
+
+# Próxima execução
+(Get-ScheduledTaskInfo -TaskName CVM_Atualizar_Dados).NextRunTime
+
+# Rodar agora manualmente
+Start-ScheduledTask -TaskName CVM_Atualizar_Dados
+
+# Remover tarefa
+Unregister-ScheduledTask -TaskName CVM_Atualizar_Dados -Confirm:$false
 ```
-- `99999` = código CVM da empresa (visível no badge "CVM XXXXX" no cabeçalho)
+
+---
+
+## 8. Adicionar nova empresa ao mapa de tickers (Yahoo Finance)
+
+Abra `dashboard/app.py`, localize o bloco `TICKER_MAP` (~linha 170) e adicione:
+```python
+99999: 'NOVO3.SA',   # NOME DA EMPRESA
+```
+- `99999` = código CVM (visível no badge "CVM XXXXX" no cabeçalho do dashboard)
 - `'NOVO3.SA'` = ticker B3 conforme listado no Yahoo Finance
 
 ---
 
-## 7. Problemas comuns
+## 9. Problemas comuns
 
 | Sintoma | Solução |
 |---|---|
 | `ModuleNotFoundError` | Confirme que o venv está ativo e rode `pip install -r requirements.txt` |
-| Dashboard mostra banco vazio | Execute o scraper (passo 5) antes de subir o dashboard |
+| Dashboard mostra banco vazio | Execute o scraper (passo 6) antes de subir o dashboard |
 | Dados de mercado ausentes | Verifique conexão com internet — yfinance busca em tempo real |
 | Encoding error no Windows | `set PYTHONIOENCODING=utf-8` antes de executar scripts Python |
 | Streamlit não recarrega ao salvar | Clique **"Always rerun"** na barra amarela no topo da página |
 | `Permission denied` no PowerShell | Execute: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| Botão "Atualizar" sem resposta | Verifique que o venv tem todas as dependências; veja `logs/` para detalhes |
