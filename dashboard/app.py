@@ -13,6 +13,9 @@ import sqlite3
 import io
 import os
 import re
+import subprocess
+import sys
+from datetime import datetime
 try:
     import yfinance as yf
     _YF_AVAILABLE = True
@@ -1041,6 +1044,28 @@ def main():
         st.markdown("---")
         dark_mode = st.toggle("🌙 Dark Mode", value=True, key="dark_mode")
         dark_dense = st.checkbox("Modo Denso", value=False, key="dense_mode")
+        st.markdown("---")
+
+        # ── Botão de atualização de dados ────────────────────────────
+        _script_path = os.path.join(ROOT, '..', 'scripts', 'atualizar_todos.py')
+        _ano_atual   = datetime.now().year
+        if st.button("🔄 Atualizar Dados", help="Roda o scraper para todas as empresas (ano atual e anterior)", use_container_width=True):
+            with st.spinner("Baixando dados da CVM... (pode demorar alguns minutos)"):
+                try:
+                    result = subprocess.run(
+                        [sys.executable, _script_path,
+                         "--anos", str(_ano_atual - 1), str(_ano_atual)],
+                        capture_output=True, text=True, encoding='utf-8',
+                        cwd=os.path.join(ROOT, '..'),
+                    )
+                    if result.returncode == 0:
+                        st.success("✅ Dados atualizados! Recarregue a página.")
+                    else:
+                        st.error(f"Erro ao atualizar:\n{result.stderr[-500:]}")
+                except Exception as _exc:
+                    st.error(f"Falha ao executar scraper: {_exc}")
+        # ─────────────────────────────────────────────────────────────
+
         st.markdown("---")
         st.markdown(
             '<p style="font-size:0.7rem;color:#525257;text-align:center;">'
