@@ -13,6 +13,74 @@
 
 ## Registro de Sessões
 
+### Sessão 11 — 2026-03-26 (Agente: Claude Sonnet 4.6)
+
+**O que foi feito:**
+
+**🌐 Aba Mercado — Heatmap setorial funcionando:**
+- Implementado `load_heatmap_data(year)` + `chart_sector_heatmap()` em `dashboard/app.py`
+- Ranking horizontal de todas as empresas por Margem Líquida, ROE, Margem Bruta e ROA
+- 61 empresas com dados válidos de ML em 2024; 68 empresas mapeadas por setor
+- Seletor de Ano (dentro de `with mc1:`) e Métrica (dentro de `with mc2:`) lado a lado
+- Empresa selecionada destacada com borda verde no gráfico
+- Separação visual por setor via `fig.add_hline()` + anotações de setor no eixo Y
+- Colorscale vermelho→âmbar→roxo→azul→verde (piores→melhores)
+
+**🐛 Bug crítico corrigido — numpy int64 em params SQLite:**
+- Sintoma: `load_heatmap_data(2024)` retornava DataFrame vazio (0×0) com `@st.cache_data`
+- Diagnóstico: `st.selectbox` retorna itens do tipo numpy `int64` (vindo do `.groupby()` do pandas).
+  SQLite/`pd.read_sql` com `params=(int64, str)` falha silenciosamente → 0 rows.
+  Confirmado via debug: `total=246037 year_only=80263 both=18664 type=int64`
+- Fix: `_year = int(year)` antes de usar como param — força Python `int` nativo
+- **Regra geral**: sempre castear `int()` valores de `st.selectbox` antes de usar em queries parametrizadas
+
+**🐛 Bug fix — TypeError 'margin' duplicado no chart:**
+- `LAYOUT` dict tem `margin=dict(l=10,r=10,t=42,b=10)` (linha 394 de `app.py`)
+- `chart_sector_heatmap` fazia `fig.update_layout(**lo(), margin=dict(l=160,...))` → `margin` duplicado
+- Fix: `**lo('margin')` — `lo()` já suporta args extras para exclusão além do set padrão
+
+**🔧 UI/UX — IOTA-inspired refinements (sessão anterior, já commitados):**
+- Glassmorphism em KPI cards e company header (`backdrop-filter: blur()`)
+- Dark/Light mode toggle no sidebar (JS via `st_components.html`)
+- Tipografia dual-font: Nunito Sans (headlines) + Inter (body) via Google Fonts
+- Badges pill-shaped (`border-radius: 400px`)
+- State-layer nos tabs (`::after` com `opacity: 0→0.06` no hover)
+- Animações: `dot-glow` no brand dot, `pulse-subtle` no spinner
+- Scrollbar 6px→4px; sombras com elevação progressiva `--shadow-sm/md/lg`
+
+**📦 Expansão da base de dados (68 empresas):**
+- Rodado scraper em batch para 30 novas empresas (JBS, BB, Santander, BTG, Magazine Luiza, Hapvida, Rede D'Or etc.)
+- DB expandido de ~39 → 68 empresas com dados 2022-2025
+
+**Git:**
+- Commit `d709d48`: `feat: Mercado tab — ranking setorial com 68 empresas e fix int64 params`
+- Branch: `codex/spawn-subagent-to-explore-repo`
+- Push concluído para `origin`
+
+**Bugs conhecidos RESOLVIDOS nesta sessão:**
+- `load_heatmap_data` retornando empty por `numpy.int64` em SQLite params
+- `TypeError: update_layout() got multiple values for keyword argument 'margin'`
+- Layout de selectboxes ANO/MÉTRICA fora das colunas Streamlit
+
+**Padrões técnicos importantes descobertos:**
+1. **numpy int64 + sqlite3 params**: `st.selectbox` com opções vindas de `df.groupby()` ou `pd.read_sql` retorna `numpy.int64`, não Python `int`. Sempre fazer `int(year)` antes de usar como parâmetro SQL.
+2. **`lo()` helper extensível**: `lo('margin')` exclui `margin` além do set padrão `{xaxis, yaxis, legend}`. Usar sempre que `update_layout` tiver um kwarg que também está no `LAYOUT` global.
+3. **Streamlit auto-reload**: precisa clicar "Always rerun" na primeira vez para habilitar hot-reload ao salvar arquivos.
+
+**Caminho atualizado:**
+```
+✅ Sessão 7  → Waterfall seletor + FCL
+✅ Sessão 8  → Expansão para 19→39 empresas
+✅ Sessão 9  → Dashboard v6 (Dark/Linear theme, sidebar JS, performance)
+✅ Sessão 10 → Bootstrap Windows + docs
+✅ Sessão 11 → IOTA UI refinement + aba Mercado (heatmap) funcionando com 68 empresas
+→  Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA com preços de mercado)
+→  Sessão 13 → Comparação multi-empresa overlay
+→  Sessão 14 → Automação scraper (CronJob)
+```
+
+---
+
 ### Sessão 6 — 2026-03-26 (Agente: Claude Sonnet 4.6)
 
 **O que foi feito:**
