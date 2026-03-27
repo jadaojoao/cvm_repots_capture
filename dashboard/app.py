@@ -244,6 +244,45 @@ def load_all(cd_cvm: int) -> pd.DataFrame:
     return df
 
 @st.cache_data(ttl=300)
+def load_heatmap_data(year: int) -> pd.DataFrame:
+    """Carrega KPIs de TODAS as empresas num único query para o heatmap setorial."""
+    _year = int(year)   # garante Python int — numpy int64 quebra sqlite3 params
+    conn = sqlite3.connect(DB_PATH)
+    df = pd.read_sql(
+        "SELECT CD_CVM, COMPANY_NAME, STANDARD_NAME, VL_CONTA "
+        "FROM financial_reports "
+        "WHERE REPORT_YEAR=? AND PERIOD_LABEL=?",
+        conn, params=(_year, str(_year))
+    )
+    conn.close()
+    if df.empty:
+        return pd.DataFrame()
+
+    rows = []
+    for cd, grp in df.groupby('CD_CVM'):
+        name = grp['COMPANY_NAME'].iloc[0]
+        def _get_val(names, _df=grp):
+            for n in names:
+                r = _df.loc[_df['STANDARD_NAME'] == n, 'VL_CONTA']
+                if not r.empty:
+                    s = r.sum()
+                    return float(s) if s != 0 else None
+            return None
+        rec = _get_val(RECEITA); luc = _get_val(LUCRO); rb = _get_val(RES_BRUT)
+        ac  = _get_val(AT_CIRC); anc = _get_val(AT_NCIRC); pl_v = _get_val(PL)
+        at  = ((ac or 0) + (anc or 0)) or None
+        rows.append({
+            'CD_CVM':   int(cd),
+            'Empresa':  name,
+            'ML':       safe_div(luc, rec),
+            'MB':       safe_div(rb,  rec),
+            'ROE':      safe_div(luc, pl_v),
+            'ROA':      safe_div(luc, at),
+            'Receita':  rec,
+        })
+    return pd.DataFrame(rows)
+
+@st.cache_data(ttl=300)
 def load_peer_df(sector: str, sector_map_items: tuple) -> pd.DataFrame:
     """Carrega dados dos peers num único query parametrizado."""
     sm = dict(sector_map_items)
@@ -626,6 +665,120 @@ def chart_peer_bars(company_val, sector_avg, label, color, h=240):
     )
     return fig
 
+def chart_sector_heatmap(hdf: pd.DataFrame, sector_map: dict, metric: str,
+                         metric_label: str, selected: str, h: int = 700) -> go.Figure:
+    """Heatmap setorial: empresas × métrica, colorido por quartil (verde=bom, vermelho=ruim)."""
+    # Adicionar setor
+    hdf = hdf.copy()
+    hdf['Setor'] = hdf['CD_CVM'].map(sector_map).fillna('Outros')
+
+    # Filtrar linhas com dado válido e ordenar por setor → valor
+    valid = hdf.dropna(subset=[metric]).copy()
+    valid = valid.sort_values(['Setor', metric], ascending=[True, False])
+
+    if valid.empty:
+        return None
+
+    # Abreviar nomes longos
+    def _abbr(name):
+        words = name.split()
+        return ' '.join(words[:3]) if len(words) > 3 else name
+
+    valid['EmpresaLabel'] = valid['Empresa'].apply(_abbr)
+
+    companies  = valid['EmpresaLabel'].tolist()
+    values     = valid[metric].tolist()
+    sectors    = valid['Setor'].tolist()
+    full_names = valid['Empresa'].tolist()
+
+    # Texto nas células: formato %
+    text = [f'{v*100:.1f}%' if v is not None else '—' for v in values]
+
+    # Hover customizado
+    hover = [
+        f'<b>{full_names[i]}</b><br>'
+        f'{metric_label}: {values[i]*100:.1f}%<br>'
+        f'Setor: {sectors[i]}'
+        for i in range(len(companies))
+    ]
+
+    # Reshape para heatmap (1 coluna por métrica, N linhas por empresa)
+    # Aqui fazemos 1 coluna só — mas a figura fica mais rica como bar horizontal
+    fig = go.Figure(go.Bar(
+        x=values,
+        y=companies,
+        orientation='h',
+        text=text,
+        textposition='auto',
+        textfont=dict(size=9, color='#E8E8E8'),
+        hovertext=hover,
+        hoverinfo='text',
+        marker=dict(
+            color=values,
+            colorscale=[
+                [0.0,  '#EF4444'],   # vermelho — pior
+                [0.35, '#F59E0B'],   # âmbar
+                [0.55, '#8B5CF6'],   # roxo — neutro
+                [0.75, '#3B82F6'],   # azul
+                [1.0,  '#00BF7A'],   # verde — melhor
+            ],
+            showscale=True,
+            colorbar=dict(
+                title=dict(text=metric_label, font=dict(color='#8A8A90', size=10)),
+                tickformat='.0%',
+                tickfont=dict(color='#8A8A90', size=9),
+                len=0.8,
+            ),
+            line=dict(width=0),
+        ),
+    ))
+
+    # Linhas de separação por setor
+    sector_breaks = []
+    for i in range(1, len(sectors)):
+        if sectors[i] != sectors[i-1]:
+            sector_breaks.append(i - 0.5)
+
+    for brk in sector_breaks:
+        fig.add_hline(y=brk, line_color='#2A2A2D', line_width=1, line_dash='dot')
+
+    # Anotações de setor no lado esquerdo (uma por grupo)
+    annotations = []
+    seen = {}
+    for i, s in enumerate(sectors):
+        if s not in seen:
+            seen[s] = i
+    for s, i in seen.items():
+        annotations.append(dict(
+            x=-0.01, y=companies[i], text=s[:20],
+            xref='paper', yref='y',
+            showarrow=False, xanchor='right',
+            font=dict(size=8, color='#525257'),
+        ))
+
+    # Destacar empresa selecionada
+    sel_abbr = _abbr(selected)
+    if sel_abbr in companies:
+        idx = companies.index(sel_abbr)
+        fig.add_shape(
+            type='rect',
+            x0=min(0, min(v for v in values if v)), x1=max(v for v in values if v) * 1.05,
+            y0=idx - 0.4, y1=idx + 0.4,
+            line=dict(color='#00BF7A', width=1.5),
+            fillcolor='rgba(0,191,122,0.05)',
+        )
+
+    fig.update_layout(
+        **lo('margin'),
+        height=max(h, len(companies) * 22 + 60),
+        annotations=annotations,
+        xaxis=dict(tickformat='.0%', color='#525257', showgrid=True, gridcolor='#2A2A2D'),
+        yaxis=dict(color='#8A8A90', showgrid=False, autorange='reversed', tickfont=dict(size=9)),
+        margin=dict(l=160, r=20, t=40, b=30),
+        title=dict(text=f'Ranking de {metric_label} — Todas as Empresas', font=dict(size=13)),
+    )
+    return fig
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXCEL EXPORT
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -805,9 +958,9 @@ def main():
     )
 
     # ── TABS ─────────────────────────────────────────────────────────────────
-    tab_visao, tab_demo, tab_peers, tab_export = st.tabs([
+    tab_visao, tab_demo, tab_peers, tab_market, tab_export = st.tabs([
         "📈  Visão Geral", "📋  Demonstrações",
-        "🏢  Peers", "⬇  Exportar",
+        "🏢  Peers", "🌐  Mercado", "⬇  Exportar",
     ])
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -1075,7 +1228,57 @@ def main():
                     st.plotly_chart(fig, use_container_width=True, key='peer_scatter')
 
     # ─────────────────────────────────────────────────────────────────────────
-    # TAB 4 — EXPORTAR
+    # TAB 4 — MERCADO (Heatmap setorial)
+    # ─────────────────────────────────────────────────────────────────────────
+    with tab_market:
+        st.markdown('<div class="sec">Ranking de Mercado — Todas as Empresas</div>',
+                    unsafe_allow_html=True)
+
+        mc1, mc2 = st.columns([1, 2])
+        with mc1:
+            _hm_opts = list(reversed(list(years)))
+            hm_year = st.selectbox(
+                "Ano", options=_hm_opts,
+                index=min(1, len(_hm_opts) - 1),
+                key='hm_year',
+            )
+        with mc2:
+            _hm_metric_sel = st.selectbox(
+                "Métrica",
+                options=[
+                    ('Margem Líquida', 'ML'),
+                    ('ROE',            'ROE'),
+                    ('Margem Bruta',   'MB'),
+                    ('ROA',            'ROA'),
+                ],
+                format_func=lambda x: x[0],
+                key='hm_metric',
+            )
+            hm_metric_label, hm_metric = _hm_metric_sel
+
+        hdf = load_heatmap_data(hm_year)
+        if hdf.empty:
+            st.info(f"Sem dados para {hm_year}.")
+        else:
+            # Juntar sector_map (usa mesma fonte da aba Peers)
+            n_total   = len(hdf)
+            n_valid   = hdf[hm_metric].notna().sum()
+            n_sectors = hdf['CD_CVM'].map(sector_map).notna().sum()
+
+            mc_a, mc_b, mc_c = st.columns(3)
+            mc_a.metric("Empresas no ranking", n_valid)
+            mc_b.metric("Com setor mapeado",   n_sectors)
+            mc_c.metric("Ano de referência",    hm_year)
+
+            fig = chart_sector_heatmap(hdf, sector_map, hm_metric,
+                                       hm_metric_label, sel)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True, key='heatmap_main')
+            else:
+                st.warning("Dados insuficientes para gerar o ranking.")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # TAB 5 — EXPORTAR
     # ─────────────────────────────────────────────────────────────────────────
     with tab_export:
         st.markdown('<div class="sec">Exportação de Dados</div>',
