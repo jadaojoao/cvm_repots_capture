@@ -13,6 +13,11 @@ import sqlite3
 import io
 import os
 import re
+try:
+    import yfinance as yf
+    _YF_AVAILABLE = True
+except ImportError:
+    _YF_AVAILABLE = False
 
 ROOT    = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT, '..', 'data', 'db', 'cvm_financials.db')
@@ -157,6 +162,73 @@ FCI       = ['Caixa Líquido Atividades de Investimento']
 FCF_ACTIV = ['Caixa Líquido Atividades de Financiamento']
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# MAPEAMENTO CVM → TICKER B3 (Yahoo Finance)
+# ═══════════════════════════════════════════════════════════════════════════════
+TICKER_MAP: dict[int, str] = {
+    9512:  'PETR4.SA',   # PETROBRAS
+    4170:  'VALE3.SA',   # VALE
+    19348: 'ITUB4.SA',   # ITAÚ UNIBANCO
+    906:   'BBDC4.SA',   # BANCO BRADESCO
+    1023:  'BBAS3.SA',   # BANCO DO BRASIL
+    23264: 'ABEV3.SA',   # AMBEV
+    5410:  'WEGE3.SA',   # WEG
+    20087: 'EMBR3.SA',   # EMBRAER
+    21610: 'B3SA3.SA',   # B3
+    3980:  'GGBR4.SA',   # GERDAU
+    24783: 'NTCO3.SA',   # NATURA
+    24813: 'RENT3.SA',   # LOCALIZA
+    13986: 'SUZB3.SA',   # SUZANO PAPEL
+    8133:  'LREN3.SA',   # RENNER
+    19992: 'TOTS3.SA',   # TOTVS
+    2437:  'ELET3.SA',   # ELETROBRAS
+    17671: 'VIVT3.SA',   # TELEFÔNICA BRASIL
+    21431: 'HYPE3.SA',   # HYPERA PHARMA
+    12653: 'KLBN11.SA',  # KLABIN
+    20788: 'MRFG3.SA',   # MARFRIG
+    20575: 'JBSS3.SA',   # JBS
+    22470: 'MGLU3.SA',   # MAGAZINE LUIZA
+    24392: 'HAPV3.SA',   # HAPVIDA
+    24821: 'RDOR3.SA',   # REDE D'OR
+    20532: 'SANB11.SA',  # BANCO SANTANDER BRASIL
+    5258:  'RADL3.SA',   # DROGASIL
+    14443: 'SBSP3.SA',   # SABESP
+    21199: 'BPAN4.SA',   # BANCO PAN
+    19836: 'CSAN3.SA',   # COSAN
+    18660: 'CPFE3.SA',   # CPFL ENERGIA
+    25585: 'CMIN3.SA',   # CSN MINERAÇÃO
+    14460: 'CYRE3.SA',   # CYRELA
+    21016: 'YDUQ3.SA',   # ESTÁCIO (YDUQS)
+    21881: 'FLRY3.SA',   # FLEURY
+    25186: 'GMAT3.SA',   # GRUPO MATEUS
+    24180: 'IRBR3.SA',   # IRB BRASIL RESSEGUROS
+    17973: 'COGN3.SA',   # KROTON (COGNA)
+    8451:  'POMO4.SA',   # MARCOPOLO
+    20931: 'BEEF3.SA',   # MINERVA
+    20915: 'MRVE3.SA',   # MRV ENGENHARIA
+    20982: 'MULT3.SA',   # MULTIPLAN
+    22187: 'PRIO3.SA',   # PETRO RIO
+    14109: 'RAPT4.SA',   # RANDON
+    8133:  'LREN3.SA',   # RENNER (já mapeado)
+    20745: 'SLCE3.SA',   # SLC AGRÍCOLA
+    13986: 'SUZB3.SA',   # SUZANO (já mapeado)
+    20516: 'SMTO3.SA',   # SÃO MARTINHO
+    17329: 'TBLE3.SA',   # TRACTEBEL ENERGIA
+    14320: 'USIM5.SA',   # USIMINAS
+    4170:  'VALE3.SA',   # VALE (já mapeado)
+    24805: 'VIVA3.SA',   # VIVARA
+    21490: 'ALUP11.SA',  # ALUPAR
+    22357: 'ALOS3.SA',   # ALLOS
+    10456: 'ALPA4.SA',   # ALPARGATAS
+    22616: 'BPAC11.SA',  # BTG PACTUAL
+    25291: 'BRAV3.SA',   # BRAVA ENERGIA
+    25283: 'AERI3.SA',   # AERIS
+    14460: 'CYRE3.SA',   # CYRELA (já mapeado)
+    21032: 'ALGT3.SA',   # ALGAR TELECOM
+    17450: 'RAIL3.SA',   # ALL - RUMO LOGÍSTICA
+    24058: 'ALLY3.SA',   # ALLIANÇA SAÚDE
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # HELPERS
 # ═══════════════════════════════════════════════════════════════════════════════
 def val(df, names, year, period=None):
@@ -281,6 +353,28 @@ def load_heatmap_data(year: int) -> pd.DataFrame:
             'Receita':  rec,
         })
     return pd.DataFrame(rows)
+
+@st.cache_data(ttl=900, show_spinner=False)
+def load_market_data(ticker: str) -> dict:
+    """Busca dados de mercado via yfinance. Cache de 15 min. Retorna {} se falhar."""
+    if not _YF_AVAILABLE or not ticker:
+        return {}
+    try:
+        info = yf.Ticker(ticker).info
+        price   = info.get('currentPrice') or info.get('regularMarketPrice')
+        mktcap  = info.get('marketCap')
+        pe      = info.get('trailingPE')
+        pb      = info.get('priceToBook')
+        ev_ebit = info.get('enterpriseToEbitda')
+        dy      = info.get('dividendYield')
+        ev      = info.get('enterpriseValue')
+        curr    = info.get('currency', 'BRL')
+        if price is None:
+            return {}
+        return dict(price=price, mktcap=mktcap, pe=pe, pb=pb,
+                    ev_ebitda=ev_ebit, dy=dy, ev=ev, currency=curr, ticker=ticker)
+    except Exception:
+        return {}
 
 @st.cache_data(ttl=300)
 def load_peer_df(sector: str, sector_map_items: tuple) -> pd.DataFrame:
@@ -1015,6 +1109,57 @@ def main():
             with col:
                 st.plotly_chart(sparkline(data, color), use_container_width=True,
                                 config={'staticPlot': True}, key=key)
+
+        # ── Valuation de Mercado ──────────────────────────────────────────────
+        _ticker = TICKER_MAP.get(int(cvm))
+        if _ticker and _YF_AVAILABLE:
+            _mkt = load_market_data(_ticker)
+        else:
+            _mkt = {}
+
+        st.markdown('<div class="sec">Valuation de Mercado</div>',
+                    unsafe_allow_html=True)
+        if _mkt:
+            def _fmt_brl_mktcap(v):
+                if v is None: return '—'
+                if v >= 1e12: return f'R$ {v/1e12:.2f} tri'
+                if v >= 1e9:  return f'R$ {v/1e9:.1f} bi'
+                if v >= 1e6:  return f'R$ {v/1e6:.0f} mi'
+                return f'R$ {v:,.0f}'
+
+            mv1, mv2, mv3, mv4, mv5, mv6 = st.columns(6)
+            mv1.metric("Preço",
+                       f"R$ {_mkt['price']:.2f}",
+                       help=f"Cotação atual ({_ticker})")
+            mv2.metric("Market Cap",
+                       _fmt_brl_mktcap(_mkt.get('mktcap')),
+                       help="Valor de mercado total")
+            mv3.metric("P/L",
+                       f"{_mkt['pe']:.1f}x" if _mkt.get('pe') else '—',
+                       help="Preço / Lucro por ação (trailing 12m)")
+            mv4.metric("P/VP",
+                       f"{_mkt['pb']:.2f}x" if _mkt.get('pb') else '—',
+                       help="Preço / Valor Patrimonial")
+            mv5.metric("EV/EBITDA",
+                       f"{_mkt['ev_ebitda']:.1f}x" if _mkt.get('ev_ebitda') else '—',
+                       help="Enterprise Value / EBITDA (trailing 12m)")
+            mv6.metric("Div. Yield",
+                       f"{_mkt['dy']:.1f}%" if _mkt.get('dy') else '—',
+                       help="Dividend Yield (12m)")
+            st.caption(
+                f"📡 Fonte: Yahoo Finance · Ticker: `{_ticker}` · "
+                f"Atualizado a cada 15 min · Valores em {_mkt.get('currency', 'BRL')}"
+            )
+        elif not _ticker:
+            st.caption(
+                f"ℹ️ Ticker de mercado não mapeado para CVM {cvm}. "
+                "Adicione em `TICKER_MAP` no topo de `app.py`."
+            )
+        else:
+            st.caption(
+                f"⚠️ Não foi possível obter dados de mercado para `{_ticker}` agora. "
+                "Verifique a conexão ou tente novamente."
+            )
 
         # Gráficos trimestrais
         st.markdown('<div class="sec">Evolução Trimestral</div>',

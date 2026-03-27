@@ -74,10 +74,49 @@
 ✅ Sessão 9  → Dashboard v6 (Dark/Linear theme, sidebar JS, performance)
 ✅ Sessão 10 → Bootstrap Windows + docs
 ✅ Sessão 11 → IOTA UI refinement + aba Mercado (heatmap) funcionando com 68 empresas
-→  Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA com preços de mercado)
+✅ Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA, P/VP, DY) para 58 tickers B3
 →  Sessão 13 → Comparação multi-empresa overlay
 →  Sessão 14 → Automação scraper (CronJob)
 ```
+
+---
+
+### Sessão 12 — 2026-03-26 (Agente: Claude Sonnet 4.6)
+
+**O que foi feito:**
+
+**📈 Valuation de Mercado via yfinance — aba Visão Geral:**
+- Adicionado import condicional `yfinance` com flag `_YF_AVAILABLE` (graceful fallback)
+- Adicionado `TICKER_MAP: dict[int, str]` com 58 tickers B3 mapeados por código CVM
+  - Cobre grandes e médias capitalizações: PETR4, VALE3, ITUB4, BBDC4, WEGE3, RENT3, B3SA3 etc.
+- Adicionado `load_market_data(ticker: str) -> dict` com `@st.cache_data(ttl=900)` (15 min)
+  - Busca: preço, market cap, P/L (trailingPE), P/VP (priceToBook), EV/EBITDA, Dividend Yield, EV
+  - Retorna `{}` sem exceção caso yfinance falhe (ex: ticker inválido, sem internet)
+- Adicionado bloco "VALUATION DE MERCADO" em `tab_visao` (entre sparklines e evolução trimestral)
+  - 6 colunas: Preço · Market Cap · P/L · P/VP · EV/EBITDA · Div. Yield
+  - Caption com fonte, ticker e frequência de atualização
+  - Fallback elegante: "Ticker não mapeado" ou "Não foi possível obter dados"
+
+**🐛 Bug corrigido — Div. Yield 867% (yfinance format):**
+- `dividendYield` no yfinance já vem em % (ex: `8.67` = 8.67%), NÃO como decimal (0.0867)
+- Código inicial tinha `_mkt['dy']*100` → mostrava 867.0% para VALE
+- Fix: usar direto `f"{_mkt['dy']:.1f}%"` sem multiplicar por 100
+
+**✅ Validado para:**
+- VALE3.SA: R$ 78.91 · R$ 336.8 bi · P/L 27.4x · P/VP 1.83x · EV/EBITDA 5.4x · DY 8.7%
+- PETR4.SA: R$ 48.02 · R$ 618.9 bi · P/L 5.9x · P/VP 1.49x · EV/EBITDA 4.6x · DY 8.2%
+
+**📦 Arquivo `requirements.txt`:**
+- Adicionado `yfinance>=0.2`
+
+**Git:**
+- Commit pendente (a ser feito após atualização da MEMORIADASIA)
+
+**Padrões técnicos importantes:**
+1. **yfinance `dividendYield` format**: retorna valor já em % (ex: `8.67`), NÃO decimal. Não multiplicar por 100.
+2. **`_YF_AVAILABLE` guard**: permite que o dashboard funcione mesmo sem yfinance instalado — import condicional com `try/except ImportError`.
+3. **`TICKER_MAP` extensão**: para adicionar novas empresas, basta inserir `{cvm_code: 'TICK3.SA'}` no dict no topo de `app.py`.
+4. **Cache 15 min**: `@st.cache_data(ttl=900)` para dados de mercado — balance entre frescor e performance.
 
 ---
 
