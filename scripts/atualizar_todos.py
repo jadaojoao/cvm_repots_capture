@@ -7,7 +7,7 @@ Uso:
     python scripts/atualizar_todos.py --anos 2024 2025
     python scripts/atualizar_todos.py --dry-run
 """
-import sys, os, sqlite3, argparse, logging
+import sys, os, argparse, logging
 from datetime import datetime
 from pathlib import Path
 
@@ -19,10 +19,12 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from dashboard.db import get_engine
+from sqlalchemy import text
+
 # ==============================================================================
 # USER CONFIGURATION
 # ==============================================================================
-DB_PATH      = ROOT / "data" / "db" / "cvm_financials.db"
 LOG_DIR      = ROOT / "logs"
 BATCH_SIZE   = 10        # Empresas por lote (pausa entre lotes para não sobrecarregar CVM)
 DEFAULT_ANOS = [datetime.now().year - 1, datetime.now().year]
@@ -38,12 +40,12 @@ log = logging.getLogger(__name__)
 
 def get_all_companies() -> list[tuple[int, str]]:
     """Retorna lista de (CD_CVM, COMPANY_NAME) distintos do banco."""
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        "SELECT DISTINCT CD_CVM, COMPANY_NAME FROM financial_reports ORDER BY CD_CVM"
-    ).fetchall()
-    conn.close()
-    return rows
+    engine = get_engine()
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT DISTINCT CD_CVM, COMPANY_NAME FROM financial_reports ORDER BY CD_CVM")
+        ).fetchall()
+    return [(int(r[0]), r[1]) for r in rows]
 
 
 def run_update(anos: list[int], dry_run: bool = False) -> None:
