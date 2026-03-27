@@ -75,9 +75,50 @@
 ✅ Sessão 10 → Bootstrap Windows + docs
 ✅ Sessão 11 → IOTA UI refinement + aba Mercado (heatmap) funcionando com 68 empresas
 ✅ Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA, P/VP, DY) para 58 tickers B3
-→  Sessão 13 → Comparação multi-empresa overlay
-→  Sessão 14 → Automação scraper (CronJob)
+✅ Sessão 13 → Comparação multi-empresa overlay + COMO_RODAR.md
+→  Sessão 14 → Automação scraper (CronJob/scheduled-tasks)
 ```
+
+---
+
+### Sessão 13 — 2026-03-26 (Agente: Claude Sonnet 4.6)
+
+**O que foi feito:**
+
+**🔀 Comparação multi-empresa overlay — aba Visão Geral:**
+- Nova função `chart_line_compare(series, title, unit, h)` (inserida após linha 572):
+  - `series = {'EMPRESA A': {2022: val, ...}, 'EMPRESA B': {...}}`
+  - `unit='%'` multiplica por 100; `unit='R$ mi'` divide por 1000 (DB em R$ mil)
+  - Empresa principal (idx=0): verde + fill `tozeroy`; comparação: âmbar, linha simples
+  - `connectgaps=False` — gaps corretos quando anos não coincidem
+  - Legenda horizontal acima do gráfico com `lo()` (exclui xaxis/yaxis/legend do LAYOUT global)
+- Seletor **"Comparar com:"** no topo de `tab_visao` (antes de `k_prev`):
+  - Popula com todas as empresas exceto a principal (`if int(r['CD_CVM']) != cvm`)
+  - Padrão "— Nenhuma —" (nenhum overlay renderizado)
+  - `_cmp_df`, `_cmp_years`, `_cmp_kpis` computados via `precompute_kpis()` (já cacheado)
+- Seção **"COMPARAÇÃO: X vs Y"** após "Indicadores Anuais" (antes de "Composição Patrimonial"):
+  - 4 gráficos em 2 colunas: Receita Líq. · Lucro Líq. · Margem Líq. % · ROE %
+  - Keys únicas: `cmp_rec`, `cmp_luc`, `cmp_ml`, `cmp_roe`
+  - Bloco suprimido quando "— Nenhuma —" (`if _cmp_cvm is not None and _cmp_kpis`)
+
+**📄 COMO_RODAR.md — tutorial criado na raiz do projeto:**
+- Ativar venv (PowerShell / CMD / Linux)
+- `pip install -r requirements.txt`
+- `streamlit run dashboard/app.py` → localhost:8501
+- Atualizar dados com o scraper
+- Adicionar nova empresa ao `TICKER_MAP`
+- Tabela de problemas comuns (encoding, sempre rerun, venv, etc.)
+
+**✅ Validado:** PETROBRAS vs VALE — 4 gráficos overlay renderizados corretamente
+
+**Git:**
+- Commit `b1d82f2`: `feat: Sessão 13 — Comparação multi-empresa overlay + tutorial COMO_RODAR.md`
+- Push concluído para `origin/codex/spawn-subagent-to-explore-repo`
+
+**Padrões técnicos:**
+1. **`chart_line_compare` unit**: `'%'` multiplica ×100; `'R$ mi'` divide ÷1000 (DB em R$ mil, não R$ mi)
+2. **`lo()` sem args**: já exclui `xaxis`, `yaxis`, `legend` — suficiente para `chart_line_compare`
+3. **`companies` no escopo**: carregado na linha 954 antes do sidebar — acessível em todo `main()`
 
 ---
 
