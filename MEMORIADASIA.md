@@ -77,8 +77,29 @@
 ✅ Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA, P/VP, DY) para 58 tickers B3
 ✅ Sessão 13 → Comparação multi-empresa overlay + COMO_RODAR.md
 ✅ Sessão 14 → Automação scraper (botão sidebar + script + Task Scheduler)
-→  Sessão 15 → Deploy cloud (SQLite → PostgreSQL + Streamlit Cloud) ou testes pytest
+✅ Sessão 15 → Testes pytest para utils.py (23 testes, 100% passando)
+→  Sessão 16 → Testes para scraper.py ou deploy cloud
 ```
+
+---
+
+### Sessão 15 — 2026-03-27 (Agente: Claude Sonnet 4.6)
+
+**O que foi feito:**
+
+**🧪 `tests/test_utils.py` — 23 testes, 100% passando:**
+- `TestNormalizeAccountName` (11): acentos, NBSP (`\xa0`), em-dash, None/NaN, espaços múltiplos, trim, numérico
+- `TestGenerateLineIdBase` (8): CD_CONTA presente/ausente/vazio, hash determinístico, statement_type diferente gera hash diferente, NIVEL_CONTA e GRUPO_DRE incluídos no hash
+- `TestValidateLineIds` (4): contagem correta, zero sem ID não dispara erro, coluna ausente levanta ValueError, valor sem ID levanta ValueError
+
+**Bug descoberto pelo teste:**
+- `validate_line_ids` retorna `len(df[df['VL_CONTA'].notna()])` — conta zeros também (não apenas valores != 0). Comportamento correto, teste ajustado para documentar isso.
+
+**`requirements.txt`:** adicionado `pytest>=8.0`
+
+**Para rodar:** `pytest tests/test_utils.py -v`
+
+**Git:** Commit `f589c4d` — push concluído
 
 ---
 
