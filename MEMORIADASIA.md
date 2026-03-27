@@ -76,8 +76,51 @@
 ✅ Sessão 11 → IOTA UI refinement + aba Mercado (heatmap) funcionando com 68 empresas
 ✅ Sessão 12 → Valuation via yfinance (P/L, EV/EBITDA, P/VP, DY) para 58 tickers B3
 ✅ Sessão 13 → Comparação multi-empresa overlay + COMO_RODAR.md
-→  Sessão 14 → Automação scraper (CronJob/scheduled-tasks)
+✅ Sessão 14 → Automação scraper (botão sidebar + script + Task Scheduler)
+→  Sessão 15 → Deploy cloud (SQLite → PostgreSQL + Streamlit Cloud) ou testes pytest
 ```
+
+---
+
+### Sessão 14 — 2026-03-26 (Agente: Claude Sonnet 4.6)
+
+**O que foi feito:**
+
+**🤖 Automação do scraper — 3 camadas:**
+
+1. **`scripts/atualizar_todos.py`** — script Python principal:
+   - Lê os 69 `CD_CVM` distintos direto do banco SQLite
+   - Roda o scraper em lotes de 10 empresas (`BATCH_SIZE=10`)
+   - Padrão: ano atual e anterior (`DEFAULT_ANOS`)
+   - Salva log em `logs/atualizar_YYYYMMDD_HHMMSS.log`
+   - Suporta `--anos 2024 2025` e `--dry-run`
+   - Dry-run validado: 69 empresas listadas sem requisição
+
+2. **`scripts/atualizar_dados.ps1`** — wrapper PowerShell:
+   - Ativa `.venv` automaticamente
+   - Aceita `-DryRun` e `-Anos` params
+   - Usa `Tee-Object` para log simultâneo em tela e arquivo
+   - Mensagem de sucesso/erro colorida
+
+3. **Botão "🔄 Atualizar Dados" no sidebar do dashboard:**
+   - Chama `scripts/atualizar_todos.py` via `subprocess.run()` (não bloqueia o Python)
+   - Mostra spinner durante execução
+   - Exibe sucesso ✅ ou erro com stderr truncado em 500 chars
+
+4. **Windows Task Scheduler** — tarefa `CVM_Atualizar_Dados`:
+   - Criada via `New-ScheduledTask` PowerShell
+   - Agenda: **domingos às 07h** (`-Weekly -DaysOfWeek Sunday -At 07:00`)
+   - Flags: `StartWhenAvailable` (executa se o PC estava off na hora)
+   - Próxima execução confirmada: 29/03/2026 07:00
+
+**Git:**
+- Commit `9aecf49`: feat: Sessão 14 — Automação scraper
+- Push concluído
+
+**Padrões técnicos:**
+1. **`subprocess.run` no Streamlit**: usar `capture_output=True, text=True, encoding='utf-8'` + `cwd` apontando para raiz do projeto
+2. **`BATCH_SIZE=10`**: lotes menores reduzem risco de timeout/ban pela CVM
+3. **`-StartWhenAvailable`**: essencial para Task Scheduler em máquina desktop que pode estar desligada no horário programado
 
 ---
 
