@@ -571,6 +571,53 @@ def chart_line(data, title, h=300):
     fig.update_yaxes(title_text='%')
     return fig
 
+def chart_line_compare(series: dict, title: str, unit: str = '%', h: int = 300):
+    """Overlay de 2+ empresas num mesmo gráfico de linha.
+    series = {'EMPRESA A': {2022: val, ...}, 'EMPRESA B': {...}}
+    unit='%'    → multiplica por 100, sufixo %
+    unit='R$ mi'→ divide por 1000 (DB armazena R$ mil)"""
+    if not series: return None
+    all_years = sorted({y for vals in series.values() for y in vals})
+    if not all_years: return None
+    palette = [COLORS['green'], COLORS['amber'], COLORS['blue']]
+    fig = go.Figure()
+    for idx, (company, data) in enumerate(series.items()):
+        color = palette[min(idx, len(palette) - 1)]
+        r_c, g_c, b_c = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+        xs, ys_raw = [], []
+        for y in all_years:
+            v = data.get(y)
+            xs.append(str(y))
+            if v is None:        ys_raw.append(None)
+            elif unit == '%':    ys_raw.append(v * 100)
+            else:                ys_raw.append(v / 1e3)   # R$ mil → R$ mi
+        text_labels = [
+            (f'{v:.1f}%' if unit == '%' else f'{v:,.0f}') if v is not None else ''
+            for v in ys_raw
+        ]
+        kw = dict(
+            name=company, x=xs, y=ys_raw,
+            mode='lines+markers+text', text=text_labels,
+            textposition='top center', textfont=dict(size=10, color='#E8E8E8'),
+            marker=dict(size=8, color=color, line=dict(width=2, color='#0F0F10')),
+            line=dict(color=color, width=2.5), connectgaps=False,
+        )
+        if idx == 0:
+            kw['fill'] = 'tozeroy'
+            kw['fillcolor'] = f'rgba({r_c},{g_c},{b_c},0.07)'
+        fig.add_trace(go.Scatter(**kw))
+    fig.update_layout(
+        title=title, **lo(), height=h, showlegend=True,
+        legend=dict(orientation='h', y=1.12, x=0,
+                    font=dict(size=10, color='#8A8A90'),
+                    bgcolor='rgba(0,0,0,0)', bordercolor='#2A2A2D'),
+        xaxis=dict(showgrid=False, color='#525257'),
+        yaxis=dict(showgrid=True, gridcolor='#2A2A2D', zeroline=True,
+                   zerolinecolor='#2A2A2D', color='#525257',
+                   title_text='%' if unit == '%' else 'R$ mi'),
+    )
+    return fig
+
 def chart_donut(labels, values, title, h=300):
     if not values: return None
     palette = [COLORS['green'], COLORS['blue'], COLORS['purple'],
@@ -1061,6 +1108,25 @@ def main():
     # TAB 1 — VISÃO GERAL
     # ─────────────────────────────────────────────────────────────────────────
     with tab_visao:
+        # ── Seletor de empresa para comparação ───────────────────────────────
+        _cmp_opts = {'— Nenhuma —': None}
+        _cmp_opts.update({
+            r['COMPANY_NAME']: int(r['CD_CVM'])
+            for _, r in companies.iterrows()
+            if int(r['CD_CVM']) != cvm
+        })
+        _cmp_sel = st.selectbox('Comparar com:', list(_cmp_opts.keys()),
+                                index=0, key='cmp_company')
+        _cmp_cvm = _cmp_opts[_cmp_sel]
+        if _cmp_cvm is not None:
+            _cmp_df    = load_all(_cmp_cvm)
+            _cmp_years = tuple(sorted(_cmp_df['REPORT_YEAR'].unique())) if not _cmp_df.empty else ()
+            _cmp_kpis  = precompute_kpis(_cmp_cvm, _cmp_years) if _cmp_years else {}
+        else:
+            _cmp_years = ()
+            _cmp_kpis  = {}
+        # ─────────────────────────────────────────────────────────────────────
+
         # YoY deltas usando KPIs pré-computados
         k_prev = kpis.get(years[-2], {}) if len(years) >= 2 else {}
 
@@ -1208,6 +1274,40 @@ def main():
         with k4:
             fig = chart_line(kpi_series['ROA'], 'ROA (%)')
             if fig: st.plotly_chart(fig, use_container_width=True, key='kl_roa')
+
+        # ── Comparação anual: overlay charts ─────────────────────────────────
+        if _cmp_cvm is not None and _cmp_kpis:
+            st.markdown(
+                f'<div class="sec">Comparação: {sel} vs {_cmp_sel}</div>',
+                unsafe_allow_html=True)
+
+            def _ks(kpis_dict, key):
+                return {y: kpis_dict[y].get(key) for y in kpis_dict}
+
+            cmp1, cmp2 = st.columns(2)
+            with cmp1:
+                fig = chart_line_compare(
+                    {sel: _ks(kpis, 'rec'), _cmp_sel: _ks(_cmp_kpis, 'rec')},
+                    'Receita Líquida', unit='R$ mi')
+                if fig: st.plotly_chart(fig, use_container_width=True, key='cmp_rec')
+            with cmp2:
+                fig = chart_line_compare(
+                    {sel: _ks(kpis, 'luc'), _cmp_sel: _ks(_cmp_kpis, 'luc')},
+                    'Lucro Líquido', unit='R$ mi')
+                if fig: st.plotly_chart(fig, use_container_width=True, key='cmp_luc')
+
+            cmp3, cmp4 = st.columns(2)
+            with cmp3:
+                fig = chart_line_compare(
+                    {sel: _ks(kpis, 'ml'), _cmp_sel: _ks(_cmp_kpis, 'ml')},
+                    'Margem Líquida', unit='%')
+                if fig: st.plotly_chart(fig, use_container_width=True, key='cmp_ml')
+            with cmp4:
+                fig = chart_line_compare(
+                    {sel: _ks(kpis, 'roe'), _cmp_sel: _ks(_cmp_kpis, 'roe')},
+                    'ROE', unit='%')
+                if fig: st.plotly_chart(fig, use_container_width=True, key='cmp_roe')
+        # ─────────────────────────────────────────────────────────────────────
 
         # Composição patrimonial
         st.markdown('<div class="sec">Composição Patrimonial</div>',
