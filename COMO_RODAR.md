@@ -129,6 +129,13 @@ Compara a empresa selecionada com outras do mesmo setor:
 **Mercado**
 Ranking de todas as empresas do banco por setor. Você escolhe o ano e a métrica (Margem Líquida, ROE, Margem Bruta ou ROA) e vê quem está melhor e pior.
 
+**Screener**
+Filtre todas as 344 empresas do banco por critérios financeiros:
+- Multiselect de setor
+- Sliders para ML mínima, ROE mínimo, Receita mínima e Liquidez Corrente mínima
+- Tabela interativa com ML, MB, ROE, ROA, Margem EBIT, Liq. Corrente, Dívida Líq./PL e CAGR de Receita 3 anos
+- Botão para exportar os resultados filtrados em CSV
+
 **Demonstrativo**
 Tabela com todos os dados financeiros brutos da empresa, organizada por período. Útil para quem quer ver os números completos.
 
@@ -223,6 +230,36 @@ python scripts/batch_completo.py --yfinance-only
 ```
 
 Os logs de cada rodada ficam salvos em `logs/batch_YYYYMMDD_HHMMSS.log`.
+
+---
+
+## Passo 6C — Configurar banco de dados (primeira vez / após migração)
+
+Se você acabou de clonar o projeto ou migrou para um novo computador, rode estes dois
+scripts antes de abrir o dashboard:
+
+```bash
+# 1. Cria índices de performance + tabelas companies e account_names
+python scripts/setup_db.py
+
+# 2. Popula a tabela companies com todas as empresas CVM + setores + tickers
+python scripts/setup_companies_table.py
+```
+
+Esses scripts são seguros de re-rodar — não apagam dados existentes.
+
+Após rodar, o banco terá:
+- Índices de busca rápida (~65% de ganho de velocidade nas abas Mercado e Screener)
+- Tabela `companies` com CNPJ, setor e ticker para todas as 344 empresas
+- Mapeamento de nomes de contas padronizados
+
+> **Opcional:** Para descobrir novos tickers B3 automaticamente (recomendado após
+> adicionar novas empresas):
+> ```bash
+> python scripts/expand_tickers.py --dry-run
+> # Analise data/metadata/ticker_candidates.csv
+> python scripts/expand_tickers.py  # Roda a validação completa
+> ```
 
 ---
 

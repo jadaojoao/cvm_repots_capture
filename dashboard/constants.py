@@ -72,6 +72,7 @@ TICKER_MAP: dict[int, str] = {
     3980:  'GGBR4.SA',   # GERDAU
     24783: 'NTCO3.SA',   # NATURA
     24813: 'RENT3.SA',   # LOCALIZA
+    19739: 'RENT3.SA',   # LOCALIZA RENT A CAR (cd_cvm alt)
     13986: 'SUZB3.SA',   # SUZANO PAPEL
     8133:  'LREN3.SA',   # RENNER
     19992: 'TOTS3.SA',   # TOTVS
@@ -123,8 +124,10 @@ TICKER_MAP: dict[int, str] = {
      1431: 'CPLE6.SA',   # COPEL
      7617: 'ITSA4.SA',   # ITAÚSA
     22152: 'BBSE3.SA',   # BB SEGURIDADE
+    23159: 'BBSE3.SA',   # BB SEGURIDADE (cd_cvm alt)
     20281: 'BRFS3.SA',   # BRF
     21369: 'EQTL3.SA',   # EQUATORIAL ENERGIA
+    20010: 'EQTL3.SA',   # EQUATORIAL S.A. (cd_cvm alt)
     24767: 'AZUL4.SA',   # AZUL LINHAS AÉREAS
     19615: 'CCRO3.SA',   # CCR
      3697: 'ENBR3.SA',   # EDP BRASIL
@@ -134,7 +137,9 @@ TICKER_MAP: dict[int, str] = {
     23450: 'RECV3.SA',   # PETRORECÔNCAVO
     16284: 'TUPY3.SA',   # TUPY
     19283: 'FRAS3.SA',   # FRAS-LE
+     6211: 'FRAS3.SA',   # FRASLE MOBILITY (cd_cvm alt)
     16160: 'AGRO3.SA',   # BRASILAGRO
+    20036: 'AGRO3.SA',   # BRASILAGRO (cd_cvm alt)
     24554: 'ARZZ3.SA',   # AREZZO
     22063: 'SOMA3.SA',   # GRUPO SOMA
     # ── Novos tickers descobertos por expand_tickers.py ────────────────
