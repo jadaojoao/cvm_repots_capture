@@ -364,3 +364,26 @@ hr { border:none !important; border-top:1px solid var(--border) !important; marg
     --shadow-lg: 0 16px 48px rgba(0,0,0,0.14);
 }
 .light-mode .hero-card { background: linear-gradient(135deg, #1a3a28 0%, #0f2535 100%); }
+
+/* Sidebar permanece escuro em light mode — texto deve ser claro */
+.light-mode [data-testid="stSidebar"] { --text-primary: rgba(255,255,255,0.85); }
+.light-mode [data-testid="stSidebar"] label,
+.light-mode [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+.light-mode [data-testid="stSidebar"] [data-testid="stText"],
+.light-mode [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: rgba(255,255,255,0.85) !important; }
+.light-mode [data-testid="stSidebar"] .stTextInput input {
+    color: rgba(255,255,255,0.9) !important;
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+}
+.light-mode [data-testid="stSidebar"] [data-baseweb="select"] * { color: #111 !important; }
+.light-mode [data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.1) !important; }
+.light-mode [data-testid="stSidebar"] button { color: #111827 !important; }
+
+/* Plotly charts em light mode: forçar texto e grids para cores legíveis */
+.light-mode .js-plotly-plot .plotly text { fill: #374151 !important; }
+.light-mode .js-plotly-plot .plotly .gtitle text { fill: #111827 !important; }
+.light-mode .js-plotly-plot .plotly .gridlayer path { stroke: #e5e7eb !important; }
+.light-mode .js-plotly-plot .plotly .zerolinelayer path { stroke: #d1d5db !important; }
+.light-mode .js-plotly-plot .plotly .xgrid,
+.light-mode .js-plotly-plot .plotly .ygrid { stroke: #e5e7eb !important; }

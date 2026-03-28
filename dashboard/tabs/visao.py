@@ -9,7 +9,7 @@ import streamlit as st
 from dashboard.charts import (
     brl, pct, COLORS,
     chart_bars, chart_line, chart_line_compare,
-    chart_donut, sparkline, chart_dfc_grouped, chart_yoy_waterfall,
+    chart_donut, chart_dfc_grouped, chart_yoy_waterfall,
     chart_price_history,
 )
 from dashboard.constants import RECEITA, LUCRO, RES_BRUT, FCO, TICKER_MAP
@@ -114,68 +114,13 @@ def render_visao_geral(sel: str, cvm: int, df, years: tuple, latest: int,
         st.markdown(kpi_row(row1), unsafe_allow_html=True)
         st.markdown(kpi_row(row2), unsafe_allow_html=True)
 
-        # Sparklines
-        sp1, sp2, sp3 = st.columns(3)
-        sp4, sp5, sp6 = st.columns(3)
-        spark_data = [
-            (sp1, {y: kpis[y].get('rec')      for y in years}, COLORS['blue'],   'sp_rec'),
-            (sp2, {y: kpis[y].get('luc')      for y in years}, COLORS['purple'], 'sp_luc'),
-            (sp3, {y: kpis[y].get('at')       for y in years}, COLORS['amber'],  'sp_at'),
-            (sp4, {y: kpis[y].get('roe')      for y in years}, COLORS['green'],  'sp_roe'),
-            (sp5, {y: kpis[y].get('alav')     for y in years}, COLORS['red'],    'sp_alav'),
-            (sp6, {y: kpis[y].get('liq_corr') for y in years}, COLORS['green'],  'sp_liq'),
-        ]
-        for col_sp, data, color, key in spark_data:
-            with col_sp:
-                st.plotly_chart(sparkline(data, color), use_container_width=True,
-                                config={'staticPlot': True}, key=key)
-
     # ══════════════════════════════════════════════════════════════════════════
     # LINHA 2: Conteúdo principal (esq 65%) + Painel direito (35%)
     # ══════════════════════════════════════════════════════════════════════════
     col_main, col_right = st.columns([2, 1])
 
     with col_main:
-        # ── Valuation de Mercado ──────────────────────────────────────────────
-        if _mkt:
-            st.markdown(section_title('Valuation de Mercado', _ticker or ''),
-                        unsafe_allow_html=True)
-
-            def _fv(v, suffix=''):
-                return f'{v:.2f}{suffix}' if v is not None else '—'
-
-            mkt_cards = [
-                {'label': 'Preço',     'value': f"R$ {_mkt['price']:.2f}",
-                 'delta': None, 'delta_up': None, 'icon': '💹'},
-                {'label': 'Market Cap',
-                 'value': _fmt_mktcap(_mkt.get('mktcap')).replace('Mkt ', ''),
-                 'delta': None, 'delta_up': None, 'icon': '🏢'},
-                {'label': 'P/L',       'value': _fv(_mkt.get('pe'),  'x'),
-                 'delta': None, 'delta_up': None, 'icon': '📊'},
-                {'label': 'P/VP',      'value': _fv(_mkt.get('pb'),  'x'),
-                 'delta': None, 'delta_up': None, 'icon': '📋'},
-                {'label': 'EV/EBITDA', 'value': _fv(_mkt.get('ev_ebitda'), 'x'),
-                 'delta': None, 'delta_up': None, 'icon': '⚖️'},
-                {'label': 'Div. Yield',
-                 'value': f"{(_mkt.get('dy') or 0)*100:.1f}%",
-                 'delta': None, 'delta_up': None, 'icon': '💵'},
-            ]
-            st.markdown(kpi_row(mkt_cards), unsafe_allow_html=True)
-
-        # ── Histórico de preço ────────────────────────────────────────────────
-        if _ticker:
-            _price_hist = load_price_history(_ticker)
-            if not _price_hist.empty:
-                st.markdown(section_title('Histórico de Preço', '12 meses'),
-                            unsafe_allow_html=True)
-                st.plotly_chart(
-                    chart_price_history(_price_hist, _ticker),
-                    use_container_width=True,
-                    config={'displayModeBar': False},
-                    key='price_history',
-                )
-
-        # ── Seletor de comparação ─────────────────────────────────────────────
+        # ── Evolução Financeira ───────────────────────────────────────────────
         st.markdown(section_title('Evolução Financeira'), unsafe_allow_html=True)
         _cmp_opts = {'— Nenhuma —': None}
         _cmp_opts.update({
@@ -312,6 +257,45 @@ def render_visao_geral(sel: str, cvm: int, df, years: tuple, latest: int,
                 if fig_d:
                     st.plotly_chart(fig_d, use_container_width=True,
                                     config={'displayModeBar': False}, key='don_pas')
+
+        # ── Valuation de Mercado ──────────────────────────────────────────────
+        if _mkt:
+            st.markdown(section_title('Valuation de Mercado', _ticker or ''),
+                        unsafe_allow_html=True)
+
+            def _fv(v, suffix=''):
+                return f'{v:.2f}{suffix}' if v is not None else '—'
+
+            mkt_cards = [
+                {'label': 'Preço',     'value': f"R$ {_mkt['price']:.2f}",
+                 'delta': None, 'delta_up': None, 'icon': '💹'},
+                {'label': 'Market Cap',
+                 'value': _fmt_mktcap(_mkt.get('mktcap')).replace('Mkt ', ''),
+                 'delta': None, 'delta_up': None, 'icon': '🏢'},
+                {'label': 'P/L',       'value': _fv(_mkt.get('pe'),  'x'),
+                 'delta': None, 'delta_up': None, 'icon': '📊'},
+                {'label': 'P/VP',      'value': _fv(_mkt.get('pb'),  'x'),
+                 'delta': None, 'delta_up': None, 'icon': '📋'},
+                {'label': 'EV/EBITDA', 'value': _fv(_mkt.get('ev_ebitda'), 'x'),
+                 'delta': None, 'delta_up': None, 'icon': '⚖️'},
+                {'label': 'Div. Yield',
+                 'value': f"{(_mkt.get('dy') or 0)*100:.1f}%",
+                 'delta': None, 'delta_up': None, 'icon': '💵'},
+            ]
+            st.markdown(kpi_row(mkt_cards), unsafe_allow_html=True)
+
+        # ── Histórico de preço ────────────────────────────────────────────────
+        if _ticker:
+            _price_hist = load_price_history(_ticker)
+            if not _price_hist.empty:
+                st.markdown(section_title('Histórico de Preço', '12 meses'),
+                            unsafe_allow_html=True)
+                st.plotly_chart(
+                    chart_price_history(_price_hist, _ticker),
+                    use_container_width=True,
+                    config={'displayModeBar': False},
+                    key='price_history',
+                )
 
     with col_right:
         # ── Painel de indicadores ─────────────────────────────────────────────
