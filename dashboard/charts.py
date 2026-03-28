@@ -42,21 +42,21 @@ LAYOUT = dict(
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     margin=dict(l=10, r=10, t=42, b=10),
-    font=dict(family='Inter', size=11, color='#8A8A90'),
-    title_font=dict(family='Inter', size=13, color='#E8E8E8'),
+    font=dict(family='Inter', size=11, color='#8890a8'),
+    title_font=dict(family='Inter', size=13, color='#e8eaf0'),
     yaxis=dict(
-        showgrid=True, gridcolor='#2A2A2D',
-        zeroline=True, zerolinecolor='#2A2A2D',
-        color='#525257',
+        showgrid=True, gridcolor='#1e2030',
+        zeroline=True, zerolinecolor='#1e2030',
+        color='#4a5068',
     ),
     xaxis=dict(
         showgrid=False,
-        color='#525257',
+        color='#4a5068',
     ),
     legend=dict(
         bgcolor='rgba(0,0,0,0)',
-        bordercolor='#2A2A2D',
-        font=dict(color='#8A8A90'),
+        bordercolor='#1e2030',
+        font=dict(color='#8890a8'),
     ),
 )
 
@@ -66,7 +66,7 @@ COLORS = {
     'purple':     '#8B5CF6',
     'amber':      '#F59E0B',
     'red':        '#EF4444',
-    'cyan':       '#0891B2',
+    'cyan':       '#06b6d4',
     'slate':      '#475569',
     'muted':      '#3D3D42',
     'blue_iota':  '#2563F5',
