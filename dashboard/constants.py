@@ -6,6 +6,7 @@ Contém os grupos de contas CVM (STANDARD_NAME) e o mapa de tickers B3.
 """
 
 # ── Grupos de contas CVM (STANDARD_NAME) ──────────────────────────────────────
+# Balanço Patrimonial — Ativo
 RECEITA   = ['Receita de Venda de Bens e/ou Serviços', 'Receitas das Operações',
              'Receitas de Intermediação Financeira']
 LUCRO     = ['Lucro/Prejuízo Consolidado do Período',
@@ -19,10 +20,43 @@ CAIXA     = ['Caixa e Equivalentes de Caixa']
 PL        = ['Patrimônio Líquido Consolidado']
 PASS_C    = ['Passivo Circulante']
 PASS_NC   = ['Passivo Não Circulante']
-DIVIDA    = ['Empréstimos e Financiamentos', 'Debêntures']
+DIVIDA    = ['Empréstimos e Financiamentos', 'Debêntures',
+             'Financiamento por Arrendamento Financeiro']
 FCO       = ['Caixa Líquido Atividades Operacionais']
 FCI       = ['Caixa Líquido Atividades de Investimento']
 FCF_ACTIV = ['Caixa Líquido Atividades de Financiamento']
+
+# ── Novos grupos — confirmados no banco (225 STANDARD_NAMEs distintos) ─────────
+# DRE — resultado
+EBIT_REAL = ['Resultado Antes do Resultado Financeiro e dos Tributos']
+EBT       = ['Resultado Antes dos Tributos sobre o Lucro']
+IR_CSLL   = ['Imposto de Renda e Contribuição Social sobre o Lucro']
+DESP_FIN  = ['Despesas Financeiras', 'Despesas da Intermediação Financeira']
+REC_FIN   = ['Receitas Financeiras']
+RES_FIN   = ['Resultado Financeiro']
+
+# Balanço — ativo circulante / realizável
+ESTOQUES  = ['Estoques', 'Ativos Biológicos']
+CLIENTES  = ['Clientes', 'Contas a Receber', 'Créditos das Operações',
+             'Títulos e Créditos a Receber', 'Empréstimos e Recebíveis']
+APLIC_FIN = ['Aplicações Financeiras',
+             'Aplicações Financeiras Avaliadas a Valor Justo',
+             'Aplicações Financeiras Avaliadas ao Custo Amortizado',
+             'Títulos para Negociação',
+             'Títulos Disponíveis para Venda',
+             'Títulos Mantidos até o Vencimento']
+RLP       = ['Ativo Realizável a Longo Prazo']
+
+# Balanço — passivo / fornecedores
+FORNEC    = ['Fornecedores', 'Fornecedores Nacionais', 'Fornecedores Estrangeiros',
+             'Contas a Pagar']
+IMOB      = ['Imobilizado', 'Imobilizado de Uso', 'Imobilizado em Operação',
+             'Imobilizado em Andamento', 'Ativos Próprios']
+
+# Dividendos e LPA
+DIV_JCP   = ['Dividendos e JCP a Pagar', 'Dividendo Mínimo Obrigatório a Pagar']
+LPA_BAS   = ['Lucro Básico por Ação', 'Lucro por Ação - (R$ / Ação)',
+             'Lucro por Ação - (Reais / Ação)']
 
 # ── Mapa CVM → Ticker B3 (Yahoo Finance) ─────────────────────────────────────
 TICKER_MAP: dict[int, str] = {

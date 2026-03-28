@@ -182,16 +182,64 @@ Start-ScheduledTask -TaskName CVM_Atualizar_Dados
 
 ---
 
+## Passo 6B — Rodar batch completo (avançado)
+
+Se você quer processar **muitas empresas de uma vez** (até 500), use o script `batch_completo.py`.
+Este script é inteligente — **detecta automaticamente quais empresas/anos já foram processados**
+e pula para evitar reprocessamento.
+
+### Verificar o que seria feito (recomendado antes de rodar)
+
+```bash
+python scripts/batch_completo.py --dry-run --max-companies 500 --start-year 2022 --end-year 2025
+```
+
+Isso mostra:
+- ✓ Empresas que **já têm dados completos** (skip)
+- ↓ Empresas que **faltam dados** (serão processadas)
+
+Veja quantos anos faltam antes de começar.
+
+### Rodar para máximo de empresas (~11 horas)
+
+```bash
+python scripts/batch_completo.py --max-companies 450 --start-year 2022 --end-year 2025
+```
+
+Isso processa até 450 empresas ativas da CVM, anos 2022–2025. Tempo esperado: ~90 minutos.
+Salva tudo no banco + atualiza cache de cotações do Yahoo Finance.
+
+### Outras opções
+
+```bash
+# Expandir range de anos (processa só os novos)
+python scripts/batch_completo.py --max-companies 500 --start-year 2020 --end-year 2025
+
+# Testar com poucas empresas (rápido, ~5 min)
+python scripts/batch_completo.py --max-companies 5 --start-year 2025 --end-year 2025
+
+# Só atualizar cotações do Yahoo Finance (~5 min)
+python scripts/batch_completo.py --yfinance-only
+```
+
+Os logs de cada rodada ficam salvos em `logs/batch_YYYYMMDD_HHMMSS.log`.
+
+---
+
 ## Passo 7 — Adicionar uma nova empresa ao dashboard
 
-O banco já tem 69 empresas. Para adicionar mais, siga os passos:
+O banco já tem 344 empresas. Para adicionar ticker de uma delas, siga os passos:
 
-**1. Rodar o scraper para baixar os dados da nova empresa:**
+**1. Rodar o scraper para baixar os dados da empresa (se não tiver):**
+
+Se a empresa **não está no banco ainda**, rode:
 ```
 python main.py --cvm CODIGO_CVM --anos 2022 2023 2024 2025
 ```
 Substitua `CODIGO_CVM` pelo código numérico da empresa (ex: `9512` para PETROBRAS).
 O código CVM pode ser encontrado no site da CVM: https://www.cvm.gov.br
+
+Se a empresa **já está no banco**, pule este passo.
 
 **2. (Opcional) Mapear o ticker para ver cotação e valuation:**
 
@@ -218,6 +266,8 @@ Encontre o bloco `TICKER_MAP` e adicione uma linha no formato:
 | Valuation e cotação não aparecem | Verifique sua conexão com a internet. Os dados vêm do Yahoo Finance em tempo real. |
 | Erro de encoding / caracteres estranhos | Antes de rodar qualquer comando, execute: `set PYTHONIOENCODING=utf-8` |
 | Dashboard não atualiza ao editar arquivos | Clique em **"Always rerun"** na barra amarela que aparece no topo da página. |
+| Batch completo demorou muito | Seu computador/internet é lento. CVM tem ~675 empresas ativas, 500 leva ~82 min. Para ir mais rápido, use `--max-companies 100` e processe menos empresas. |
+| Batch completo saiu do jeito (Ctrl+C) | Sem problemas — rerun `batch_completo.py` que detecta o que já foi feito e continua. Use `--resume` se quiser garantir. |
 | Erro "Permission denied" no PowerShell | Execute: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` e tente de novo. |
 | Botão "Atualizar" não faz nada | Veja a pasta `logs/` — haverá um arquivo com o erro completo. |
 | Porta 8501 já em uso | Rode com outra porta: `streamlit run dashboard/app.py --server.port 8502` |

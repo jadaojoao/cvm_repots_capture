@@ -82,32 +82,98 @@ def get_active_companies(max_n: int) -> list[tuple[int, str]]:
 
 # ── Fase 2: Scraper em lotes ─────────────────────────────────────────────────
 
-def run_scraper_batches(
+# ── Fase 1.5: Detectar progresso anterior ────────────────────────────────────
+
+def get_processed_years(cd_cvm: int) -> set[int]:
+    """Retorna conjunto de anos já processados para uma empresa no DB."""
+    try:
+        from dashboard.db import get_engine
+        from sqlalchemy import text
+
+        engine = get_engine()
+        with engine.connect() as conn:
+            rows = conn.execute(
+                text("SELECT DISTINCT REPORT_YEAR FROM financial_reports WHERE CD_CVM = :cd "
+                     "ORDER BY REPORT_YEAR"),
+                {"cd": cd_cvm}
+            ).fetchall()
+        return set(int(r[0]) for r in rows if r[0])
+    except Exception as e:
+        log.warning(f"Erro ao detectar progresso para CVM {cd_cvm}: {e}")
+        return set()
+
+
+def filter_remaining_work(
     companies: list[tuple[int, str]],
     start_year: int,
     end_year: int,
+    dry_run: bool = False,
+) -> list[tuple[int, str, list[int]]]:
+    """
+    Filtra quais (empresa, ano) precisam ser processados.
+    Retorna lista de (cd_cvm, nome, years_faltando).
+    """
+    result = []
+    total_skips = 0
+    total_news = 0
+
+    for cd_cvm, name in companies:
+        processed = get_processed_years(cd_cvm)
+        years_needed = [y for y in range(start_year, end_year + 1) if y not in processed]
+
+        if not years_needed:
+            log.debug(f"✓ {name:30s} (CVM {cd_cvm:6d}) — todos os anos {start_year}–{end_year} já processados")
+            total_skips += 1
+        else:
+            status = "↓" if not dry_run else "📋"
+            log.info(f"{status} {name:30s} (CVM {cd_cvm:6d}) — faltam anos: {years_needed}")
+            result.append((cd_cvm, name, years_needed))
+            total_news += len(years_needed)
+
+    if not dry_run:
+        log.info(f"Resumo: {len(result)} empresa(s) com dados faltando ({total_news} ano/empresa)")
+    else:
+        log.info(f"[DRY-RUN] {len(result)} empresa(s) com {total_news} ano(s) faltando; "
+                 f"{total_skips} empresa(s) completas")
+
+    return result
+
+
+# ── Fase 2: Scraper em lotes ─────────────────────────────────────────────────
+
+def run_scraper_batches(
+    work_items: list[tuple[int, str, list[int]]],
     batch_size: int = BATCH_SIZE,
 ) -> None:
-    """Roda o CVMScraper em lotes de batch_size."""
+    """Roda o CVMScraper em lotes, processando anos específicos por empresa."""
     from src.scraper import CVMScraper
 
-    codes = [str(cd) for cd, _ in companies]
-    total_batches = math.ceil(len(codes) / batch_size)
-    log.info(f"Iniciando scraper: {len(codes)} empresas em {total_batches} lotes "
-             f"({start_year}–{end_year})")
+    if not work_items:
+        log.info("Nada a processar. Todas as combinações (empresa, ano) já existem no DB.")
+        return
 
-    for i in range(0, len(codes), batch_size):
-        batch = codes[i:i + batch_size]
-        batch_num = i // batch_size + 1
-        nomes = [companies[j][1] for j in range(i, min(i + batch_size, len(companies)))]
-        log.info(f"Lote {batch_num}/{total_batches}: {nomes}")
+    total_work = sum(len(years) for _, _, years in work_items)
+    total_batches = math.ceil(len(work_items) / batch_size)
+    log.info(f"Iniciando scraper: {len(work_items)} empresa(s), {total_work} ano(s) em {total_batches} lote(s)")
+
+    for batch_idx in range(0, len(work_items), batch_size):
+        batch_items = work_items[batch_idx : batch_idx + batch_size]
+        batch_num = batch_idx // batch_size + 1
+
+        batch_nomes = [name for _, name, _ in batch_items]
+        log.info(f"Lote {batch_num}/{total_batches}: {batch_nomes}")
 
         t0 = time.time()
-        try:
-            scraper = CVMScraper()
-            scraper.run(batch, start_year, end_year)
-        except Exception as exc:
-            log.error(f"Erro no lote {batch_num}: {exc}")
+        for cd_cvm, name, years in batch_items:
+            try:
+                scraper = CVMScraper()
+                start = min(years)
+                end = max(years)
+                log.info(f"  → {name} (CVM {cd_cvm}): {start}–{end}")
+                scraper.run([str(cd_cvm)], start, end)
+            except Exception as exc:
+                log.error(f"  ✗ {name} (CVM {cd_cvm}): {exc}")
+
         elapsed = time.time() - t0
         log.info(f"Lote {batch_num} concluído em {elapsed:.0f}s")
 
@@ -185,15 +251,30 @@ def prefetch_yfinance(cache_path: Path) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Batch completo: scraper CVM em massa + cache yfinance"
+        description="Batch completo: scraper CVM em massa + cache yfinance",
+        epilog="Exemplos:\n"
+               "  python scripts/batch_completo.py --dry-run --max-companies 100\n"
+               "  python scripts/batch_completo.py --max-companies 500 --start-year 2022 --end-year 2025\n"
+               "  python scripts/batch_completo.py --max-companies 300 --start-year 2020 --end-year 2025 --resume\n"
+               "  python scripts/batch_completo.py --yfinance-only",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--max", type=int, default=DEFAULT_MAX,
-        help=f"Máximo de empresas a processar (padrão: {DEFAULT_MAX})",
+        "--max-companies", type=int, default=DEFAULT_MAX,
+        help=f"Máximo de empresas ativas a processar (padrão: {DEFAULT_MAX})",
     )
     parser.add_argument(
-        "--anos", type=int, nargs="+", default=DEFAULT_ANOS,
-        help=f"Range de anos (padrão: {DEFAULT_ANOS[0]} {DEFAULT_ANOS[1]})",
+        "--start-year", type=int, default=DEFAULT_ANOS[0],
+        help=f"Ano inicial (padrão: {DEFAULT_ANOS[0]})",
+    )
+    parser.add_argument(
+        "--end-year", type=int, default=DEFAULT_ANOS[1],
+        help=f"Ano final (padrão: {DEFAULT_ANOS[1]})",
+    )
+    # Manter --anos para compatibilidade
+    parser.add_argument(
+        "--anos", type=int, nargs="+", default=None,
+        help="[DEPRECATED] Use --start-year e --end-year",
     )
     parser.add_argument(
         "--batch-size", type=int, default=BATCH_SIZE,
@@ -201,7 +282,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dry-run", action="store_true",
-        help="Lista empresas sem fazer requisições",
+        help="Mostra o que seria feito, sem fazer requisições",
+    )
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="Retoma de onde parou (útil se houve falha)",
     )
     parser.add_argument(
         "--skip-yfinance", action="store_true",
@@ -226,26 +311,47 @@ def main() -> None:
     log.info(f"Log: {log_file}")
 
     t_global = time.time()
-    start_year = min(args.anos)
-    end_year = max(args.anos)
+
+    # Resolver anos (--anos é legacy, usar --start-year/--end-year)
+    if args.anos:
+        start_year = min(args.anos)
+        end_year = max(args.anos)
+        log.warning("Aviso: --anos é legacy. Use --start-year e --end-year.")
+    else:
+        start_year = args.start_year
+        end_year = args.end_year
+
+    log.info(f"Configuração: max_companies={args.max_companies}, "
+             f"anos={start_year}–{end_year}, batch_size={args.batch_size}, "
+             f"dry_run={args.dry_run}, resume={args.resume}")
 
     # ── Fase scraper ──────────────────────────────────────────────────────────
     if not args.yfinance_only:
-        companies = get_active_companies(args.max)
+        companies = get_active_companies(args.max_companies)
+
+        # Detectar progresso anterior
+        work_items = filter_remaining_work(companies, start_year, end_year, args.dry_run)
 
         if args.dry_run:
-            for cd, name in companies:
-                log.info(f"  {cd:>6}  {name}")
-            log.info(f"[DRY-RUN] {len(companies)} empresas seriam processadas "
-                     f"({start_year}–{end_year}).")
+            log.info("")
+            log.info("=" * 80)
+            log.info("[DRY-RUN] O que seria processado:")
+            log.info("=" * 80)
+            for cd_cvm, name, years in work_items:
+                log.info(f"  ↓ {name:30s} (CVM {cd_cvm:6d}): anos {years}")
+            log.info("=" * 80)
         else:
-            run_scraper_batches(companies, start_year, end_year, args.batch_size)
+            if work_items:
+                run_scraper_batches(work_items, args.batch_size)
+            else:
+                log.info("Nenhum trabalho a fazer. Todas as combinações (empresa, ano) já estão no DB.")
 
     # ── Fase yfinance ─────────────────────────────────────────────────────────
     if not args.skip_yfinance and not args.dry_run:
         prefetch_yfinance(CACHE_FILE)
 
     elapsed = time.time() - t_global
+    log.info("")
     log.info(f"Batch completo em {elapsed / 60:.1f} min ({elapsed / 3600:.1f}h)")
 
 
