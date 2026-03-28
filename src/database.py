@@ -79,13 +79,57 @@ class CVMDatabase:
                 )
             """))
 
+    def _upsert_company_metadata(self, conn, company_name: str, cvm_code: int,
+                                 company_type: str, setor_cvm: str | None = None,
+                                 ticker_b3: str | None = None) -> None:
+        """Persiste metadados na tabela companies (se existir). Idempotente."""
+        try:
+            # INSERT OR IGNORE: não sobrescreve cnpj/setor_analitico/ticker_b3 já preenchidos
+            conn.execute(text("""
+                INSERT OR IGNORE INTO companies
+                    (cd_cvm, company_name, company_type, setor_cvm, ticker_b3, updated_at)
+                VALUES
+                    (:cd, :name, :ctype, :setor, :ticker,
+                     strftime('%Y-%m-%dT%H:%M:%S', 'now'))
+            """), {
+                "cd":     int(cvm_code),
+                "name":   company_name,
+                "ctype":  company_type or "comercial",
+                "setor":  setor_cvm,
+                "ticker": ticker_b3,
+            })
+            # Atualiza campos não-nulos que podem ter mudado
+            conn.execute(text("""
+                UPDATE companies
+                SET company_name = :name,
+                    company_type = :ctype,
+                    setor_cvm    = COALESCE(:setor, setor_cvm),
+                    updated_at   = strftime('%Y-%m-%dT%H:%M:%S', 'now')
+                WHERE cd_cvm = :cd
+            """), {
+                "cd":    int(cvm_code),
+                "name":  company_name,
+                "ctype": company_type or "comercial",
+                "setor": setor_cvm,
+            })
+        except Exception:
+            pass  # tabela companies pode não existir em instâncias antigas
+
     def insert_company_data(self, company_name: str, cvm_code: int, company_type: str,
-                            processed_reports: dict, qa_logs: list):
+                            processed_reports: dict, qa_logs: list,
+                            setor_cvm: str | None = None,
+                            ticker_b3: str | None = None):
         """
         Melts wide dataframes into long format and inserts them into the database.
         Deletes existing data for this company to allow idempotency.
+        Também atualiza a tabela companies com metadados (setor, ticker).
         """
         with self._engine.begin() as conn:
+            # 0. Persistir metadados na tabela companies
+            self._upsert_company_metadata(
+                conn, company_name, cvm_code, company_type, setor_cvm, ticker_b3
+            )
+
             # 1. Clean existing records for this company (Idempotency)
             conn.execute(
                 text('DELETE FROM financial_reports WHERE "CD_CVM" = :cvm'),

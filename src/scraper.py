@@ -1355,12 +1355,14 @@ class CVMScraper:
         # Exporta para SQLite
         try:
             print("  Gravando no banco de dados SQLite...")
+            setor_cvm_val = self.setores_map.get(str(cvm_code)) or None
             inserted = self.db.insert_company_data(
                 company_name=company_name,
                 cvm_code=int(cvm_code),
                 company_type=tipo_dinamico,
                 processed_reports=reports_final,
-                qa_logs=qa_logs
+                qa_logs=qa_logs,
+                setor_cvm=setor_cvm_val,
             )
             print(f"  ✓ Inseridas {inserted} linhas estruturadas no SQLite")
         except Exception as e:

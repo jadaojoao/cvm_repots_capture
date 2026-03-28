@@ -27,11 +27,12 @@ sys.path.insert(0, os.path.join(ROOT, '..'))
 from dashboard.constants import TICKER_MAP, REVERSE_TICKER_MAP
 from dashboard.loaders import load_companies, load_all, load_sectors, load_cvm_master
 from dashboard.kpis import precompute_kpis
-from dashboard.tabs.visao   import render_visao_geral
-from dashboard.tabs.demo    import render_demo
-from dashboard.tabs.peers   import render_peers
-from dashboard.tabs.mercado import render_mercado
-from dashboard.tabs.export  import render_export
+from dashboard.tabs.visao    import render_visao_geral
+from dashboard.tabs.demo     import render_demo
+from dashboard.tabs.peers    import render_peers
+from dashboard.tabs.mercado  import render_mercado
+from dashboard.tabs.export   import render_export
+from dashboard.tabs.screener import render_screener
 
 # ── Configuração da página ─────────────────────────────────────────────────────
 st.set_page_config(
@@ -372,9 +373,9 @@ def main():
     )
 
     # ── ABAS ──────────────────────────────────────────────────────────────────
-    tab_visao, tab_demo, tab_peers, tab_market, tab_export = st.tabs([
+    tab_visao, tab_demo, tab_peers, tab_market, tab_screener, tab_export = st.tabs([
         "📈  Visão Geral", "📋  Demonstrações",
-        "🏢  Peers", "🌐  Mercado", "⬇  Exportar",
+        "🏢  Peers", "🌐  Mercado", "🔍  Screener", "⬇  Exportar",
     ])
 
     with tab_visao:
@@ -388,6 +389,9 @@ def main():
 
     with tab_market:
         render_mercado(sel, years, sector_map)
+
+    with tab_screener:
+        render_screener(years, sector_map)
 
     with tab_export:
         render_export(sel, cvm, df, years, kpis)

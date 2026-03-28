@@ -16,6 +16,7 @@ from sqlalchemy import text, bindparam
 from dashboard.db import get_engine
 from dashboard.constants import (
     RECEITA, LUCRO, RES_BRUT, AT_CIRC, AT_NCIRC, PL,
+    PASS_C, DIVIDA, CAIXA, APLIC_FIN, EBIT_REAL, FCO,
 )
 from dashboard.kpis import safe_div
 
@@ -88,9 +89,13 @@ def load_cvm_master() -> pd.DataFrame:
 
 @st.cache_data(ttl=300)
 def load_sectors() -> dict:
-    excel_base = os.path.join(
-        _ROOT, 'output', 'reports', 'base_analitica_dashboard_preenchida.xlsx'
-    )
+    """Retorna dict {cd_cvm: setor_analitico}.
+
+    Prioridade:
+      1. Tabela `companies` no banco (mais completo e atualizado)
+      2. Excel base_analitica_dashboard_preenchida.xlsx (legado)
+      3. Overrides hardcoded (fallback mínimo)
+    """
     _overrides = {
         24783: 'Farmacêutico e Higiene',
         22217: 'Seguradoras e Corretoras',
@@ -99,12 +104,35 @@ def load_sectors() -> dict:
          5410: 'Máquinas, Equipamentos, Veículos e Peças',
          2437: 'Energia Elétrica',
     }
+
+    # 1. Tentar tabela companies no banco
+    try:
+        engine = get_engine()
+        with engine.connect() as conn:
+            df = pd.read_sql(
+                text("SELECT cd_cvm, setor_analitico FROM companies "
+                     "WHERE setor_analitico IS NOT NULL"), conn)
+        if not df.empty:
+            sm = df.set_index('cd_cvm')['setor_analitico'].to_dict()
+            sm.update(_overrides)
+            return sm
+    except Exception:
+        pass  # tabela companies ainda não existe — usar fallback
+
+    # 2. Fallback: Excel legado
+    excel_base = os.path.join(
+        _ROOT, 'output', 'reports', 'base_analitica_dashboard_preenchida.xlsx'
+    )
     if os.path.exists(excel_base):
-        df = pd.read_excel(excel_base)
-        sm = (df[['cd_cvm', 'setor_analitico']].drop_duplicates()
-              .set_index('cd_cvm')['setor_analitico'].to_dict())
-        sm.update(_overrides)
-        return sm
+        try:
+            df = pd.read_excel(excel_base)
+            sm = (df[['cd_cvm', 'setor_analitico']].drop_duplicates()
+                  .set_index('cd_cvm')['setor_analitico'].to_dict())
+            sm.update(_overrides)
+            return sm
+        except Exception:
+            pass
+
     return dict(_overrides)
 
 
@@ -156,6 +184,86 @@ def load_heatmap_data(year: int) -> pd.DataFrame:
             'ROE':     safe_div(luc, pl_v),
             'ROA':     safe_div(luc, at),
             'Receita': rec,
+        })
+    return pd.DataFrame(rows)
+
+
+@st.cache_data(ttl=300)
+def load_screener_data(year: int) -> pd.DataFrame:
+    """
+    KPIs expandidos de TODAS as empresas para o Screener.
+    Inclui: ML, MB, ROE, ROA, Receita, Dívida Líquida, Liq. Corrente, EBIT,
+            CAGR Receita 3a (se dados de year-3 disponíveis).
+    """
+    _year = int(year)
+    engine = get_engine()
+
+    # Ano base + ano para CAGR
+    with engine.connect() as conn:
+        df_base = pd.read_sql(
+            text("SELECT CD_CVM, COMPANY_NAME, STANDARD_NAME, VL_CONTA "
+                 "FROM financial_reports "
+                 "WHERE REPORT_YEAR = :year AND PERIOD_LABEL = :label"),
+            conn, params={"year": _year, "label": str(_year)})
+        df_prev = pd.read_sql(
+            text("SELECT CD_CVM, STANDARD_NAME, VL_CONTA "
+                 "FROM financial_reports "
+                 "WHERE REPORT_YEAR = :year AND PERIOD_LABEL = :label"),
+            conn, params={"year": _year - 3, "label": str(_year - 3)})
+
+    if df_base.empty:
+        return pd.DataFrame()
+
+    # Pivot de receita 3 anos atrás para CAGR
+    rec_prev = {}
+    for cd, grp in df_prev.groupby('CD_CVM'):
+        for n in RECEITA:
+            r = grp.loc[grp['STANDARD_NAME'] == n, 'VL_CONTA']
+            if not r.empty and r.sum() != 0:
+                rec_prev[int(cd)] = float(r.sum())
+                break
+
+    rows = []
+    for cd, grp in df_base.groupby('CD_CVM'):
+        name = grp['COMPANY_NAME'].iloc[0]
+
+        def _g(names, _df=grp):
+            for n in names:
+                r = _df.loc[_df['STANDARD_NAME'] == n, 'VL_CONTA']
+                if not r.empty:
+                    s = r.sum()
+                    return float(s) if s != 0 else None
+            return None
+
+        rec   = _g(RECEITA);  luc = _g(LUCRO);   rb  = _g(RES_BRUT)
+        ac    = _g(AT_CIRC);  anc = _g(AT_NCIRC); pl_v = _g(PL)
+        pc    = _g(PASS_C);   div = _g(DIVIDA)
+        cx    = _g(CAIXA);    aplic = _g(APLIC_FIN)
+        ebit  = _g(EBIT_REAL)
+
+        at       = ((ac or 0) + (anc or 0)) or None
+        div_liq  = ((div or 0) - (cx or 0) - (aplic or 0)) if div else None
+        liq_corr = safe_div(ac, pc)
+
+        # CAGR receita 3 anos (rec_0 → rec_3)
+        rec_p = rec_prev.get(int(cd))
+        cagr = None
+        if rec and rec_p and rec_p > 0 and rec > 0:
+            cagr = (rec / rec_p) ** (1 / 3) - 1
+
+        rows.append({
+            'CD_CVM':        int(cd),
+            'Empresa':       name,
+            'ML':            safe_div(luc, rec),
+            'MB':            safe_div(rb, rec),
+            'ROE':           safe_div(luc, pl_v),
+            'ROA':           safe_div(luc, at),
+            'EBIT':          safe_div(ebit, rec),        # Margem EBIT
+            'Liq.Corrente':  liq_corr,
+            'Div.Liq/PL':    safe_div(div_liq, pl_v),
+            'CAGR_Rec_3a':   cagr,
+            'Receita':       rec,
+            'PL':            pl_v,
         })
     return pd.DataFrame(rows)
 
