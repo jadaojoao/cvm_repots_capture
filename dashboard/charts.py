@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 from dashboard.constants import (
     RECEITA, LUCRO, RES_BRUT, DESP_OP,
     FCO, FCI, FCF_ACTIV,
+    CUSTO, EBIT_REAL, IR_CSLL,
 )
 
 # ── Formatadores de display ────────────────────────────────────────────────────
@@ -591,5 +592,154 @@ def chart_sector_heatmap(hdf: pd.DataFrame, sector_map: dict, metric: str,
         margin=dict(l=160, r=20, t=40, b=30),
         title=dict(text=f'Ranking de {metric_label} — Todas as Empresas',
                    font=dict(size=13)),
+    )
+    return fig
+
+
+# ── DRE Sankey — fluxo de resultado trimestral ──────────────────────────────
+
+
+def chart_dre_sankey(df: pd.DataFrame, period_q: str, company: str = '') -> go.Figure | None:
+    """Sankey DRE flow para um período trimestral.
+
+    Parameters
+    ----------
+    df : DataFrame retornado por load_all() — contém todos os dados da empresa
+    period_q : período em formato DB, ex.: '1Q24'
+    company : nome da empresa (para o título)
+    """
+    import re as _re
+    m = _re.match(r'^(\d)Q(\d{2})$', period_q)
+    if not m:
+        return None
+    year = int('20' + m.group(2))
+
+    # ── Extração dos valores para o período ──────────────────────────────────
+    base = df[(df['REPORT_YEAR'] == year) & (df['PERIOD_LABEL'] == period_q)]
+    if base.empty:
+        return None
+
+    def _v(names):
+        for n in (names if isinstance(names, list) else [names]):
+            r = base.loc[base['STANDARD_NAME'] == n, 'VL_CONTA']
+            if not r.empty:
+                v = float(r.sum())
+                return v if v != 0 else None
+        return None
+
+    receita = _v(RECEITA)
+    if not receita or receita <= 0:
+        return None
+
+    custo_raw = _v(CUSTO) or 0          # negative in DRE
+    lb_raw    = _v(RES_BRUT)            # Lucro Bruto (may be None)
+    ebit_raw  = _v(EBIT_REAL)           # EBIT (may be None)
+    ll_raw    = _v(LUCRO) or 0          # Lucro Líquido
+    desp_raw  = _v(DESP_OP) or 0        # Despesas Operacionais (negative)
+    ir_raw    = _v(IR_CSLL) or 0        # IR/CSLL (negative)
+
+    # Derive Lucro Bruto if not stored directly
+    lb = lb_raw if lb_raw is not None else receita + custo_raw
+
+    # Derive EBIT if not stored directly
+    ebit = ebit_raw if ebit_raw is not None else lb + desp_raw
+
+    ll = ll_raw
+
+    # ── Ensure flow balance (all link values must be >= 0) ───────────────────
+    lb_safe   = max(0.001, lb)
+    ebit_safe = max(0.001, min(max(0, ebit), lb_safe))   # 0 ≤ ebit ≤ lb
+    ll_safe   = max(0.001, min(max(0, ll),   ebit_safe)) # 0 ≤ ll ≤ ebit
+
+    # Deduction widths (exact balance at each node)
+    w_custo = max(0.001, receita - lb_safe)      # Receita → CMV
+    w_desp  = max(0.001, lb_safe - ebit_safe)    # LB → Desp Op
+    w_ir    = max(0.001, ebit_safe - ll_safe)    # EBIT → IR+Outros
+
+    # ── Formatador compacto ──────────────────────────────────────────────────
+    def _fmt(v):
+        a = abs(v)
+        s = '−' if v < 0 else ''
+        if a >= 1_000_000: return f'{s}R${a/1_000_000:.1f}bi'
+        if a >= 1_000:     return f'{s}R${a/1_000:.1f}mi'
+        return f'{s}R${a:.0f}mil'
+
+    def _pct(part, whole):
+        try:
+            return f' ({part/whole*100:.1f}%)'
+        except Exception:
+            return ''
+
+    # ── Nodes ────────────────────────────────────────────────────────────────
+    ll_is_positive = ll >= 0
+    ll_color       = '#00BF7A' if ll_is_positive else '#EF4444'
+
+    node_labels = [
+        f'Receita\n{_fmt(receita)}',
+        f'Custo\n{_fmt(abs(custo_raw))}',
+        f'L. Bruto\n{_fmt(lb)}{_pct(lb, receita)}',
+        f'Desp. Op.\n{_fmt(abs(desp_raw))}',
+        f'EBIT\n{_fmt(ebit)}{_pct(ebit, receita)}',
+        f'IR + Outros\n{_fmt(abs(ir_raw))}',
+        f'L. Líquido\n{_fmt(ll)}{_pct(ll, receita)}',
+    ]
+    node_colors = [
+        '#00BF7A',  # 0 Receita       — green
+        '#EF4444',  # 1 Custo/CMV     — red
+        '#00BF7A',  # 2 Lucro Bruto   — green
+        '#EF4444',  # 3 Desp. Op.     — red
+        '#F59E0B',  # 4 EBIT          — amber
+        '#EF4444',  # 5 IR + Outros   — red
+        ll_color,   # 6 Lucro Líquido — green or red
+    ]
+    node_x = [0.01, 0.36, 0.36, 0.63, 0.63, 0.88, 0.88]
+    node_y = [0.35, 0.78, 0.18, 0.78, 0.14, 0.78, 0.14]
+
+    # ── Links ────────────────────────────────────────────────────────────────
+    def _rgba(hex_c: str, a: float = 0.40) -> str:
+        h = hex_c.lstrip('#')
+        return f"rgba({int(h[0:2],16)},{int(h[2:4],16)},{int(h[4:6],16)},{a})"
+
+    link_ll_color = _rgba(ll_color)
+
+    # ── Build figure ─────────────────────────────────────────────────────────
+    period_display = period_q.replace('Q', 'T')
+    title = f'{company} · {period_display}' if company else f'DRE — {period_display}'
+
+    fig = go.Figure(go.Sankey(
+        arrangement='fixed',
+        node=dict(
+            pad=18,
+            thickness=22,
+            line=dict(color='rgba(0,0,0,0.15)', width=0.5),
+            label=node_labels,
+            color=node_colors,
+            x=node_x,
+            y=node_y,
+            hovertemplate='<b>%{label}</b><extra></extra>',
+        ),
+        link=dict(
+            source=[0, 0, 2, 2, 4, 4],
+            target=[2, 1, 4, 3, 6, 5],
+            value =[lb_safe, w_custo, ebit_safe, w_desp, ll_safe, w_ir],
+            color =[
+                _rgba('#00BF7A'),  # Receita → L. Bruto
+                _rgba('#EF4444'),  # Receita → Custo
+                _rgba('#00BF7A'),  # L. Bruto → EBIT
+                _rgba('#EF4444'),  # L. Bruto → Desp. Op.
+                link_ll_color,    # EBIT → L. Líquido
+                _rgba('#EF4444'),  # EBIT → IR + Outros
+            ],
+            hovertemplate='%{source.label} → %{target.label}<br>%{value:,.1f}<extra></extra>',
+        ),
+    ))
+
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=13, color='#e8eaf0')),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Inter', size=10, color='#8890a8'),
+        margin=dict(l=5, r=5, t=42, b=10),
+        height=310,
     )
     return fig

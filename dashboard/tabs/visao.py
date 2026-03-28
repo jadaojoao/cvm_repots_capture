@@ -4,20 +4,21 @@ dashboard/tabs/visao.py — Aba "Visão Geral" com layout premium (2 colunas).
 """
 from __future__ import annotations
 
+import re
 import streamlit as st
 
 from dashboard.charts import (
     brl, pct, COLORS,
     chart_bars, chart_line, chart_line_compare,
     chart_donut, chart_dfc_grouped, chart_yoy_waterfall,
-    chart_price_history,
+    chart_price_history, chart_dre_sankey,
 )
 from dashboard.constants import RECEITA, LUCRO, RES_BRUT, FCO, TICKER_MAP
 from dashboard.loaders import load_all, load_market_data, load_price_history
 from dashboard.kpis import precompute_kpis, safe_div
 from dashboard.components.ui import (
     hero_card, kpi_row, quick_actions, section_title,
-    stat_breakdown, activity_feed, progress_card,
+    activity_feed, progress_card,
 )
 
 
@@ -113,6 +114,34 @@ def render_visao_geral(sel: str, cvm: int, df, years: tuple, latest: int,
         ]
         st.markdown(kpi_row(row1), unsafe_allow_html=True)
         st.markdown(kpi_row(row2), unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # LINHA 1.5: Sankey DRE trimestral (largura total)
+    # ══════════════════════════════════════════════════════════════════════════
+    _q_labels_db = sorted(
+        [p for p in df['PERIOD_LABEL'].unique() if re.match(r'^\dQ\d{2}$', p)],
+        key=lambda x: (int('20' + x[2:4]), int(x[0])),
+    )
+    if _q_labels_db:
+        _q_labels_br = [p.replace('Q', 'T') for p in _q_labels_db]
+        _sk_left, _sk_mid, _sk_right = st.columns([1, 4, 1])
+        with _sk_left:
+            st.markdown(section_title('Composição DRE', 'trimestral'), unsafe_allow_html=True)
+        with _sk_mid:
+            _sel_t = st.selectbox(
+                'Período trimestral:',
+                _q_labels_br,
+                index=len(_q_labels_br) - 1,
+                key='sankey_period',
+                label_visibility='collapsed',
+            )
+        _sel_q = _sel_t.replace('T', 'Q')
+        _fig_sk = chart_dre_sankey(df, _sel_q, sel)
+        if _fig_sk:
+            st.plotly_chart(_fig_sk, use_container_width=True,
+                            config={'displayModeBar': False}, key='dre_sankey')
+        else:
+            st.info(f'Sem dados DRE trimestrais para {_sel_t}.')
 
     # ══════════════════════════════════════════════════════════════════════════
     # LINHA 2: Conteúdo principal (esq 65%) + Painel direito (35%)
@@ -298,34 +327,6 @@ def render_visao_geral(sel: str, cvm: int, df, years: tuple, latest: int,
                 )
 
     with col_right:
-        # ── Painel de indicadores ─────────────────────────────────────────────
-        ml_v  = k.get('ml',  0) or 0
-        mb_v  = k.get('mb',  0) or 0
-        roe_v = k.get('roe', 0) or 0
-        roa_v = k.get('roa', 0) or 0
-
-        vals_abs = [abs(ml_v), abs(mb_v), abs(roe_v), abs(roa_v)]
-        _max = max(vals_abs) if any(v > 0 for v in vals_abs) else 1
-
-        def _bar(v):
-            return min(80, abs(v) / _max * 80) if _max > 0 else 0
-
-        stat_items = [
-            {'label': 'Margem Líquida', 'value': pct(ml_v),  'pct': _bar(ml_v),
-             'color': 'var(--accent)'},
-            {'label': 'Margem Bruta',   'value': pct(mb_v),  'pct': _bar(mb_v),
-             'color': 'var(--blue)'},
-            {'label': 'ROE',            'value': pct(roe_v), 'pct': _bar(roe_v),
-             'color': 'var(--purple)'},
-            {'label': 'ROA',            'value': pct(roa_v), 'pct': _bar(roa_v),
-             'color': 'var(--cyan)'},
-        ]
-        st.markdown(
-            stat_breakdown('Indicadores', 'Receita Total', brl(k.get('rec')),
-                           stat_items, period=str(latest)),
-            unsafe_allow_html=True,
-        )
-
         # ── Giro do Ativo (progress card) ─────────────────────────────────────
         if k.get('at') and k.get('rec'):
             st.markdown(
