@@ -1,0 +1,50 @@
+[
+  {
+    "id": "SEC-001",
+    "severity": "medium",
+    "dimension": "security",
+    "category": "sensitive-data",
+    "file": "src/database.py",
+    "line": 61,
+    "code_snippet": "pragma_conn.execute(text(\"PRAGMA synchronous = OFF\"))",
+    "description": "PRAGMA synchronous=OFF disables fsync() calls on SQLite. While this improves write performance, any OS crash or power failure between a write and the next checkpoint will corrupt the WAL file and potentially the main database. For financial data (DFP/ITR reports), this is a durability risk. WAL mode without fsync offers virtually no crash recovery guarantee.",
+    "recommendation": "Use `PRAGMA synchronous = NORMAL` (default for WAL mode), which maintains good performance while ensuring atomic commits survive OS crashes. Only use `OFF` if the data is entirely reproducible from source.",
+    "fix_example": "pragma_conn.execute(text(\"PRAGMA synchronous = NORMAL\"))  # safe for WAL"
+  },
+  {
+    "id": "SEC-002",
+    "severity": "low",
+    "dimension": "security",
+    "category": "injection",
+    "file": "src/database.py",
+    "line": 198,
+    "code_snippet": "placeholders = ', '.join(str(y) for y in sorted(years_to_delete))\nf'...\"REPORT_YEAR\" IN ({placeholders})...'",
+    "description": "Year values are interpolated directly into a SQL DELETE via f-string. Currently safe because years are integers derived from column name parsing, but this bypasses SQLAlchemy's parameterization layer. Also flagged as CORR-004 — the security concern here is about the pattern itself being a footgun for future maintainers.",
+    "recommendation": "Use expanding bindparam to keep years parameterized. See CORR-004 for fix example.",
+    "fix_example": "# Same as CORR-004 fix — use bindparam('years', expanding=True)"
+  },
+  {
+    "id": "SEC-003",
+    "severity": "low",
+    "dimension": "security",
+    "category": "sensitive-data",
+    "file": "src/scraper.py",
+    "line": 105,
+    "code_snippet": "print(f\"Aviso: Falha ao carregar padronizador: {e}\")",
+    "description": "Exception messages from file loading (including full file paths) are printed to stdout. In a production context (e.g., Streamlit Cloud logs, CI/CD), exception details may expose internal paths. Low risk here but inconsistent with database.py which uses logger.warning().",
+    "recommendation": "Replace print() with logger.warning() throughout scraper.py for consistent structured logging.",
+    "fix_example": "import logging\nlogger = logging.getLogger(__name__)\n# ...\nlogger.warning('Failed to load standardizer: %s', e)"
+  },
+  {
+    "id": "SEC-004",
+    "severity": "info",
+    "dimension": "security",
+    "category": "injection",
+    "file": "dashboard/loaders.py",
+    "line": 74,
+    "code_snippet": "SELECT DISTINCT CD_CVM, COMPANY_NAME FROM financial_reports WHERE COMPANY_NAME IS NOT NULL",
+    "description": "All SQL queries in loaders.py use SQLAlchemy text() with named :param bindings or bindparam(expanding=True). No string concatenation into SQL was found. The codebase is clean on SQL injection for the dashboard layer.",
+    "recommendation": "No action required. Document this in CLAUDE.md as a confirmed safe pattern.",
+    "fix_example": null
+  }
+]

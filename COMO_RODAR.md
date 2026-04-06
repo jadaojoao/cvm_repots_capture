@@ -1,295 +1,208 @@
-# Como Rodar — CVM Analytics
+# Como Rodar - CVM Analytics
 
-Este guia explica como abrir e usar o dashboard financeiro, passo a passo.
-Não é necessário saber programar para seguir as instruções.
+Este guia explica como usar o sistema de coleta e consulta de dados financeiros da CVM, passo a passo.
+Nao e necessario saber programar para seguir as instrucoes.
 
 ---
 
-## Antes de começar — o que você precisa ter instalado
+## Antes de comecar
 
-- **Python 3.10 ou superior** — para verificar, abra o terminal e digite:
-  ```
+- **Python 3.10 ou superior**
+  ```powershell
   python --version
   ```
-  Se aparecer `Python 3.10.x` ou superior, está ok.
-  Se não tiver, baixe em: https://www.python.org/downloads/
-
-- **Pasta do projeto** — você precisa estar dentro da pasta `cvm_repots_capture`
-  antes de rodar qualquer comando.
+- **Pasta do projeto**
+  Entre na pasta `cvm_repots_capture` antes de rodar qualquer comando.
 
 ---
 
-## Passo 1 — Abrir o terminal dentro da pasta do projeto
+## Passo 1 - Abrir o terminal na pasta do projeto
 
-1. Abra o **Explorador de Arquivos** e navegue até a pasta `cvm_repots_capture`.
-2. Clique na barra de endereço (onde aparece o caminho da pasta), digite `cmd` e aperte **Enter**.
-3. Um terminal preto vai abrir já dentro da pasta correta.
+1. Abra o Explorador de Arquivos e navegue ate a pasta `cvm_repots_capture`.
+2. Clique na barra de endereco, digite `powershell` ou `cmd` e aperte Enter.
 
-> Alternativa: abra o PowerShell, o Prompt de Comando ou o terminal do VSCode
-> e navegue até a pasta com: `cd C:\caminho\para\cvm_repots_capture`
-
----
-
-## Passo 2 — Ativar o ambiente virtual
-
-O ambiente virtual isola as bibliotecas do projeto para não conflitar com outros programas.
-Você precisa ativá-lo toda vez que for usar o sistema.
-
-**No Prompt de Comando (CMD):**
+Alternativa:
+```powershell
+cd C:\caminho\para\cvm_repots_capture
 ```
+
+---
+
+## Passo 2 - Criar e ativar o ambiente virtual
+
+Se ainda nao existir:
+```powershell
+python -m venv .venv
+```
+
+**No CMD:**
+```bat
 .venv\Scripts\activate.bat
 ```
 
 **No PowerShell:**
-```
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Quando der certo, você vai ver `(.venv)` no início da linha do terminal, assim:
+Se aparecer erro de permissao no PowerShell:
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
-(.venv) C:\...\cvm_repots_capture>
-```
-
-> **Se aparecer erro de permissão no PowerShell**, rode este comando uma vez e tente novamente:
-> ```
-> Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-> ```
-
-> **Se ainda não criou o ambiente virtual**, rode antes:
-> ```
-> python -m venv .venv
-> ```
 
 ---
 
-## Passo 3 — Instalar as bibliotecas (somente na primeira vez)
+## Passo 3 - Instalar as bibliotecas
 
-Com o ambiente virtual ativo, rode:
-```
+Com o ambiente virtual ativo:
+```powershell
 pip install -r requirements.txt
 ```
 
-Isso instala tudo que o projeto precisa. Pode demorar alguns minutos.
-Nas próximas vezes você não precisa repetir este passo.
+---
+
+## Passo 4 - Configurar o banco de dados
+
+Se e a primeira vez usando o projeto, ou se voce mudou de maquina, rode estes dois scripts antes de abrir o app:
+
+```powershell
+python scripts/setup_db.py
+python scripts/setup_companies_table.py
+```
+
+Esses scripts:
+- criam indices e tabelas de apoio,
+- preenchem a tabela `companies`,
+- preparam o banco para o app desktop e o dashboard.
+
+Opcional:
+```powershell
+python scripts/expand_tickers.py --dry-run
+```
 
 ---
 
-## Passo 4 — Abrir o dashboard
+## Passo 5 - Atualizar os dados financeiros
 
-Com o ambiente virtual ativo, rode:
-```
-streamlit run dashboard/app.py
-```
+### Opcao A - Pelo aplicativo desktop (recomendado)
 
-O terminal vai mostrar uma mensagem parecida com:
-```
-You can now view your Streamlit app in your browser.
-Local URL: http://localhost:8501
+Este e o caminho principal do projeto.
+
+```powershell
+python cvm_pyqt_app.py
 ```
 
-Abra seu navegador e acesse: **http://localhost:8501**
+No app:
+1. escolha os anos desejados,
+2. revise a lista/ranking de empresas,
+3. clique para iniciar a atualizacao.
 
-O dashboard vai aparecer automaticamente.
+O app mostra progresso, erros e cobertura da base.
 
-> Para fechar o dashboard, volte ao terminal e aperte **Ctrl + C**.
+### Opcao B - Pelo terminal, para uma empresa especifica
 
----
-
-## Passo 5 — Como usar o dashboard
-
-### Escolher uma empresa
-Na barra lateral (esquerda da tela), você pode:
-- Digitar o nome da empresa na caixa de busca
-- Ou digitar o código CVM numérico (ex: `9512` para PETROBRAS)
-
-Após selecionar, os dados carregam automaticamente.
-
----
-
-### O que tem em cada aba
-
-**Visão Geral**
-A aba principal. Mostra tudo o que você precisa saber de uma empresa:
-
-- **Indicadores Principais** — Receita, Lucro, Ativo Total, ROE, Dívida/EBITDA e Liquidez Corrente com a variação em relação ao ano anterior.
-- **Valuation de Mercado** — Cotação atual, Market Cap, P/L, P/VP, EV/EBITDA e Dividend Yield. Dados em tempo real do Yahoo Finance, atualizados a cada 15 minutos. Só aparece para empresas com ações na bolsa.
-- **Histórico de Preço (1 ano)** — Gráfico com o preço da ação, a média móvel de 20 dias e o volume negociado por dia. Barras verdes = dia de alta, vermelhas = dia de queda.
-- **Evolução Trimestral** — Gráficos de barras com Receita, Lucro, Resultado Bruto e Fluxo de Caixa ao longo dos trimestres.
-- **Indicadores Anuais** — Linhas mostrando a evolução de Margem Bruta, ROE, Margem Líquida e ROA ano a ano.
-- **Comparar com outra empresa** — Use o seletor no topo da aba para escolher uma segunda empresa. Os gráficos de Receita, Lucro, Margem e ROE aparecem sobrepostos para facilitar a comparação.
-- **Composição Patrimonial** — Gráficos de rosca mostrando como o Ativo e o Passivo + PL estão distribuídos.
-- **Variação Anual do Resultado** — Gráfico cascata mostrando o que mudou de um ano para o outro na receita e resultado.
-
-**Peers (Concorrentes)**
-Compara a empresa selecionada com outras do mesmo setor:
-- Posição de ROE e Margem Líquida em relação à média do setor
-- Tabela de ranking com todas as empresas do setor
-- Gráfico de bolhas: quanto mais à direita e acima, melhor a empresa; o tamanho da bolha representa o ativo total
-
-**Mercado**
-Ranking de todas as empresas do banco por setor. Você escolhe o ano e a métrica (Margem Líquida, ROE, Margem Bruta ou ROA) e vê quem está melhor e pior.
-
-**Screener**
-Filtre todas as 344 empresas do banco por critérios financeiros:
-- Multiselect de setor
-- Sliders para ML mínima, ROE mínimo, Receita mínima e Liquidez Corrente mínima
-- Tabela interativa com ML, MB, ROE, ROA, Margem EBIT, Liq. Corrente, Dívida Líq./PL e CAGR de Receita 3 anos
-- Botão para exportar os resultados filtrados em CSV
-
-**Demonstrativo**
-Tabela com todos os dados financeiros brutos da empresa, organizada por período. Útil para quem quer ver os números completos.
-
-**Exportar**
-Baixa os dados da empresa selecionada em formato Excel (`.xlsx`).
-
----
-
-## Passo 6 — Atualizar os dados financeiros
-
-Os dados financeiros vêm do site da CVM (Comissão de Valores Mobiliários).
-Para baixar os relatórios mais recentes, você tem três opções:
-
-### Opção A — Pelo próprio dashboard (mais fácil)
-Na barra lateral, clique no botão **"🔄 Atualizar Dados"**.
-O sistema vai baixar os dados de todas as 69 empresas automaticamente.
-Aguarde — pode levar de 5 a 15 minutos dependendo da sua conexão.
-
-### Opção B — Pelo terminal
-Com o ambiente virtual ativo, rode:
-```
-python scripts/atualizar_todos.py
+```powershell
+python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated
 ```
 
-Para atualizar apenas anos específicos:
+Voce tambem pode usar o codigo CVM numerico no lugar do nome.
+
+### Opcao C - Atualizacao em lote
+
+Preview:
+```powershell
+python scripts/batch_completo.py --dry-run
 ```
+
+Lote amplo:
+```powershell
+python scripts/batch_completo.py --max-companies 450 --start-year 2022 --end-year 2025
+```
+
+Ou:
+```powershell
 python scripts/atualizar_todos.py --anos 2024 2025
 ```
 
-Para ver quais empresas seriam atualizadas sem baixar nada de verdade:
+Os logs ficam em `logs/` e `output/logs/`.
+
+### Opcao D - Atualizacao automatica aos domingos
+
+Para criar a tarefa agendada no Windows:
+
+```powershell
+$action  = New-ScheduledTaskAction -Execute "powershell.exe" `
+             -Argument "-ExecutionPolicy Bypass -File `"$PWD\scripts\atualizar_dados.ps1`"" `
+             -WorkingDirectory $PWD
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 07:00
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable
+Register-ScheduledTask -TaskName "CVM_Atualizar_Dados" `
+  -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest
 ```
-python scripts/atualizar_todos.py --dry-run
-```
 
-Os registros de cada atualização ficam salvos na pasta `logs/`.
-
-### Opção C — Automático todo domingo (já configurado)
-Uma tarefa chamada **`CVM_Atualizar_Dados`** já está programada no Windows
-para rodar todo domingo às 7h da manhã, mesmo que o computador estivesse
-desligado antes desse horário.
-
-Para verificar se está funcionando:
+Verificar:
 ```powershell
 Get-ScheduledTask -TaskName CVM_Atualizar_Dados
 ```
 
-Para rodar agora sem esperar o domingo:
+Rodar agora:
 ```powershell
 Start-ScheduledTask -TaskName CVM_Atualizar_Dados
 ```
 
 ---
 
-## Passo 6B — Rodar batch completo (avançado)
+## Passo 6 - Abrir o dashboard analitico
 
-Se você quer processar **muitas empresas de uma vez** (até 500), use o script `batch_completo.py`.
-Este script é inteligente — **detecta automaticamente quais empresas/anos já foram processados**
-e pula para evitar reprocessamento.
+Depois que houver dados no banco:
 
-### Verificar o que seria feito (recomendado antes de rodar)
-
-```bash
-python scripts/batch_completo.py --dry-run --max-companies 500 --start-year 2022 --end-year 2025
+```powershell
+streamlit run dashboard/app.py
 ```
 
-Isso mostra:
-- ✓ Empresas que **já têm dados completos** (skip)
-- ↓ Empresas que **faltam dados** (serão processadas)
+O dashboard atual e **somente leitura**. Ele serve para:
+- buscar empresa por nome, ticker ou codigo CVM,
+- selecionar anos,
+- visualizar 3 abas: `Visao Geral`, `Demonstracoes` e `Download`.
 
-Veja quantos anos faltam antes de começar.
-
-### Rodar para máximo de empresas (~11 horas)
-
-```bash
-python scripts/batch_completo.py --max-companies 450 --start-year 2022 --end-year 2025
-```
-
-Isso processa até 450 empresas ativas da CVM, anos 2022–2025. Tempo esperado: ~90 minutos.
-Salva tudo no banco + atualiza cache de cotações do Yahoo Finance.
-
-### Outras opções
-
-```bash
-# Expandir range de anos (processa só os novos)
-python scripts/batch_completo.py --max-companies 500 --start-year 2020 --end-year 2025
-
-# Testar com poucas empresas (rápido, ~5 min)
-python scripts/batch_completo.py --max-companies 5 --start-year 2025 --end-year 2025
-
-# Só atualizar cotações do Yahoo Finance (~5 min)
-python scripts/batch_completo.py --yfinance-only
-```
-
-Os logs de cada rodada ficam salvos em `logs/batch_YYYYMMDD_HHMMSS.log`.
+Atualizacao de dados pertence ao app PyQt6 ou aos scripts.
 
 ---
 
-## Passo 6C — Configurar banco de dados (primeira vez / após migração)
+## Passo 7 - Validar
 
-Se você acabou de clonar o projeto ou migrou para um novo computador, rode estes dois
-scripts antes de abrir o dashboard:
-
-```bash
-# 1. Cria índices de performance + tabelas companies e account_names
-python scripts/setup_db.py
-
-# 2. Popula a tabela companies com todas as empresas CVM + setores + tickers
-python scripts/setup_companies_table.py
+Suite principal:
+```powershell
+pytest tests/ -q
 ```
 
-Esses scripts são seguros de re-rodar — não apagam dados existentes.
+Validacoes de workbook/exportacao:
+```powershell
+python scripts/verify_consolidation.py --xlsx output/reports/PETROBRAS_financials.xlsx
+python scripts/verify_line_id_base.py --xlsx output/reports/PETROBRAS_financials.xlsx
+python scripts/quick_verify.py --xlsx output/reports/PETROBRAS_financials.xlsx
+python scripts/final_verification.py --xlsx output/reports/PETROBRAS_financials.xlsx
+```
 
-Após rodar, o banco terá:
-- Índices de busca rápida (~65% de ganho de velocidade nas abas Mercado e Screener)
-- Tabela `companies` com CNPJ, setor e ticker para todas as 344 empresas
-- Mapeamento de nomes de contas padronizados
-
-> **Opcional:** Para descobrir novos tickers B3 automaticamente (recomendado após
-> adicionar novas empresas):
-> ```bash
-> python scripts/expand_tickers.py --dry-run
-> # Analise data/metadata/ticker_candidates.csv
-> python scripts/expand_tickers.py  # Roda a validação completa
-> ```
+Observacao:
+- `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` existem, mas nao sao passos obrigatorios do fluxo principal atual.
 
 ---
 
-## Passo 7 — Adicionar uma nova empresa ao dashboard
+## Adicionar uma nova empresa
 
-O banco já tem 344 empresas. Para adicionar ticker de uma delas, siga os passos:
-
-**1. Rodar o scraper para baixar os dados da empresa (se não tiver):**
-
-Se a empresa **não está no banco ainda**, rode:
+1. Baixe os dados da empresa:
+```powershell
+python main.py --companies NOME_EMPRESA --start_year 2022 --end_year 2025
 ```
-python main.py --cvm CODIGO_CVM --anos 2022 2023 2024 2025
-```
-Substitua `CODIGO_CVM` pelo código numérico da empresa (ex: `9512` para PETROBRAS).
-O código CVM pode ser encontrado no site da CVM: https://www.cvm.gov.br
 
-Se a empresa **já está no banco**, pule este passo.
-
-**2. (Opcional) Mapear o ticker para ver cotação e valuation:**
-
-Abra o arquivo `dashboard/constants.py` em qualquer editor de texto (Bloco de Notas, VSCode, etc.).
-Encontre o bloco `TICKER_MAP` e adicione uma linha no formato:
+2. Se precisar mapear ticker manualmente, edite `src/ticker_map.py`:
 ```python
 99999: 'NOVO3.SA',   # NOME DA EMPRESA
 ```
-- `99999` = código CVM da empresa (o mesmo que você usou no passo anterior)
-- `'NOVO3.SA'` = código da ação na bolsa, como aparece no Yahoo Finance
-  (para verificar, pesquise a empresa em finance.yahoo.com)
 
-**3. Recarregar o dashboard** — feche e abra novamente (Ctrl+C no terminal e rode `streamlit run dashboard/app.py` de novo).
+- `99999` = codigo CVM
+- `'NOVO3.SA'` = ticker no Yahoo Finance
 
 ---
 
@@ -297,194 +210,31 @@ Encontre o bloco `TICKER_MAP` e adicione uma linha no formato:
 
 | O que aconteceu | O que fazer |
 |---|---|
-| Terminal mostra `ModuleNotFoundError` | O ambiente virtual não está ativo. Volte ao Passo 2. |
-| Terminal mostra `python não reconhecido` | Python não está instalado ou não está no PATH. Reinstale em python.org marcando "Add to PATH". |
-| Dashboard abre mas não mostra nenhuma empresa | Os dados ainda não foram baixados. Execute o Passo 6. |
-| Valuation e cotação não aparecem | Verifique sua conexão com a internet. Os dados vêm do Yahoo Finance em tempo real. |
-| Erro de encoding / caracteres estranhos | Antes de rodar qualquer comando, execute: `set PYTHONIOENCODING=utf-8` |
-| Dashboard não atualiza ao editar arquivos | Clique em **"Always rerun"** na barra amarela que aparece no topo da página. |
-| Batch completo demorou muito | Seu computador/internet é lento. CVM tem ~675 empresas ativas, 500 leva ~82 min. Para ir mais rápido, use `--max-companies 100` e processe menos empresas. |
-| Batch completo saiu do jeito (Ctrl+C) | Sem problemas — rerun `batch_completo.py` que detecta o que já foi feito e continua. Use `--resume` se quiser garantir. |
-| Erro "Permission denied" no PowerShell | Execute: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` e tente de novo. |
-| Botão "Atualizar" não faz nada | Veja a pasta `logs/` — haverá um arquivo com o erro completo. |
-| Porta 8501 já em uso | Rode com outra porta: `streamlit run dashboard/app.py --server.port 8502` |
+| `ModuleNotFoundError` | O ambiente virtual nao esta ativo. |
+| `python` nao reconhecido | Python nao esta instalado ou nao esta no PATH. |
+| App abre mas nao mostra empresas | Rode `setup_db.py` e `setup_companies_table.py`, depois atualize dados. |
+| Dashboard vazio | Verifique se a empresa/anos escolhidos ja foram processados e se `financial_reports` tem linhas. |
+| Erro de permissao no PowerShell | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |
+| Batch interrompido | Rode novamente; os scripts de lote evitam reprocessar o que ja foi concluido. |
+| Cotacao nao aparece | Verifique internet e mapeamento de ticker. |
 
 ---
 
-## Estrutura dos arquivos (para quem quiser mexer no código)
+## Estrutura dos arquivos
 
-```
+```text
 cvm_repots_capture/
-│
-├── dashboard/             # Tudo relacionado ao painel visual
-│   ├── app.py             # Ponto de entrada do dashboard
-│   ├── constants.py       # Configurações e mapa de tickers
-│   ├── db.py              # Conexão com o banco de dados
-│   ├── loaders.py         # Carregamento de dados
-│   ├── kpis.py            # Cálculo dos indicadores financeiros
-│   ├── charts.py          # Geração dos gráficos
-│   └── tabs/              # Cada aba do dashboard em um arquivo separado
-│
-├── src/                   # Motor do scraper (baixa os dados da CVM)
-├── scripts/               # Scripts de automação
-├── data/db/               # Banco de dados SQLite (arquivo local)
-├── logs/                  # Registros das atualizações
-├── main.py                # Comando para baixar dados de uma empresa
-└── requirements.txt       # Lista de bibliotecas necessárias
+|-- src/                   # Motor do scraper e da consulta
+|-- scripts/               # Automacao, setup, batch e validacoes
+|-- data/db/               # Banco SQLite local
+|-- logs/                  # Registros das atualizacoes
+|-- dashboard/             # App Streamlit read-only
+|-- cvm_pyqt_app.py        # App desktop PyQt6
+|-- main.py                # CLI para coleta pontual
+`-- requirements.txt       # Dependencias
 ```
 
-> Para alterar um KPI: edite `dashboard/kpis.py`
-> Para alterar um gráfico: edite `dashboard/charts.py`
-> Para alterar o layout de uma aba: edite o arquivo correspondente em `dashboard/tabs/`
-
----
-
-## Deixar o dashboard online (acessível pela internet, sempre no ar)
-
-Por padrão o dashboard só funciona no seu computador. Para publicá-lo na internet
-de graça, você vai usar dois serviços:
-
-- **Supabase** — banco de dados PostgreSQL gratuito na nuvem (substitui o arquivo SQLite local)
-- **Streamlit Community Cloud** — hospedagem gratuita do painel, direto do seu GitHub
-
-O código já está preparado para isso. Basta seguir os passos abaixo uma única vez.
-
----
-
-### Etapa 1 — Criar uma conta no GitHub e subir o código
-
-O Streamlit Cloud publica o dashboard diretamente de um repositório GitHub.
-
-1. Crie uma conta gratuita em https://github.com
-2. Crie um repositório novo (pode ser privado) com o nome que quiser, ex: `cvm-analytics`
-3. Na pasta do projeto, abra o terminal com o ambiente virtual ativo e rode:
-   ```
-   git remote set-url origin https://github.com/SEU_USUARIO/cvm-analytics.git
-   git push -u origin master
-   ```
-   Substitua `SEU_USUARIO` pelo seu nome de usuário do GitHub.
-
-> Se for a primeira vez usando git, pode ser necessário configurar seu nome e e-mail:
-> ```
-> git config --global user.name "Seu Nome"
-> git config --global user.email "seu@email.com"
-> ```
-
----
-
-### Etapa 2 — Criar o banco de dados na nuvem (Supabase)
-
-O Supabase oferece um PostgreSQL gratuito com 500 MB — mais que suficiente para este projeto.
-
-1. Acesse https://supabase.com e crie uma conta gratuita
-2. Clique em **"New project"**
-3. Escolha um nome (ex: `cvm-financials`), defina uma senha forte e selecione a região **South America (São Paulo)**
-4. Aguarde o projeto inicializar (leva cerca de 1 minuto)
-5. No menu lateral, vá em **Settings → Database**
-6. Role até a seção **"Connection string"** e selecione a aba **"Transaction pooler"**
-7. Copie a URI — ela tem este formato:
-   ```
-   postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
-   ```
-   **Guarde essa URI**, você vai precisar dela nos próximos passos.
-
-> A porta usada é **6543** (Transaction Pooler), não 5432. Isso é importante.
-
----
-
-### Etapa 3 — Migrar os dados do seu computador para o Supabase
-
-Este passo copia os dados do banco local (SQLite) para o banco na nuvem (Supabase).
-Você só precisa fazer isso uma vez.
-
-No terminal, com o ambiente virtual ativo, rode:
-
-**Windows (CMD):**
-```
-set DATABASE_URL=postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
-python scripts/migrate_to_supabase.py
-```
-
-**Windows (PowerShell):**
-```
-$env:DATABASE_URL="postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
-python scripts/migrate_to_supabase.py
-```
-
-Substitua a URI pela que você copiou no passo anterior.
-
-O script vai exibir o progresso e, no final, mostrar a contagem de linhas migradas.
-Se tudo correu bem, você verá algo como:
-```
-financial_reports: 246.000 rows migrados com sucesso.
-```
-
-> Para conferir sem migrar nada (teste):
-> ```
-> python scripts/migrate_to_supabase.py --dry-run
-> ```
-
----
-
-### Etapa 4 — Publicar o dashboard no Streamlit Community Cloud
-
-1. Acesse https://share.streamlit.io e faça login com sua conta do GitHub
-2. Clique em **"New app"**
-3. Em **Repository**, selecione o repositório que você criou na Etapa 1
-4. Em **Branch**, selecione `master`
-5. Em **Main file path**, coloque: `dashboard/app.py`
-6. Clique em **"Advanced settings"** e adicione o seguinte na caixa de **Secrets**:
-   ```toml
-   [database]
-   url = "postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
-   ```
-   (a mesma URI da Etapa 2)
-7. Clique em **"Deploy!"**
-
-Aguarde o deploy — leva de 2 a 5 minutos. Quando terminar, você receberá um link público como:
-```
-https://seu-usuario-cvm-analytics-dashboard-app-XXXX.streamlit.app
-```
-
-Esse link funciona em qualquer dispositivo, 24 horas por dia, sem precisar do seu computador ligado.
-
----
-
-### Etapa 5 — Atualizar os dados financeiros no banco da nuvem
-
-Quando rodar o scraper para baixar novos relatórios da CVM, os dados precisam ir
-para o Supabase (não mais para o SQLite local).
-
-**Windows (CMD):**
-```
-set DATABASE_URL=postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres
-python scripts/atualizar_todos.py
-```
-
-**Windows (PowerShell):**
-```
-$env:DATABASE_URL="postgresql://postgres.XXXXXX:SUA_SENHA@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
-python scripts/atualizar_todos.py
-```
-
-> Dica: você pode salvar a variável `DATABASE_URL` permanentemente no Windows para não precisar
-> redigitar toda vez:
-> 1. Pesquise **"Editar variáveis de ambiente do sistema"** no menu Iniciar
-> 2. Clique em **"Variáveis de ambiente..."**
-> 3. Em "Variáveis do usuário", clique em **"Nova..."**
-> 4. Nome: `DATABASE_URL` / Valor: a URI completa do Supabase
-> 5. Clique em OK — reinicie o terminal para o efeito entrar em vigor
-
----
-
-### Resumo: o que fica onde
-
-| O que é | Onde fica |
-|---|---|
-| Código do projeto | GitHub (privado, gratuito) |
-| Banco de dados | Supabase (PostgreSQL, gratuito até 500 MB) |
-| Dashboard publicado | Streamlit Community Cloud (gratuito) |
-| Dados no seu PC | SQLite local — continua funcionando normalmente para desenvolvimento |
-
-O dashboard local (no seu PC) continua funcionando normalmente com o SQLite.
-Só a versão publicada na internet usa o Supabase.
+Para alterar:
+- ticker map: `src/ticker_map.py`
+- conexao de banco: `src/db.py`
+- scraper: `src/scraper.py`

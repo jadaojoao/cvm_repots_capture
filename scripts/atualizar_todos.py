@@ -19,7 +19,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dashboard.db import get_engine
+from src.db import get_engine
 from sqlalchemy import text
 
 # ==============================================================================

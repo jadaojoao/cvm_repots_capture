@@ -5,8 +5,9 @@ scripts/setup_db.py — Setup e otimização do banco de dados CVM.
 Executa em ordem:
   1. Cria índices de performance em financial_reports e qa_logs
   2. Cria tabela `companies` (metadados: CNPJ, setor, ticker)
-  3. Cria tabela `account_names` (dicionário canônico de contas)
-  4. Preenche STANDARD_NAME NULLs em financial_reports via account_names
+  3. Cria tabela `company_refresh_status` (status do Update Center)
+  4. Cria tabela `account_names` (dicionário canônico de contas)
+  5. Preenche STANDARD_NAME NULLs em financial_reports via account_names
 
 Seguro de rodar múltiplas vezes (idempotente).
 
@@ -97,6 +98,26 @@ DDL_COMPANIES_INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_companies_ticker ON companies(ticker_b3) WHERE ticker_b3 IS NOT NULL",
 ]
 
+DDL_COMPANY_REFRESH_STATUS = """
+CREATE TABLE IF NOT EXISTS company_refresh_status (
+    cd_cvm             INTEGER PRIMARY KEY,
+    company_name       TEXT,
+    source_scope       TEXT NOT NULL DEFAULT 'local',
+    last_attempt_at    TEXT,
+    last_success_at    TEXT,
+    last_status        TEXT,
+    last_error         TEXT,
+    last_start_year    INTEGER,
+    last_end_year      INTEGER,
+    last_rows_inserted INTEGER,
+    updated_at         TEXT
+)
+"""
+
+DDL_COMPANY_REFRESH_STATUS_INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_crs_status ON company_refresh_status(last_status)",
+]
+
 
 def step2_create_companies_table(conn, dry_run: bool) -> None:
     log.info("=== Passo 2: Criando tabela `companies` ===")
@@ -110,8 +131,19 @@ def step2_create_companies_table(conn, dry_run: bool) -> None:
     log.info("  Nota: execute scripts/setup_companies_table.py para popular os dados")
 
 
+def step3_create_company_refresh_status(conn, dry_run: bool) -> None:
+    log.info("=== Passo 3: Criando tabela `company_refresh_status` ===")
+    if dry_run:
+        log.info("  [DRY-RUN] Criaria tabela company_refresh_status + 1 índice")
+        return
+    conn.execute(_text(DDL_COMPANY_REFRESH_STATUS))
+    for sql in DDL_COMPANY_REFRESH_STATUS_INDEXES:
+        conn.execute(_text(sql))
+    log.info("  ✓ Tabela company_refresh_status criada")
+
+
 # ==============================================================================
-# PASSO 3 — Tabela `account_names` + população via canonical_accounts.csv
+# PASSO 4 — Tabela `account_names` + população via canonical_accounts.csv
 # ==============================================================================
 
 DDL_ACCOUNT_NAMES = """
@@ -130,7 +162,7 @@ CREATE TABLE IF NOT EXISTS account_names (
 DDL_ACCOUNT_NAMES_IDX = "CREATE INDEX IF NOT EXISTS idx_account_lookup ON account_names(statement_type, cd_conta)"
 
 
-def step3_create_account_names(conn, dry_run: bool) -> None:
+def step4_create_account_names(conn, dry_run: bool) -> None:
     import pandas as pd
 
     log.info("=== Passo 3: Criando tabela `account_names` e populando ===")
@@ -138,7 +170,7 @@ def step3_create_account_names(conn, dry_run: bool) -> None:
     canon_path = ROOT / "data" / "canonical_accounts.csv"
     if not canon_path.exists():
         log.error(f"  Arquivo não encontrado: {canon_path}")
-        log.error("  Pulando passo 3.")
+        log.error("  Pulando passo 4.")
         return
 
     df = pd.read_csv(canon_path, encoding='utf-8-sig')
@@ -212,7 +244,7 @@ def step3_create_account_names(conn, dry_run: bool) -> None:
 
 
 # ==============================================================================
-# PASSO 4 — Preencher STANDARD_NAME NULLs em financial_reports
+# PASSO 5 — Preencher STANDARD_NAME NULLs em financial_reports
 # ==============================================================================
 
 UPDATE_STANDARD_NAME_SQL = """
@@ -228,19 +260,27 @@ SET "STANDARD_NAME" = (
 WHERE "STANDARD_NAME" IS NULL
 """
 
+UPDATE_STANDARD_NAME_FALLBACK_SQL = """
+UPDATE financial_reports
+SET "STANDARD_NAME" = "DS_CONTA"
+WHERE "STANDARD_NAME" IS NULL
+  AND "DS_CONTA" IS NOT NULL
+  AND TRIM("DS_CONTA") != ''
+"""
 
-def step4_fill_standard_names(conn, dry_run: bool) -> None:
-    log.info("=== Passo 4: Preenchendo STANDARD_NAME NULLs ===")
+
+def step5_fill_standard_names(conn, dry_run: bool) -> None:
+    log.info("=== Passo 5: Preenchendo STANDARD_NAME NULLs ===")
 
     # Verificar se account_names existe e tem dados
     try:
         count_an = conn.execute(_text("SELECT COUNT(*) FROM account_names")).scalar()
     except Exception:
-        log.warning("  Tabela account_names não existe. Pulando passo 4.")
+        log.warning("  Tabela account_names não existe. Pulando passo 5.")
         return
 
     if count_an == 0:
-        log.warning("  account_names está vazia. Execute o passo 3 primeiro.")
+        log.warning("  account_names está vazia. Execute o passo 4 primeiro.")
         return
 
     null_before = conn.execute(
@@ -254,18 +294,56 @@ def step4_fill_standard_names(conn, dry_run: bool) -> None:
 
     if dry_run:
         log.info(f"  [DRY-RUN] Preencheria até {null_before:,} NULLs usando account_names")
+        log.info(f"  [DRY-RUN] Restantes sem mapeamento seriam preenchidos com DS_CONTA")
         return
 
     t0 = time.time()
     conn.execute(_text(UPDATE_STANDARD_NAME_SQL))
-    elapsed = time.time() - t0
-
-    null_after = conn.execute(
+    null_after_dict = conn.execute(
         _text('SELECT COUNT(*) FROM financial_reports WHERE "STANDARD_NAME" IS NULL')
     ).scalar()
-    filled = null_before - null_after
-    log.info(f"  ✓ {filled:,} NULLs preenchidos em {elapsed:.1f}s")
-    log.info(f"  Ainda NULL: {null_after:,} (contas sem mapeamento no dicionário)")
+    filled_from_dict = null_before - null_after_dict
+    log.info(f"  ✓ {filled_from_dict:,} NULLs preenchidos via account_names em {time.time()-t0:.1f}s")
+
+    if null_after_dict > 0:
+        t1 = time.time()
+        conn.execute(_text(UPDATE_STANDARD_NAME_FALLBACK_SQL))
+        null_after_fallback = conn.execute(
+            _text('SELECT COUNT(*) FROM financial_reports WHERE "STANDARD_NAME" IS NULL')
+        ).scalar()
+        filled_from_ds = null_after_dict - null_after_fallback
+        log.info(f"  ✓ {filled_from_ds:,} NULLs preenchidos via DS_CONTA (fallback) em {time.time()-t1:.1f}s")
+        log.info(f"  Ainda NULL: {null_after_fallback:,} (DS_CONTA também nulo — raro)")
+    else:
+        log.info("  Nenhum NULL restante após account_names.")
+
+
+# ==============================================================================
+# PASSO 6 — Limpar registros órfãos em company_refresh_status
+# ==============================================================================
+
+def step6_clean_orphan_refresh_status(conn, dry_run: bool) -> None:
+    log.info("=== Passo 6: Limpando registros órfãos em company_refresh_status ===")
+    try:
+        count = conn.execute(_text("""
+            SELECT COUNT(*) FROM company_refresh_status
+            WHERE cd_cvm NOT IN (SELECT cd_cvm FROM companies)
+        """)).scalar()
+    except Exception:
+        log.warning("  Tabela company_refresh_status não existe. Pulando passo 6.")
+        return
+    log.info(f"  Órfãos encontrados: {count}")
+    if count == 0:
+        log.info("  Nada a fazer.")
+        return
+    if dry_run:
+        log.info(f"  [DRY-RUN] Removeria {count} registros órfãos")
+        return
+    conn.execute(_text("""
+        DELETE FROM company_refresh_status
+        WHERE cd_cvm NOT IN (SELECT cd_cvm FROM companies)
+    """))
+    log.info(f"  ✓ {count} registros órfãos removidos")
 
 
 # ==============================================================================
@@ -286,7 +364,7 @@ def parse_args():
             "  python scripts/setup_db.py\n"
             "  python scripts/setup_db.py --dry-run\n"
             "  python scripts/setup_db.py --step 1\n"
-            "  python scripts/setup_db.py --step 3 --step 4"
+            "  python scripts/setup_db.py --step 3 --step 4 --step 5"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -296,16 +374,16 @@ def parse_args():
     )
     parser.add_argument(
         "--step", type=int, action="append", dest="steps",
-        help="Executar só passos específicos (1-4). Pode repetir: --step 1 --step 2",
+        help="Executar só passos específicos (1-6). Pode repetir: --step 1 --step 2",
     )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    steps = set(args.steps) if args.steps else {1, 2, 3, 4}
+    steps = set(args.steps) if args.steps else {1, 2, 3, 4, 5, 6}
 
-    from dashboard.db import get_engine
+    from src.db import get_engine
     engine = get_engine()
     dialect = engine.dialect.name
     log.info(f"Banco: {dialect} | Dry-run: {args.dry_run} | Passos: {sorted(steps)}")
@@ -318,9 +396,13 @@ def main():
         if 2 in steps:
             step2_create_companies_table(conn, args.dry_run)
         if 3 in steps:
-            step3_create_account_names(conn, args.dry_run)
+            step3_create_company_refresh_status(conn, args.dry_run)
         if 4 in steps:
-            step4_fill_standard_names(conn, args.dry_run)
+            step4_create_account_names(conn, args.dry_run)
+        if 5 in steps:
+            step5_fill_standard_names(conn, args.dry_run)
+        if 6 in steps:
+            step6_clean_orphan_refresh_status(conn, args.dry_run)
 
     elapsed = time.time() - t_total
     log.info(f"Setup concluído em {elapsed:.1f}s")

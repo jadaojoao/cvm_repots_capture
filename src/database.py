@@ -1,7 +1,16 @@
 import os
 import re
+import time
+import logging
+from datetime import datetime
 import pandas as pd
 from sqlalchemy import create_engine, text, Engine
+from sqlalchemy.exc import OperationalError
+
+logger = logging.getLogger(__name__)
+
+SQLITE_WRITE_MAX_RETRIES = 3
+SQLITE_WRITE_BACKOFF_SECONDS = 0.6
 
 
 class CVMDatabase:
@@ -45,6 +54,12 @@ class CVMDatabase:
             pk   = "SERIAL PRIMARY KEY"
             real = "DOUBLE PRECISION"
 
+        # Apply PRAGMAs only for SQLite.
+        if dialect == "sqlite":
+            with self._engine.connect() as pragma_conn:
+                pragma_conn.execute(text("PRAGMA journal_mode = WAL"))
+                pragma_conn.execute(text("PRAGMA synchronous = OFF"))
+
         with self._engine.begin() as conn:
             conn.execute(text(f"""
                 CREATE TABLE IF NOT EXISTS financial_reports (
@@ -83,37 +98,57 @@ class CVMDatabase:
                                  company_type: str, setor_cvm: str | None = None,
                                  ticker_b3: str | None = None) -> None:
         """Persiste metadados na tabela companies (se existir). Idempotente."""
-        try:
-            # INSERT OR IGNORE: não sobrescreve cnpj/setor_analitico/ticker_b3 já preenchidos
-            conn.execute(text("""
-                INSERT OR IGNORE INTO companies
-                    (cd_cvm, company_name, company_type, setor_cvm, ticker_b3, updated_at)
-                VALUES
-                    (:cd, :name, :ctype, :setor, :ticker,
-                     strftime('%Y-%m-%dT%H:%M:%S', 'now'))
-            """), {
-                "cd":     int(cvm_code),
-                "name":   company_name,
-                "ctype":  company_type or "comercial",
-                "setor":  setor_cvm,
-                "ticker": ticker_b3,
-            })
-            # Atualiza campos não-nulos que podem ter mudado
-            conn.execute(text("""
-                UPDATE companies
-                SET company_name = :name,
-                    company_type = :ctype,
-                    setor_cvm    = COALESCE(:setor, setor_cvm),
-                    updated_at   = strftime('%Y-%m-%dT%H:%M:%S', 'now')
-                WHERE cd_cvm = :cd
-            """), {
-                "cd":    int(cvm_code),
-                "name":  company_name,
-                "ctype": company_type or "comercial",
-                "setor": setor_cvm,
-            })
-        except Exception:
-            pass  # tabela companies pode não existir em instâncias antigas
+        updated_at = datetime.utcnow().replace(microsecond=0).isoformat()
+        params = {
+            "cd": int(cvm_code),
+            "name": company_name,
+            "ctype": company_type or "comercial",
+            "setor": setor_cvm,
+            "ticker": ticker_b3,
+            "updated_at": updated_at,
+        }
+
+        conn.execute(text("""
+            INSERT INTO companies
+                (cd_cvm, company_name, company_type, setor_cvm, ticker_b3, updated_at)
+            SELECT
+                :cd, :name, :ctype, :setor, :ticker, :updated_at
+            WHERE NOT EXISTS (
+                SELECT 1 FROM companies WHERE cd_cvm = :cd
+            )
+        """), params)
+        conn.execute(text("""
+            UPDATE companies
+            SET company_name = :name,
+                company_type = :ctype,
+                setor_cvm    = COALESCE(:setor, setor_cvm),
+                ticker_b3    = COALESCE(:ticker, ticker_b3),
+                updated_at   = :updated_at
+            WHERE cd_cvm = :cd
+        """), params)
+
+    def _to_sql_with_retry(self, table_name: str, df: pd.DataFrame, conn) -> None:
+        """Retry writes for transient SQLite lock errors without masking final failures."""
+        dialect = self._engine.dialect.name
+        max_retries = SQLITE_WRITE_MAX_RETRIES if dialect == "sqlite" else 1
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                df.to_sql(table_name, conn, if_exists='append', index=False, method='multi', chunksize=2000)
+                return
+            except OperationalError as exc:
+                if attempt >= max_retries:
+                    raise
+                sleep_s = SQLITE_WRITE_BACKOFF_SECONDS * attempt
+                logger.warning(
+                    "Transient DB write failure for table=%s attempt=%s/%s error=%s",
+                    table_name,
+                    attempt,
+                    max_retries,
+                    exc,
+                )
+                time.sleep(sleep_s)
 
     def insert_company_data(self, company_name: str, cvm_code: int, company_type: str,
                             processed_reports: dict, qa_logs: list,
@@ -126,15 +161,54 @@ class CVMDatabase:
         """
         with self._engine.begin() as conn:
             # 0. Persistir metadados na tabela companies
-            self._upsert_company_metadata(
-                conn, company_name, cvm_code, company_type, setor_cvm, ticker_b3
-            )
+            # Use nested transaction so metadata failures don't abort main data writes on PostgreSQL.
+            try:
+                with conn.begin_nested():
+                    self._upsert_company_metadata(
+                        conn, company_name, cvm_code, company_type, setor_cvm, ticker_b3
+                    )
+            except Exception as exc:
+                logger.warning(
+                    "Non-fatal company metadata upsert failure "
+                    "(table may not exist or schema may differ): cd_cvm=%s company_name=%r error_type=%s error=%s",
+                    cvm_code,
+                    company_name,
+                    exc.__class__.__name__,
+                    exc,
+                )
 
-            # 1. Clean existing records for this company (Idempotency)
-            conn.execute(
-                text('DELETE FROM financial_reports WHERE "CD_CVM" = :cvm'),
-                {"cvm": int(cvm_code)},
-            )
+            # 1. Clean existing records for this company (Idempotency — scoped to years being inserted)
+            years_to_delete: set[int] = set()
+            _meta = {'LINE_ID_BASE', 'CD_CONTA', 'DS_CONTA', 'DS_CONTA_norm', 'QA_CONFLICT', 'STANDARD_NAME'}
+            for df_wide in processed_reports.values():
+                if df_wide is None or df_wide.empty:
+                    continue
+                for col in df_wide.columns:
+                    col_str = str(col)
+                    if col_str in _meta:
+                        continue
+                    if col_str.isdigit() and len(col_str) == 4:
+                        years_to_delete.add(int(col_str))
+                    else:
+                        m = re.search(r'\dQ(\d{2})', col_str)
+                        if m:
+                            years_to_delete.add(2000 + int(m.group(1)))
+
+            if years_to_delete:
+                placeholders = ', '.join(str(y) for y in sorted(years_to_delete))
+                conn.execute(
+                    text(
+                        f'DELETE FROM financial_reports '
+                        f'WHERE "CD_CVM" = :cvm '
+                        f'AND ("REPORT_YEAR" IN ({placeholders}) OR "REPORT_YEAR" IS NULL)'
+                    ),
+                    {"cvm": int(cvm_code)},
+                )
+            else:
+                conn.execute(
+                    text('DELETE FROM financial_reports WHERE "CD_CVM" = :cvm'),
+                    {"cvm": int(cvm_code)},
+                )
             conn.execute(
                 text('DELETE FROM qa_logs WHERE "CD_CVM" = :cvm'),
                 {"cvm": int(cvm_code)},
@@ -164,7 +238,7 @@ class CVMDatabase:
                         'PERIOD', 'LINE_ID_BASE', 'CD_CONTA', 'DESCRIPTION', 'ACTION',
                     ]
                     df_to_insert = df_qa[[c for c in db_schema_cols if c in df_qa.columns]]
-                    df_to_insert.to_sql('qa_logs', conn, if_exists='append', index=False)
+                    self._to_sql_with_retry('qa_logs', df_to_insert, conn)
 
             # 3. Melt and Insert Financial Reports
             all_long_dfs = []
@@ -175,10 +249,22 @@ class CVMDatabase:
 
                 metadata_cols = [
                     'LINE_ID_BASE', 'CD_CONTA', 'DS_CONTA', 'DS_CONTA_norm',
-                    'QA_CONFLICT', 'STANDARD_NAME',
+                    'QA_CONFLICT', 'STANDARD_NAME', 'COMPANY_TYPE',
                 ]
                 id_vars    = [c for c in metadata_cols if c in df_wide.columns]
-                value_vars = [c for c in df_wide.columns if c not in id_vars]
+                value_vars = []
+                for c in df_wide.columns:
+                    if c in id_vars:
+                        continue
+                    col = str(c)
+                    if col.isdigit() and len(col) == 4:
+                        value_vars.append(c)
+                        continue
+                    if re.match(r'^\dQ(\d{2})$', col):
+                        value_vars.append(c)
+
+                if not value_vars:
+                    continue
 
                 df_long = df_wide.melt(
                     id_vars=id_vars,
@@ -196,16 +282,17 @@ class CVMDatabase:
                 df_long['COMPANY_TYPE']   = company_type
                 df_long['STATEMENT_TYPE'] = statement_type
 
-                def extract_year(label):
-                    label = str(label)
-                    if label.isdigit() and len(label) == 4:
-                        return int(label)
-                    match = re.search(r'\dQ(\d{2})', label)
-                    if match:
-                        return 2000 + int(match.group(1))
-                    return None
-
-                df_long['REPORT_YEAR'] = df_long['PERIOD_LABEL'].apply(extract_year)
+                                # Vectorized extract_year
+                df_long['REPORT_YEAR'] = None
+                labels = df_long['PERIOD_LABEL'].astype(str)
+                # Annual: 2024
+                mask_ann = labels.str.match(r'^\d{4}$')
+                df_long.loc[mask_ann, 'REPORT_YEAR'] = labels[mask_ann].astype(int)
+                # Quarterly: 1Q24
+                mask_qtr = labels.str.match(r'^\dQ(\d{2})$')
+                if mask_qtr.any():
+                    yy = labels[mask_qtr].str.extract(r'\dQ(\d{2})')[0].astype(int)
+                    df_long.loc[mask_qtr, 'REPORT_YEAR'] = 2000 + yy
 
                 if 'CD_CONTA' not in df_long.columns:
                     df_long['CD_CONTA'] = None
@@ -223,7 +310,19 @@ class CVMDatabase:
 
             if all_long_dfs:
                 final_df = pd.concat(all_long_dfs, ignore_index=True)
-                final_df.to_sql('financial_reports', conn, if_exists='append', index=False)
+                unique_key_cols = ["CD_CVM", "STATEMENT_TYPE", "PERIOD_LABEL", "LINE_ID_BASE"]
+                before_dedupe = len(final_df)
+                final_df = final_df.drop_duplicates(subset=unique_key_cols, keep="last").reset_index(drop=True)
+                removed = before_dedupe - len(final_df)
+                if removed > 0:
+                    logger.warning(
+                        "Deduplicated %s financial_reports rows before insert "
+                        "for cd_cvm=%s company_name=%r",
+                        removed,
+                        cvm_code,
+                        company_name,
+                    )
+                self._to_sql_with_retry('financial_reports', final_df, conn)
                 return len(final_df)
 
             return 0

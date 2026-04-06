@@ -87,7 +87,7 @@ def get_active_companies(max_n: int) -> list[tuple[int, str]]:
 def get_processed_years(cd_cvm: int) -> set[int]:
     """Retorna conjunto de anos já processados para uma empresa no DB."""
     try:
-        from dashboard.db import get_engine
+        from src.db import get_engine
         from sqlalchemy import text
 
         engine = get_engine()
@@ -188,7 +188,7 @@ def prefetch_yfinance(cache_path: Path) -> None:
         log.warning("yfinance não instalado. Pulando pré-cache de mercado.")
         return
 
-    from dashboard.constants import TICKER_MAP
+    from src.ticker_map import TICKER_MAP
 
     cache_path.parent.mkdir(parents=True, exist_ok=True)
 

@@ -156,7 +156,7 @@ def fetch_b3_companies() -> dict:
 
 def load_companies_without_ticker() -> list[dict]:
     """Retorna empresas no banco sem ticker mapeado."""
-    from dashboard.db import get_engine
+    from src.db import get_engine
     from sqlalchemy import text
 
     engine = get_engine()
@@ -178,7 +178,7 @@ def load_companies_without_ticker() -> list[dict]:
         pass
 
     # Fallback: via financial_reports
-    from dashboard.constants import TICKER_MAP
+    from src.ticker_map import TICKER_MAP
     with engine.connect() as conn:
         rows = conn.execute(text(
             'SELECT DISTINCT "CD_CVM", "COMPANY_NAME" FROM financial_reports ORDER BY "CD_CVM"'
@@ -238,7 +238,7 @@ def match_by_cvm_code(companies: list[dict], b3_map: dict) -> tuple[list, list]:
 
 def match_by_fuzzy(unmatched: list[dict], b3_map: dict, threshold: float = 0.75) -> list:
     """Tenta match por nome (fuzzy) para empresas sem código CVM no B3."""
-    from dashboard.constants import TICKER_MAP
+    from src.ticker_map import TICKER_MAP
 
     by_cvm   = b3_map.get("by_cvm",  {})
     by_cnpj  = b3_map.get("by_cnpj", {})

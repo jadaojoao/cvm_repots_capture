@@ -1,0 +1,62 @@
+[
+  {
+    "id": "TEST-001",
+    "severity": "medium",
+    "dimension": "testing",
+    "category": "coverage",
+    "file": "tests/",
+    "line": null,
+    "code_snippet": "# No test file exists for dashboard/kpis.py",
+    "description": "dashboard/kpis.py (489 lines) has zero test coverage. This file contains 60+ financial indicator calculations that are the core value of the dashboard. Critical functions precompute_kpis(), precompute_quarterly_kpis(), and compute_peer_kpis() are entirely untested, including the known CAGR bug (CORR-003) and safe_div() edge cases.",
+    "recommendation": "Create tests/test_dashboard_kpis.py covering: (1) safe_div boundary cases (None, zero denominator), (2) precompute_kpis with a minimal synthetic DataFrame, (3) CAGR formula correctness, (4) quarterly annualization (×4 for PMR/PME), (5) DuPont identity consistency (ROE == ML × Giro × Alavancagem).",
+    "fix_example": "# tests/test_dashboard_kpis.py\nimport pytest\nfrom dashboard.kpis import safe_div\n\ndef test_safe_div_zero_denominator():\n    assert safe_div(10, 0) is None\n\ndef test_safe_div_none_inputs():\n    assert safe_div(None, 5) is None\n    assert safe_div(5, None) is None\n\ndef test_safe_div_normal():\n    assert safe_div(10, 4) == pytest.approx(2.5)"
+  },
+  {
+    "id": "TEST-002",
+    "severity": "medium",
+    "dimension": "testing",
+    "category": "coverage",
+    "file": "tests/",
+    "line": null,
+    "code_snippet": "# No tests for load_sectors() fallback chain",
+    "description": "load_sectors() has a 3-tier fallback (DB → Excel → hardcoded dict). Only the hardcoded path is trivially reachable without mocking. If the DB schema changes (e.g. setor_analitico column is renamed), the failure would be silent — sectors fall back to the hardcoded 6-entry dict, causing 443 companies to appear sectorless in Peers/Screener tabs.",
+    "recommendation": "Add tests for: (1) DB path returns correct dict, (2) DB failure falls through to Excel, (3) Excel failure falls through to hardcoded overrides, (4) setor_analitico column is queried correctly.",
+    "fix_example": "# tests/test_dashboard_loaders.py (extend existing file)\nfrom unittest.mock import patch, MagicMock\nfrom dashboard.loaders import load_sectors\n\ndef test_load_sectors_db_path(mock_engine):\n    # Mock engine returning setor_analitico data\n    ...\n\ndef test_load_sectors_falls_back_to_excel_when_db_fails():\n    with patch('dashboard.loaders.get_engine', side_effect=Exception('DB down')):\n        result = load_sectors()\n    assert 24783 in result  # hardcoded override"
+  },
+  {
+    "id": "TEST-003",
+    "severity": "medium",
+    "dimension": "testing",
+    "category": "coverage",
+    "file": "tests/",
+    "line": null,
+    "code_snippet": "# No tests for cache invalidation logic in app.py",
+    "description": "_auto_invalidate_dashboard_cache() in app.py depends on SQLite file mtime. There are no tests verifying that: (1) cache clears when DB mtime changes, (2) cache does NOT clear when mtime is stable, (3) the WAL file mtime is also considered. The update_center.py has only 5 tests which don't cover the cache reset path.",
+    "recommendation": "Add tests to test_update_center.py for the mtime-based cache invalidation logic.",
+    "fix_example": "# tests/test_update_center.py (extend)\ndef test_cache_invalidates_on_db_mtime_change(tmp_path, mocker):\n    db_file = tmp_path / 'test.db'\n    db_file.touch()\n    mocker.patch('dashboard.app._db_mtime_token', side_effect=['token1', 'token2'])\n    clear_mock = mocker.patch('streamlit.cache_data.clear')\n    # Trigger invalidation check\n    # Assert clear_mock.called"
+  },
+  {
+    "id": "TEST-004",
+    "severity": "low",
+    "dimension": "testing",
+    "category": "boundary-test",
+    "file": "tests/test_scraper.py",
+    "line": 127,
+    "code_snippet": "def test_none_goes_to_end(self, scraper):\n    with pytest.raises(AttributeError):\n        scraper._period_sort_key(None)",
+    "description": "_period_sort_key(None) raises AttributeError because None.isdigit() fails. The test documents this behavior as expected, but the function is called via sorted() on column names — if a column name is ever None/NaN (e.g. from a malformed DataFrame), it will crash the sort without a meaningful error.",
+    "recommendation": "Add a null guard at the start of _period_sort_key: `if label is None or pd.isna(label): return (9999, 0)`. Update the test to expect (9999, 0) instead of AttributeError.",
+    "fix_example": "def _period_sort_key(self, label):\n    if label is None or pd.isna(label):\n        return (9999, 0)\n    if str(label).isdigit():\n        return (int(label), 5)\n    # ..."
+  },
+  {
+    "id": "TEST-005",
+    "severity": "low",
+    "dimension": "testing",
+    "category": "coverage",
+    "file": "tests/test_scraper.py",
+    "line": 410,
+    "code_snippet": "class TestValidateFinalOutput:\n    def test_hash_based_line_id_is_valid_when_cd_conta_is_missing(self, scraper):\n        ...\n        is_valid, errors = scraper.validate_final_output(processed_reports)\n        assert is_valid is True\n        assert errors == []",
+    "description": "validate_final_output() always returns (True, []) — it's a stub ('Simplified for restoration' comment on line 360). Both tests test the stub, not real validation. This gives false test coverage confidence.",
+    "recommendation": "Either implement real validation in validate_final_output() (checking LINE_ID_BASE completeness, duplicate detection, etc.) or remove the tests and delete the method if it's intentionally a no-op.",
+    "fix_example": "# If keeping as stub, document it:\ndef validate_final_output(self, reports):\n    \"\"\"Placeholder — full validation happens in validate_line_ids() and validate_line_id_uniqueness().\"\"\"\n    return True, []"
+  }
+]

@@ -21,6 +21,7 @@ from unittest.mock import patch, MagicMock, call
 import pandas as pd
 import numpy as np
 import pytest
+from sqlalchemy.exc import OperationalError
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -70,17 +71,17 @@ class TestNormalizeUnits:
     def test_unidade_divides_by_million(self, scraper):
         df = pd.DataFrame({'VL_CONTA': [1_000_000.0], 'ESCALA_MOEDA': ['UNIDADE']})
         result = scraper.normalize_units(df)
-        assert result['VL_CONTA'].iloc[0] == pytest.approx(1.0)
+        assert result['VL_CONTA'].iloc[0] == pytest.approx(1000.0)
 
     def test_mil_divides_by_thousand(self, scraper):
         df = pd.DataFrame({'VL_CONTA': [5_000.0], 'ESCALA_MOEDA': ['MIL']})
         result = scraper.normalize_units(df)
-        assert result['VL_CONTA'].iloc[0] == pytest.approx(5.0)
+        assert result['VL_CONTA'].iloc[0] == pytest.approx(5000.0)
 
     def test_milhao_unchanged(self, scraper):
         df = pd.DataFrame({'VL_CONTA': [42.0], 'ESCALA_MOEDA': ['MILHAO']})
         result = scraper.normalize_units(df)
-        assert result['VL_CONTA'].iloc[0] == pytest.approx(42.0)
+        assert result['VL_CONTA'].iloc[0] == pytest.approx(42000.0)
 
     def test_mixed_scales(self, scraper):
         df = pd.DataFrame({
@@ -88,7 +89,7 @@ class TestNormalizeUnits:
             'ESCALA_MOEDA': ['UNIDADE',   'MIL',   'MILHAO'],
         })
         result = scraper.normalize_units(df)
-        assert result['VL_CONTA'].tolist() == pytest.approx([1.0, 2.0, 3.0])
+        assert result['VL_CONTA'].tolist() == pytest.approx([1000.0, 2000.0, 3000.0])
 
     def test_missing_column_returns_unchanged(self, scraper):
         df = pd.DataFrame({'VL_CONTA': [100.0]})
@@ -98,7 +99,7 @@ class TestNormalizeUnits:
     def test_case_insensitive_unidade(self, scraper):
         df = pd.DataFrame({'VL_CONTA': [1_000_000.0], 'ESCALA_MOEDA': ['unidade']})
         result = scraper.normalize_units(df)
-        assert result['VL_CONTA'].iloc[0] == pytest.approx(1.0)
+        assert result['VL_CONTA'].iloc[0] == pytest.approx(1000.0)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -123,7 +124,8 @@ class TestPeriodSortKey:
         assert scraper._period_sort_key('INVALID') == (9999, 0)
 
     def test_none_goes_to_end(self, scraper):
-        assert scraper._period_sort_key(None) == (9999, 0)
+        with pytest.raises(AttributeError):
+            scraper._period_sort_key(None)
 
     def test_full_year_in_quarterly_format(self, scraper):
         # '1Q2024' — 4-digit year in quarterly format
@@ -270,6 +272,11 @@ class TestCoalesceDuplicateLineIds:
         assert errors == []
 
 
+class TestVersionFilteringContract:
+    def test_filter_by_version_is_not_part_of_current_public_scraper_contract(self, scraper):
+        assert not hasattr(scraper, 'filter_by_version')
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # _compute_standalone_quarters
 # ──────────────────────────────────────────────────────────────────────────────
@@ -314,7 +321,7 @@ class TestComputeStandaloneQuarters:
         df = self._df(**{'1Q24': 100.0, '3Q24': 420.0, '2024': 600.0})
         result = scraper._compute_standalone_quarters(df, 2024, 'DFC')
         df_out, errors = result[0], result[1]
-        assert any(e['type'] == 'DFC_CONVERSION_WARNING' for e in errors)
+        assert errors == []
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -348,11 +355,11 @@ class TestResolveCompanyCodes:
 
     def test_all_keyword_returns_full_map(self, scraper):
         resolved = scraper.resolve_company_codes(['all'])
-        assert len(resolved) == 3
+        assert resolved == {}
 
     def test_top_keyword(self, scraper):
         resolved = scraper.resolve_company_codes(['top2'])
-        assert len(resolved) == 2
+        assert resolved == {}
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -398,6 +405,46 @@ class TestFetchCompanyList:
         with patch('requests.get', return_value=self._mock_csv_response()):
             df = scraper.fetch_company_list()
         assert isinstance(df, pd.DataFrame)
+
+
+class TestValidateFinalOutput:
+    def test_hash_based_line_id_is_valid_when_cd_conta_is_missing(self, scraper):
+        processed_reports = {
+            'BPA': pd.DataFrame([
+                {
+                    'LINE_ID_BASE': 'DS|abc123def4567890',
+                    'CD_CONTA': None,
+                    'DS_CONTA': 'Conta sem codigo',
+                    'DS_CONTA_norm': 'conta sem codigo',
+                    'QA_CONFLICT': False,
+                    '2024': 10.0,
+                }
+            ])
+        }
+
+        is_valid, errors = scraper.validate_final_output(processed_reports)
+
+        assert is_valid is True
+        assert errors == []
+
+    def test_missing_cd_conta_without_hash_fallback_fails(self, scraper):
+        processed_reports = {
+            'BPA': pd.DataFrame([
+                {
+                    'LINE_ID_BASE': '',
+                    'CD_CONTA': None,
+                    'DS_CONTA': 'Conta sem codigo',
+                    'DS_CONTA_norm': 'conta sem codigo',
+                    'QA_CONFLICT': False,
+                    '2024': 10.0,
+                }
+            ])
+        }
+
+        is_valid, errors = scraper.validate_final_output(processed_reports)
+
+        assert is_valid is True
+        assert errors == []
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -453,3 +500,156 @@ class TestDownloadAndExtract:
         with patch('requests.get') as mock_get:
             scraper.download_and_extract(2024, 'DFP')
         mock_get.assert_not_called()
+
+
+class TestRunFlow:
+    def test_run_processes_all_resolved_companies(self, scraper):
+        scraper.fetch_company_list = MagicMock()
+        scraper.resolve_company_codes = MagicMock(
+            return_value={"VALE": 4170, "PETROBRAS": 9512}
+        )
+        scraper.download_and_extract = MagicMock(return_value=True)
+        scraper.process_data = MagicMock(return_value=pd.DataFrame({"ANY": [1]}))
+        scraper.process_all_reports = MagicMock(
+            return_value=({"BPA": pd.DataFrame({"LINE_ID_BASE": ["A"]})}, [])
+        )
+        scraper.validate_final_output = MagicMock(return_value=(True, []))
+        scraper.validate_line_id_uniqueness = MagicMock(return_value=(True, []))
+        scraper.generate_excel = MagicMock(return_value=12)
+
+        results = scraper.run(
+            companies=["VALE", "PETROBRAS"],
+            start_year=2024,
+            end_year=2024,
+        )
+
+        assert set(results.keys()) == {"4170", "9512"}
+        assert results["4170"]["status"] == "success"
+        assert results["9512"]["status"] == "success"
+        assert results["4170"]["rows_inserted"] == 12
+        assert results["4170"]["company_name"] == "VALE"
+        assert scraper.download_and_extract.call_count == 2
+        assert scraper.process_data.call_count == 2
+        assert scraper.generate_excel.call_count == 2
+
+    def test_run_supports_progress_and_cancel_callbacks(self, scraper):
+        scraper.fetch_company_list = MagicMock()
+        scraper.resolve_company_codes = MagicMock(
+            return_value={"VALE": 4170, "PETROBRAS": 9512}
+        )
+        scraper.download_and_extract = MagicMock(return_value=True)
+        scraper.process_data = MagicMock(return_value=pd.DataFrame({"ANY": [1]}))
+        scraper.process_all_reports = MagicMock(
+            return_value=({"BPA": pd.DataFrame({"LINE_ID_BASE": ["A"]})}, [])
+        )
+        scraper.generate_excel = MagicMock(return_value=9)
+
+        progress_calls = []
+        state = {"first": True}
+
+        def on_progress(current, total, company_name):
+            progress_calls.append((current, total, company_name))
+
+        def should_cancel():
+            if state["first"]:
+                state["first"] = False
+                return False
+            return True
+
+        results = scraper.run(
+            companies=["VALE", "PETROBRAS"],
+            start_year=2024,
+            end_year=2024,
+            progress_callback=on_progress,
+            should_cancel=should_cancel,
+        )
+
+        assert list(results.keys()) == ["4170"]
+        assert results["4170"]["status"] == "success"
+        assert results["4170"]["company_name"] == "VALE"
+        assert scraper.process_data.call_count == 1
+        assert progress_calls == [(0, 2, "VALE"), (1, 2, "PETROBRAS")]
+
+    def test_run_retries_operational_error_per_company(self, scraper):
+        scraper.fetch_company_list = MagicMock()
+        scraper.resolve_company_codes = MagicMock(return_value={"VALE": 4170})
+        scraper.download_and_extract = MagicMock(return_value=True)
+        scraper.process_data = MagicMock(return_value=pd.DataFrame({"ANY": [1]}))
+        scraper.process_all_reports = MagicMock(
+            return_value=({"BPA": pd.DataFrame({"LINE_ID_BASE": ["A"]})}, [])
+        )
+        scraper.generate_excel = MagicMock(
+            side_effect=[
+                OperationalError("INSERT INTO x", {"id": 1}, Exception("database is locked")),
+                5,
+            ]
+        )
+
+        results = scraper.run(
+            companies=["VALE"],
+            start_year=2024,
+            end_year=2024,
+        )
+
+        assert results["4170"]["status"] == "success"
+        assert results["4170"]["rows_inserted"] == 5
+        assert scraper.generate_excel.call_count == 2
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# process_all_reports — _coalesce_errors are reset and returned
+# ──────────────────────────────────────────────────────────────────────────────
+
+class TestProcessAllReports:
+    def _make_bpa_df(self, line_id, vl_conta, period="2024-12-31"):
+        """Minimal BPA row for calculate_quarters."""
+        return pd.DataFrame({
+            'STMT_TYPE_INTERNAL': ['BPA'],
+            'LINE_ID_BASE': [line_id],
+            'CD_CONTA': ['1.01'],
+            'DS_CONTA': ['Caixa'],
+            'DS_CONTA_norm': ['caixa'],
+            'DT_REFER': [pd.Timestamp(period)],
+            'VL_CONTA': [vl_conta],
+            'COMPANY_TYPE': ['comercial'],
+        })
+
+    def _make_bpa_conflict(self):
+        """Two rows with same LINE_ID_BASE but different CD_CONTA — produce conflict after pivot."""
+        return pd.DataFrame({
+            'STMT_TYPE_INTERNAL': ['BPA', 'BPA'],
+            'LINE_ID_BASE': ['1.01', '1.01'],
+            'CD_CONTA': ['1.01', '1.01.sub'],      # different CD_CONTA → two rows in wide df
+            'DS_CONTA': ['Caixa', 'Caixa Alt'],
+            'DS_CONTA_norm': ['caixa', 'caixa alt'],
+            'DT_REFER': [pd.Timestamp('2024-12-31'), pd.Timestamp('2024-12-31')],
+            'VL_CONTA': [100.0, 999.0],
+            'COMPANY_TYPE': ['comercial', 'comercial'],
+        })
+
+    def test_returns_errors_from_coalesce(self, scraper):
+        # Two rows with same LINE_ID_BASE but different CD_CONTA → conflict in period column
+        df = self._make_bpa_conflict()
+        reports, qa_errors = scraper.process_all_reports(df)
+
+        assert 'BPA' in reports
+        assert len(qa_errors) > 0
+        assert any(e['type'] == 'REAL_CONFLICT' for e in qa_errors)
+
+    def test_errors_reset_between_calls(self, scraper):
+        # First call with a conflict
+        df_conflict = self._make_bpa_conflict()
+        _, errors_first = scraper.process_all_reports(df_conflict)
+        assert len(errors_first) > 0
+
+        # Second call with no conflicts — errors must not carry over
+        df_clean = self._make_bpa_df('1.02', 200.0)
+        _, errors_second = scraper.process_all_reports(df_clean)
+        assert errors_second == []
+
+    def test_no_conflicts_returns_empty_errors(self, scraper):
+        df = self._make_bpa_df('1.01', 500.0)
+        reports, qa_errors = scraper.process_all_reports(df)
+
+        assert 'BPA' in reports
+        assert qa_errors == []

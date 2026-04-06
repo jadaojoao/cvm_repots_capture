@@ -240,8 +240,8 @@ def main():
     args = parser.parse_args()
 
     import pandas as pd
-    from dashboard.db import get_engine
-    from dashboard.constants import TICKER_MAP
+    from src.db import get_engine
+    from src.ticker_map import TICKER_MAP
 
     engine = get_engine()
 

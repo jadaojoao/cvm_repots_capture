@@ -1,0 +1,50 @@
+[
+  {
+    "id": "PERF-001",
+    "severity": "medium",
+    "dimension": "performance",
+    "category": "inefficient-algorithm",
+    "file": "dashboard/kpis.py",
+    "line": 99,
+    "code_snippet": "def _g(names, _ay=ay):\n    for n in names:\n        r = _ay.loc[_ay['STANDARD_NAME'] == n, 'VL_CONTA']\n        if not r.empty:\n            s = r.sum()\n            return float(s) if s != 0 else None\n    return None",
+    "description": "The _g() helper is defined inside a loop over years_tuple. Python re-creates this closure on every iteration. For 60+ KPI calls × 4 years, this generates 240+ closure objects. Additionally, each `_ay.loc[_ay['STANDARD_NAME'] == n]` is an O(n) scan of the annual DataFrame. No index is built on STANDARD_NAME before the lookups.",
+    "recommendation": "Build a STANDARD_NAME→VL_CONTA dict once per year slice before the inner KPI calculations. This reduces repeated scans from O(60×n) to O(n) per year.",
+    "fix_example": "# Before KPI calculations for year y:\nstd_map = ay.groupby('STANDARD_NAME')['VL_CONTA'].sum().to_dict()\n# Then:\ndef _g(names):\n    for n in names:\n        v = std_map.get(n)\n        if v is not None and v != 0:\n            return float(v)\n    return None"
+  },
+  {
+    "id": "PERF-002",
+    "severity": "medium",
+    "dimension": "performance",
+    "category": "inefficient-algorithm",
+    "file": "dashboard/loaders.py",
+    "line": 197,
+    "code_snippet": "for cd, grp in df.groupby('CD_CVM'):\n    def _get_val(names, _df=grp):\n        for n in names:\n            r = _df.loc[_df['STANDARD_NAME'] == n, 'VL_CONTA']",
+    "description": "load_heatmap_data() and load_screener_data() both iterate over all companies with per-row STANDARD_NAME scans inside groupby loops. For 449 companies, each with ~50 account lookups, this is ~22,450 linear scans. The same closure-per-iteration pattern as PERF-001 applies here.",
+    "recommendation": "Pivot the DataFrame to a company×standard_name matrix before the loop, or use groupby + pivot_table to vectorize the extraction.",
+    "fix_example": "# Vectorized pivot instead of per-company loop:\npivot = df.groupby(['CD_CVM', 'STANDARD_NAME'])['VL_CONTA'].sum().unstack(fill_value=0)\nrec = pivot.get(RECEITA[0], pd.Series(0, index=pivot.index))\n# ... then compute KPIs as vectorized operations"
+  },
+  {
+    "id": "PERF-003",
+    "severity": "low",
+    "dimension": "performance",
+    "category": "blocking-io",
+    "file": "src/scraper.py",
+    "line": 205,
+    "code_snippet": "df_company['LINE_ID_BASE'] = df_company.apply(lambda r: generate_line_id_base(r, stmt_type), axis=1)",
+    "description": "generate_line_id_base() is called row-by-row via apply(). For large companies (PETROBRAS, VALE) with thousands of rows per CSV, this is significantly slower than a vectorized approach. SHA256 is also called on every row even when CD_CONTA is present (the common case).",
+    "recommendation": "Vectorize the common case (CD_CONTA present): assign CD_CONTA directly for rows where it exists, and only call the hash function for rows where it's missing.",
+    "fix_example": "mask_has_cd = df_company['CD_CONTA'].notna() & (df_company['CD_CONTA'].astype(str).str.strip() != '')\ndf_company['LINE_ID_BASE'] = None\ndf_company.loc[mask_has_cd, 'LINE_ID_BASE'] = df_company.loc[mask_has_cd, 'CD_CONTA'].astype(str).str.strip()\n# Only hash rows without CD_CONTA:\ndf_company.loc[~mask_has_cd, 'LINE_ID_BASE'] = df_company[~mask_has_cd].apply(\n    lambda r: generate_line_id_base(r, stmt_type), axis=1\n)"
+  },
+  {
+    "id": "PERF-004",
+    "severity": "low",
+    "dimension": "performance",
+    "category": "missing-cache",
+    "file": "dashboard/kpis.py",
+    "line": 42,
+    "code_snippet": "def _get_da(df: pd.DataFrame, year: int) -> float | None:",
+    "description": "_get_da() and _get_da_q() perform a regex string match on DS_CONTA for every call. Since precompute_kpis() is cached at 2min TTL but called inside, D&A extraction runs at most once per cache cycle. However, the regex compilation happens on every call (str.contains recompiles). Minor issue.",
+    "recommendation": "Pre-compile the regex patterns as module-level constants.",
+    "fix_example": "_DA_INCLUDE = re.compile(r'deprec|amort|exaust|deplec', re.IGNORECASE)\n_DA_EXCLUDE = re.compile(r'financi|arrendamen|principal|juros', re.IGNORECASE)\n# Then: df['DS_CONTA'].str.contains(_DA_INCLUDE)"
+  }
+]
