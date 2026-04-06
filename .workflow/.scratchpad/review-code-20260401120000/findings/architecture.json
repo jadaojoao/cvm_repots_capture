@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ARCH-001",
+    "severity": "medium",
+    "dimension": "architecture",
+    "category": "layer-violation",
+    "file": "dashboard/kpis.py",
+    "line": 73,
+    "code_snippet": "from dashboard.loaders import load_all\n\n@st.cache_data(ttl=120)\ndef precompute_kpis(cd_cvm: int, years_tuple: tuple) -> dict:\n    df = load_all(cd_cvm)",
+    "description": "precompute_kpis() imports load_all() lazily (inside the function body, not at module level). This deferred import hides a circular dependency risk: loaders.py imports from kpis.py (`from dashboard.kpis import safe_div`), and kpis.py imports from loaders.py inside the function. Python resolves this at runtime, but it means kpis.py has a hidden runtime dependency on the full Streamlit+SQLAlchemy stack even in non-dashboard contexts (e.g., tests).",
+    "recommendation": "Extract `safe_div` and other pure calculation utilities to a separate `dashboard/utils.py` module that neither loaders.py nor kpis.py imports from the other. This breaks the circular dependency cleanly.",
+    "fix_example": "# dashboard/utils.py (new)\ndef safe_div(a, b):\n    if a is not None and b is not None and b != 0:\n        return a / b\n    return None\n\n# dashboard/kpis.py\nfrom dashboard.utils import safe_div  # no longer needs loaders\n\n# dashboard/loaders.py\nfrom dashboard.utils import safe_div  # consistent"
+  },
+  {
+    "id": "ARCH-002",
+    "severity": "medium",
+    "dimension": "architecture",
+    "category": "srp-violation",
+    "file": "src/scraper.py",
+    "line": 362,
+    "code_snippet": "def generate_excel(self, name, cvm, reports, qas=None):\n    # ...\n    rows_inserted = self.db.insert_company_data(...)\n    # ...\n    with pd.ExcelWriter(path, engine='openpyxl') as writer:",
+    "description": "generate_excel() does two unrelated things: (1) inserts data into the database, (2) writes an Excel file. The method name implies only Excel generation. A caller wanting only DB insertion must also write an Excel file. This violates Single Responsibility and makes the method impossible to test without filesystem and DB mocks simultaneously.",
+    "recommendation": "Split into two methods: `_insert_to_database(name, cvm, reports, qas)` and `_write_excel(name, cvm, reports)`. The `run()` orchestrator calls both.",
+    "fix_example": "def _insert_to_database(self, name, cvm, reports, qas=None):\n    return self.db.insert_company_data(name, int(cvm), ...)\n\ndef _write_excel(self, name, cvm, reports):\n    path = ...\n    with pd.ExcelWriter(path, engine='openpyxl') as writer:\n        ..."
+  },
+  {
+    "id": "ARCH-003",
+    "severity": "low",
+    "dimension": "architecture",
+    "category": "coupling",
+    "file": "src/scraper.py",
+    "line": 8,
+    "code_snippet": "# USER CONFIGURATION\nCOMPANY_NAME = \"VALE\"\nSTART_YEAR = 2020\n...",
+    "description": "Module-level USER CONFIGURATION constants in scraper.py are only used in the `if __name__ == '__main__'` block at the end. They do not affect the CVMScraper class itself (which receives parameters via __init__ and run()). These constants are dead code when the module is imported as a library.",
+    "recommendation": "Move the USER CONFIGURATION block to the `if __name__ == '__main__'` section or to a separate `scripts/run_single.py` script. This keeps the module's importable surface clean.",
+    "fix_example": "# Keep class definition clean, move config to __main__:\nif __name__ == '__main__':\n    COMPANY_NAME = 'VALE'\n    START_YEAR = 2020\n    # ...\n    scraper = CVMScraper()\n    scraper.run([COMPANY_NAME], START_YEAR, END_YEAR)"
+  },
+  {
+    "id": "ARCH-004",
+    "severity": "low",
+    "dimension": "architecture",
+    "category": "coupling",
+    "file": "dashboard/loaders.py",
+    "line": 379,
+    "code_snippet": "def load_peer_df(sector: str, sector_map_items: tuple, year: int) -> pd.DataFrame:\n    sm = dict(sector_map_items)\n    peer_cvms = [int(c) for c, s in sm.items() if s == sector]",
+    "description": "load_peer_df() receives sector_map_items as a tuple (not dict) specifically to be hashable for @st.cache_data. This is a Streamlit-specific workaround that leaks the caching mechanism into the function signature. Callers must know to convert dict → tuple of items before calling.",
+    "recommendation": "This is an acceptable Streamlit pattern, but document it explicitly in the function docstring so future maintainers understand why the parameter is a tuple.",
+    "fix_example": "def load_peer_df(sector: str, sector_map_items: tuple, year: int) -> pd.DataFrame:\n    \"\"\"\n    sector_map_items: tuple of (cd_cvm, setor) pairs — tuple (not dict) for\n    @st.cache_data hashability. Convert with: tuple(sector_map.items()).\n    \"\"\""
+  }
+]

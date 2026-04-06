@@ -1,0 +1,74 @@
+[
+  {
+    "id": "CORR-001",
+    "severity": "high",
+    "dimension": "correctness",
+    "category": "error-handling",
+    "file": "src/scraper.py",
+    "line": 216,
+    "code_snippet": "except Exception: continue",
+    "description": "Bare except swallows ALL exceptions during CSV parsing silently. Any malformed row, encoding error, missing column, or data type issue is discarded with no log entry, no audit trail, and no indication to the caller that data was lost.",
+    "recommendation": "Log the exception with at minimum the filename and company code. Use `except Exception as e: logger.warning(...)` instead of bare `continue`. Consider accumulating errors in a list and surfacing them in the run() result payload.",
+    "fix_example": "except Exception as e:\n    logger.warning('CSV parse error file=%s cvm=%s error=%s', filepath, cvm_code, e)\n    continue"
+  },
+  {
+    "id": "CORR-002",
+    "severity": "medium",
+    "dimension": "correctness",
+    "category": "logic-error",
+    "file": "src/scraper.py",
+    "line": 316,
+    "code_snippet": "s2 = (df[c2] - df[c1].fillna(0)) if h2 and h1 else (df[c2] if h2 else s1*0)",
+    "description": "_compute_standalone_quarters() returns either 2 values (df, errors) or 7 values (df, errors, s1, s2, s3, s4, ann). The caller in convert_dfc_ytd_to_standalone() distinguishes by checking `len(res) > 2`, but this relies on tuple count — a fragile contract. If the function ever returns 3 values legitimately, unpacking will silently be skipped.",
+    "recommendation": "Use a dataclass or named tuple for the return value instead of positional tuple counting. Alternatively, always return the same number of values with optional None/empty for the absent case.",
+    "fix_example": "from typing import NamedTuple\nclass StandaloneResult(NamedTuple):\n    df: pd.DataFrame\n    errors: list\n    s1: pd.Series | None = None\n    # ...\n    has_quarters: bool = False"
+  },
+  {
+    "id": "CORR-003",
+    "severity": "medium",
+    "dimension": "correctness",
+    "category": "logic-error",
+    "file": "dashboard/kpis.py",
+    "line": 201,
+    "code_snippet": "cagr_rec = (rec / rec_base) ** (1 / 2) - 1  # CAGR receita (3 anos)",
+    "description": "The comment says '3 anos' (3 years) but the formula `i >= 2` uses `sorted_years[i-2]` as base — which is only 2 years earlier, not 3. The exponent `(1/2)` is correct for 2-year CAGR. The CAGR in load_screener_data() correctly uses `(1/3)` for a 3-year span. This inconsistency means the annual KPI `cagr_rec` understates CAGR compared to the screener.",
+    "recommendation": "Align the comment with the formula. Either use `sorted_years[i-3]` as base (3-year CAGR with exponent 1/3), or update the comment to say '2 anos'. The screener's formula `(rec/rec_p)**(1/3)-1` with `year-3` as base is the correct 3-year CAGR.",
+    "fix_example": "# CAGR receita (2 anos — base = ano atual menos 2)\nif i >= 2:\n    rec_base = raw.get(sorted_years[i - 2], {}).get('rec')\n    if rec and rec_base and rec_base > 0:\n        cagr_rec = (rec / rec_base) ** (1 / 2) - 1"
+  },
+  {
+    "id": "CORR-004",
+    "severity": "medium",
+    "dimension": "correctness",
+    "category": "boundary",
+    "file": "src/database.py",
+    "line": 198,
+    "code_snippet": "placeholders = ', '.join(str(y) for y in sorted(years_to_delete))\nconn.execute(\n    text(f'DELETE FROM financial_reports WHERE \"CD_CVM\" = :cvm AND (\"REPORT_YEAR\" IN ({placeholders}) ...)'",
+    "description": "The year placeholders are interpolated directly into the SQL string via f-string. While years_to_delete only contains integers derived from column names (not user input), this pattern bypasses SQLAlchemy parameterization and is inconsistent with the rest of the codebase. If the source ever changes, this becomes a SQL injection vector.",
+    "recommendation": "Use SQLAlchemy's `bindparam('years', expanding=True)` to keep years parameterized, consistent with load_peer_df().",
+    "fix_example": "from sqlalchemy import bindparam\nstmt = text('DELETE FROM financial_reports WHERE \"CD_CVM\" = :cvm AND \"REPORT_YEAR\" IN :years')\n     .bindparams(bindparam('years', expanding=True))\nconn.execute(stmt, {'cvm': int(cvm_code), 'years': list(years_to_delete)})"
+  },
+  {
+    "id": "CORR-005",
+    "severity": "low",
+    "dimension": "correctness",
+    "category": "type-safety",
+    "file": "src/scraper.py",
+    "line": 44,
+    "code_snippet": "Y2K_PIVOT = 50  # defined but never used in logic",
+    "description": "Y2K_PIVOT is defined in the USER CONFIGURATION block but never used. The period label functions (e.g. _period_sort_key, _identify_period_years) hardcode `2000 + int(yy)` without applying the pivot. If a company's 2-digit year is ≥ 50 (e.g. a report from 1998 with yy='98'), it would be mapped to 2098 instead of 1998.",
+    "recommendation": "Either remove the Y2K_PIVOT constant (dead code) and document that the system only supports data from 2000+, or apply it: `year = (1900 if int(yy) >= Y2K_PIVOT else 2000) + int(yy)`.",
+    "fix_example": "# In _period_sort_key and _identify_period_years:\nyy_int = int(m.group(1))  # or int(label[2:])\nyear = (1900 if yy_int >= Y2K_PIVOT else 2000) + yy_int"
+  },
+  {
+    "id": "CORR-006",
+    "severity": "low",
+    "dimension": "correctness",
+    "category": "logic-error",
+    "file": "tests/test_scraper.py",
+    "line": 317,
+    "code_snippet": "def test_no_data_returns_df_unchanged(self, scraper):\n    df = self._df(**{'2023': 500.0})\n    result = scraper._compute_standalone_quarters(df, 2024, 'DFC')\n    assert len(result) == 2  # (df, errors)",
+    "description": "This test asserts len(result)==2, which encodes the internal return tuple length in a test. If CORR-002 is fixed (e.g. returning a named tuple), this test breaks for the wrong reason.",
+    "recommendation": "Test the semantic behavior (df unchanged) rather than tuple length: `df_out, errors = result[0], result[1]; assert '1Q24' not in df_out.columns`.",
+    "fix_example": "result = scraper._compute_standalone_quarters(df, 2024, 'DFC')\ndf_out = result[0]\nassert '4Q24' not in df_out.columns  # no quarterly data derived"
+  }
+]

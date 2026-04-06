@@ -38,3 +38,7 @@ docs/references/sites_ex/
 
 # Logs
 *.log
+logs/
+
+# Browser test artifacts
+.playwright-cli/

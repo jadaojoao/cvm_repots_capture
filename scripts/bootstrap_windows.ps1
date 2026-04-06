@@ -20,8 +20,8 @@ function Invoke-CommandArray {
     if ($BaseCommand.Count -gt 1) {
         $baseArgs = $BaseCommand[1..($BaseCommand.Count - 1)]
     }
-    & $exe @baseArgs @ExtraArgs
-    return $LASTEXITCODE
+    & $exe @baseArgs @ExtraArgs | Out-Host
+    return [int]$LASTEXITCODE
 }
 
 function Test-PythonCommand {

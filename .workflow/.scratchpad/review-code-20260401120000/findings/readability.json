@@ -1,0 +1,62 @@
+[
+  {
+    "id": "READ-001",
+    "severity": "medium",
+    "dimension": "readability",
+    "category": "function-length",
+    "file": "dashboard/kpis.py",
+    "line": 68,
+    "code_snippet": "def precompute_kpis(cd_cvm: int, years_tuple: tuple) -> dict:",
+    "description": "precompute_kpis() is ~210 lines with two nested loops (year iteration + KPI calculation), inline helper closures (_g, _gsum), and 50+ KPI assignments in a single dict literal. It has at least 3 distinct responsibilities: raw value extraction, KPI derivation, and horizontal analysis. This makes it very hard to unit test individual KPI groups.",
+    "recommendation": "Extract at minimum: (1) a `_extract_raw_values(ay, df, y)` function returning the raw dict, (2) a `_compute_derived_kpis(r, prev_r)` function for KPI calculation, (3) `_horizontal_analysis(r, r_prev, sorted_years, i)` for YoY/CAGR. precompute_kpis() becomes a thin orchestrator.",
+    "fix_example": "def _extract_raw_values(ay: pd.DataFrame, df: pd.DataFrame, year: int) -> dict:\n    std_map = ay.groupby('STANDARD_NAME')['VL_CONTA'].sum().to_dict()\n    # ... extract rec, luc, etc.\n    return raw\n\ndef _compute_liquidity(r: dict) -> dict:\n    ac, pc, est, cx = r['ac'], r['pc'], r['est'], r['cx']\n    return dict(liq_corr=safe_div(ac, pc), ...)"
+  },
+  {
+    "id": "READ-002",
+    "severity": "medium",
+    "dimension": "readability",
+    "category": "comments",
+    "file": "dashboard/kpis.py",
+    "line": 196,
+    "code_snippet": "# CAGR receita (3 anos)",
+    "description": "The comment '3 anos' is factually wrong for the formula used (see CORR-003). Misleading comments are worse than no comments — they cause future maintainers to trust incorrect documentation.",
+    "recommendation": "Update comment to match the formula: '# CAGR receita (2 anos: sorted_years[i-2] → sorted_years[i])'.",
+    "fix_example": "# CAGR receita: crescimento anualizado de sorted_years[i-2] até sorted_years[i] (2 anos)\nif i >= 2:\n    rec_base = raw.get(sorted_years[i - 2], {}).get('rec')\n    if rec and rec_base and rec_base > 0:\n        cagr_rec = (rec / rec_base) ** (1 / 2) - 1"
+  },
+  {
+    "id": "READ-003",
+    "severity": "medium",
+    "dimension": "readability",
+    "category": "duplication",
+    "file": "dashboard/kpis.py",
+    "line": 328,
+    "code_snippet": "def _g(names, _qy=qy): ...\ndef _gsum(names, _qy=qy): ...",
+    "description": "The helper closures _g() and _gsum() are re-defined identically inside both precompute_kpis() and precompute_quarterly_kpis(). This is ~12 lines of duplicated code that must be kept in sync. The same pattern appears a third time in compute_peer_kpis() and load_heatmap_data().",
+    "recommendation": "Extract into a module-level function `get_kpi_value(df, names, mode='first'|'sum')` that takes a DataFrame slice and returns the value.",
+    "fix_example": "def get_kpi_value(df: pd.DataFrame, names: list[str], mode: str = 'first') -> float | None:\n    subset = df.loc[df['STANDARD_NAME'].isin(names), 'VL_CONTA']\n    if subset.empty:\n        return None\n    total = float(subset.sum())\n    return total if total != 0 else None"
+  },
+  {
+    "id": "READ-004",
+    "severity": "low",
+    "dimension": "readability",
+    "category": "naming",
+    "file": "src/scraper.py",
+    "line": 310,
+    "code_snippet": "yy = str(year)[2:]; errors = []\nc1, c2, c3, c4, ca = f'1Q{yy}', f'2Q{yy}', f'3Q{yy}', f'4Q{yy}', str(year)\nh1, h2, h3, ha = c1 in df.columns, c2 in df.columns, ...",
+    "description": "Single-letter variable names (c1, c2, h1, h2, s1, s2, etc.) in _compute_standalone_quarters() reduce readability. The pattern `h1/h2/h3/ha` for 'has Q1/Q2/Q3/annual' is not self-documenting.",
+    "recommendation": "Use descriptive names: `col_q1`, `has_q1`, `series_q1` etc.",
+    "fix_example": "col_q1, col_q2, col_q3, col_q4, col_ann = f'1Q{yy}', f'2Q{yy}', f'3Q{yy}', f'4Q{yy}', str(year)\nhas_q1 = col_q1 in df.columns\nhas_q2 = col_q2 in df.columns\n# ..."
+  },
+  {
+    "id": "READ-005",
+    "severity": "low",
+    "dimension": "readability",
+    "category": "comments",
+    "file": "src/standardizer.py",
+    "line": 50,
+    "code_snippet": "print(f\"  [Standardizer] Dicionario carregado: {len(self._df)} contas canonicas\")",
+    "description": "print() in production code (also in src/utils.py validate_line_ids). Inconsistent with src/database.py and dashboard/loaders.py which use the logging module. Makes output suppression difficult in tests and production.",
+    "recommendation": "Replace with `logger.info()` throughout src/standardizer.py and src/utils.py.",
+    "fix_example": "import logging\nlogger = logging.getLogger(__name__)\n# ...\nlogger.info('[Standardizer] Dicionario carregado: %s contas canonicas', len(self._df))"
+  }
+]

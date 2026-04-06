@@ -1,0 +1,2701 @@
+{
+  "generated_at": "2026-04-02T14:27:18",
+  "rows": [
+    {
+      "cd_cvm": 18414,
+      "company_name": "--"
+    },
+    {
+      "cd_cvm": 25224,
+      "company_name": "2W ECOBANK S.A."
+    },
+    {
+      "cd_cvm": 16330,
+      "company_name": "521 PARTICIPA\u00c7\u00d5ES S/A"
+    },
+    {
+      "cd_cvm": 16284,
+      "company_name": "524 PARTICIPACOES SA"
+    },
+    {
+      "cd_cvm": 23396,
+      "company_name": "AEGEA SANEAMENTO E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 14176,
+      "company_name": "AES ELETROPAULO"
+    },
+    {
+      "cd_cvm": 16527,
+      "company_name": "AES SUL DISTRIB. GA\u00daCHA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 22179,
+      "company_name": "AFLUENTE TRANSMISS\u00c3O DE ENERGIA ELETRICA S/A"
+    },
+    {
+      "cd_cvm": 25658,
+      "company_name": "AGROGALAXY PARTICIPA\u00c7\u00d5ES S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 23442,
+      "company_name": "AGUAS GUARIROBA S.A"
+    },
+    {
+      "cd_cvm": 16705,
+      "company_name": "ALEF S/A"
+    },
+    {
+      "cd_cvm": 9954,
+      "company_name": "ALFA HOLDINGS"
+    },
+    {
+      "cd_cvm": 12823,
+      "company_name": "ALIPERTI S.A."
+    },
+    {
+      "cd_cvm": 15300,
+      "company_name": "ALL - AM\u00c9RICA LATINA LOG\u00cdSTICA MALHA NORTE S.A."
+    },
+    {
+      "cd_cvm": 17850,
+      "company_name": "ALL - AM\u00c9RICA LATINA LOG\u00cdSTICA MALHA OESTE S.A."
+    },
+    {
+      "cd_cvm": 17930,
+      "company_name": "ALL - AM\u00c9RICA LATINA LOG\u00cdSTICA MALHA PAULISTA S.A."
+    },
+    {
+      "cd_cvm": 15709,
+      "company_name": "ALL - AM\u00c9RICA LATINA LOG\u00cdSTICA MALHA SUL S.A."
+    },
+    {
+      "cd_cvm": 17450,
+      "company_name": "ALL - AM\u00c9RICA LATINA LOG\u00cdSTICA S.A."
+    },
+    {
+      "cd_cvm": 24058,
+      "company_name": "ALLIAN\u00c7A SA\u00daDE E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25330,
+      "company_name": "ALLIED TECNOLOGIA S.A."
+    },
+    {
+      "cd_cvm": 22357,
+      "company_name": "ALLOS S.A."
+    },
+    {
+      "cd_cvm": 24953,
+      "company_name": "ALLPARK EMPREENDIMENTOS, PARTICIPA\u00c7\u00d5ES E SERVI\u00c7OS S.A."
+    },
+    {
+      "cd_cvm": 26395,
+      "company_name": "ALMEIDA JUNIOR SHOPPING CENTERS S.A."
+    },
+    {
+      "cd_cvm": 10456,
+      "company_name": "ALPARGATAS"
+    },
+    {
+      "cd_cvm": 27030,
+      "company_name": "ALTHAIA S.A. IND\u00daSTRIA FARMAC\u00caUTICA"
+    },
+    {
+      "cd_cvm": 21490,
+      "company_name": "ALUPAR INVESTIMENTO S/A"
+    },
+    {
+      "cd_cvm": 26433,
+      "company_name": "ALVAREZ & MARSAL INVESTIMENTOS I S.A."
+    },
+    {
+      "cd_cvm": 23264,
+      "company_name": "AMBEV S.A"
+    },
+    {
+      "cd_cvm": 24961,
+      "company_name": "AMBIPAR PARTICIPA\u00c7\u00d5ES E EMPREENDIMENTOS S.A."
+    },
+    {
+      "cd_cvm": 20028,
+      "company_name": "AMERICAN BANKNOTE COMPANY"
+    },
+    {
+      "cd_cvm": 20990,
+      "company_name": "AMERICANAS S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 3050,
+      "company_name": "AMPLA"
+    },
+    {
+      "cd_cvm": 24120,
+      "company_name": "ARGO ENERGIA EMPREENDIMENTOS E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 24210,
+      "company_name": "ARGO TRANSMISS\u00c3O DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 19771,
+      "company_name": "ARTERIS"
+    },
+    {
+      "cd_cvm": 26514,
+      "company_name": "ASA BRANCA HOLDING S.A."
+    },
+    {
+      "cd_cvm": 27545,
+      "company_name": "ASSURU\u00c1 4 E 5 HOLDING ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 27677,
+      "company_name": "ATOM EDUCA\u00c7\u00c3O E EDITORA S.A."
+    },
+    {
+      "cd_cvm": 26590,
+      "company_name": "AURA ALMAS MINERA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 26620,
+      "company_name": "AUREN ENERGIA S.A"
+    },
+    {
+      "cd_cvm": 26174,
+      "company_name": "AUREN OPERA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25640,
+      "company_name": "AUREN PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 21989,
+      "company_name": "AUTOPISTA FERN\u00c3O DIAS SA"
+    },
+    {
+      "cd_cvm": 22004,
+      "company_name": "AUTOPISTA FLUMINENSE SA"
+    },
+    {
+      "cd_cvm": 21997,
+      "company_name": "AUTOPISTA LITORAL SUL"
+    },
+    {
+      "cd_cvm": 21970,
+      "company_name": "AUTOPISTA PLANALTO SUL SA"
+    },
+    {
+      "cd_cvm": 21962,
+      "company_name": "AUTOPISTA REGIS BITTENCOURT SA"
+    },
+    {
+      "cd_cvm": 11975,
+      "company_name": "AZEVEDO & TRAVASSOS"
+    },
+    {
+      "cd_cvm": 27626,
+      "company_name": "AZEVEDO & TRAVASSOS ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 24112,
+      "company_name": "AZUL S.A."
+    },
+    {
+      "cd_cvm": 22349,
+      "company_name": "AZZAS 2154 S.A."
+    },
+    {
+      "cd_cvm": 26425,
+      "company_name": "A\u00c3O VERDE DO BRASIL S.A"
+    },
+    {
+      "cd_cvm": 21610,
+      "company_name": "B3"
+    },
+    {
+      "cd_cvm": 20958,
+      "company_name": "BANCO ABC BRASIL S/A"
+    },
+    {
+      "cd_cvm": 24600,
+      "company_name": "BANCO BMG S/A"
+    },
+    {
+      "cd_cvm": 906,
+      "company_name": "BANCO BRADESCO S.A."
+    },
+    {
+      "cd_cvm": 922,
+      "company_name": "BANCO DA AMAZONIA S.A."
+    },
+    {
+      "cd_cvm": 20796,
+      "company_name": "BANCO DAYCOVAL S.A."
+    },
+    {
+      "cd_cvm": 1023,
+      "company_name": "BANCO DO BRASIL S.A."
+    },
+    {
+      "cd_cvm": 1228,
+      "company_name": "BANCO DO NORDESTE"
+    },
+    {
+      "cd_cvm": 1309,
+      "company_name": "BANCO MERCANTIL DE INVESTIMENTOS SA"
+    },
+    {
+      "cd_cvm": 1325,
+      "company_name": "BANCO MERCANTIL DO BRASIL S/A"
+    },
+    {
+      "cd_cvm": 20567,
+      "company_name": "BANCO PINE S/A"
+    },
+    {
+      "cd_cvm": 20532,
+      "company_name": "BANCO SANTANDER (BRASIL) S.A."
+    },
+    {
+      "cd_cvm": 22616,
+      "company_name": "BANCO UBS PACTUAL S/A"
+    },
+    {
+      "cd_cvm": 16985,
+      "company_name": "BANDEIRANTE"
+    },
+    {
+      "cd_cvm": 1120,
+      "company_name": "BANESE"
+    },
+    {
+      "cd_cvm": 1155,
+      "company_name": "BANESTES S/A"
+    },
+    {
+      "cd_cvm": 1171,
+      "company_name": "BANPAR\u00c1 S.A."
+    },
+    {
+      "cd_cvm": 1210,
+      "company_name": "BANRISUL S/A"
+    },
+    {
+      "cd_cvm": 1520,
+      "company_name": "BARDELLA"
+    },
+    {
+      "cd_cvm": 1562,
+      "company_name": "BAUMER"
+    },
+    {
+      "cd_cvm": 24660,
+      "company_name": "BBM LOG\u00cdSTICA S.A."
+    },
+    {
+      "cd_cvm": 27570,
+      "company_name": "BELORA RDVC CITY DESENVOLVIMENTO IMOBILI\u00c1RIO S.A."
+    },
+    {
+      "cd_cvm": 24457,
+      "company_name": "BEL\u00c9M TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 25500,
+      "company_name": "BEMOBI MOBILE TECH S.A."
+    },
+    {
+      "cd_cvm": 17884,
+      "company_name": "BETAPART PARTICIPA\u00c7\u00d5ES SA"
+    },
+    {
+      "cd_cvm": 701,
+      "company_name": "BIOMA EDUCA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 19305,
+      "company_name": "BIOMM SA"
+    },
+    {
+      "cd_cvm": 24627,
+      "company_name": "BLAU FARMAC\u00caUTICA S.A."
+    },
+    {
+      "cd_cvm": 16772,
+      "company_name": "BNDESPAR"
+    },
+    {
+      "cd_cvm": 25704,
+      "company_name": "BOA SAFRA SEMENTES S.A."
+    },
+    {
+      "cd_cvm": 12190,
+      "company_name": "BOMBRIL S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 16560,
+      "company_name": "BONAIRE"
+    },
+    {
+      "cd_cvm": 26980,
+      "company_name": "BORRACHAS VIPAL S.A."
+    },
+    {
+      "cd_cvm": 19909,
+      "company_name": "BR MALLS PARTICIPA\u00c7OES S.A."
+    },
+    {
+      "cd_cvm": 19640,
+      "company_name": "BRADESCO LEASING SA ARREND MERCANTIL"
+    },
+    {
+      "cd_cvm": 18724,
+      "company_name": "BRADESPAR S/A"
+    },
+    {
+      "cd_cvm": 27375,
+      "company_name": "BRASIL BIOFUELS S.A."
+    },
+    {
+      "cd_cvm": 22500,
+      "company_name": "BRASIL PHARMA SA - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 27499,
+      "company_name": "BRASIL TECNOLOGIA E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 27022,
+      "company_name": "BRASIL TELECOM"
+    },
+    {
+      "cd_cvm": 11312,
+      "company_name": "BRASIL TELECOM S.A."
+    },
+    {
+      "cd_cvm": 20036,
+      "company_name": "BRASILAGRO CIA BRAS DE PROP AGRICOLAS"
+    },
+    {
+      "cd_cvm": 4820,
+      "company_name": "BRASKEM"
+    },
+    {
+      "cd_cvm": 27316,
+      "company_name": "BRAZIL TOWER, CESS\u00c3O DE INFRA-ESTRUTURAS S.A"
+    },
+    {
+      "cd_cvm": 14206,
+      "company_name": "BRB"
+    },
+    {
+      "cd_cvm": 25860,
+      "company_name": "BRBI BR PARTNERS S.A"
+    },
+    {
+      "cd_cvm": 16292,
+      "company_name": "BRF S.A."
+    },
+    {
+      "cd_cvm": 26999,
+      "company_name": "BRK AMBIENTAL - REGI\u00c3O METROPOLITANA DE MACEI\u00d3 S.A."
+    },
+    {
+      "cd_cvm": 24830,
+      "company_name": "BRK AMBIENTAL PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 23817,
+      "company_name": "BRQ SOLU\u00c7\u00d5ES EM INFORM\u00c1TICA S.A."
+    },
+    {
+      "cd_cvm": 27391,
+      "company_name": "BRZ EMPREENDIMENTOS E CONSTRU\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 27774,
+      "company_name": "BTG PACTUAL COMMODITIES SERTRADING S.A."
+    },
+    {
+      "cd_cvm": 24848,
+      "company_name": "C&A MODAS LTDA"
+    },
+    {
+      "cd_cvm": 19119,
+      "company_name": "CABINDA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 22683,
+      "company_name": "CACHOEIRA PAULISTA TRANSMISSORA DE ENERGIA SA"
+    },
+    {
+      "cd_cvm": 19135,
+      "company_name": "CACONDE PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 15717,
+      "company_name": "CADIP"
+    },
+    {
+      "cd_cvm": 18546,
+      "company_name": "CAGECE"
+    },
+    {
+      "cd_cvm": 19097,
+      "company_name": "CAIANDA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 4723,
+      "company_name": "CAL S/A"
+    },
+    {
+      "cd_cvm": 25771,
+      "company_name": "CALED\u00d4NIA SA\u00daDE S.A."
+    },
+    {
+      "cd_cvm": 25992,
+      "company_name": "CAMARGO CORREA CIMENTOS SA"
+    },
+    {
+      "cd_cvm": 24228,
+      "company_name": "CAMIL ALIMENTOS S/A"
+    },
+    {
+      "cd_cvm": 27871,
+      "company_name": "CAMINHOS DA SERRA GAUCHA S/A"
+    },
+    {
+      "cd_cvm": 17493,
+      "company_name": "CAPITALPART PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 26190,
+      "company_name": "CARAMURU ALIMENTOS S.A."
+    },
+    {
+      "cd_cvm": 14168,
+      "company_name": "CARBOMIL"
+    },
+    {
+      "cd_cvm": 16861,
+      "company_name": "CASAN"
+    },
+    {
+      "cd_cvm": 14451,
+      "company_name": "CEB - COMPANHIA ENERG\u00c9TICA DE BRAS\u00cdLIA"
+    },
+    {
+      "cd_cvm": 16373,
+      "company_name": "CEDAE"
+    },
+    {
+      "cd_cvm": 20648,
+      "company_name": "CEEE-D"
+    },
+    {
+      "cd_cvm": 16616,
+      "company_name": "CEG"
+    },
+    {
+      "cd_cvm": 24597,
+      "company_name": "CELEO REDES TRANSMISS\u00c3O DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 2461,
+      "company_name": "CELESC"
+    },
+    {
+      "cd_cvm": 25577,
+      "company_name": "CELG D"
+    },
+    {
+      "cd_cvm": 21393,
+      "company_name": "CELGPAR"
+    },
+    {
+      "cd_cvm": 16675,
+      "company_name": "CELPAR"
+    },
+    {
+      "cd_cvm": 14362,
+      "company_name": "CELPE"
+    },
+    {
+      "cd_cvm": 2453,
+      "company_name": "CEMIG"
+    },
+    {
+      "cd_cvm": 20303,
+      "company_name": "CEMIG DISTRIBUI\u00c7\u00c3O S/A"
+    },
+    {
+      "cd_cvm": 20320,
+      "company_name": "CEMIG GT"
+    },
+    {
+      "cd_cvm": 27472,
+      "company_name": "CENTRAIS EL\u00c9TRICAS DO NORTE DO BRASIL S.A."
+    },
+    {
+      "cd_cvm": 2577,
+      "company_name": "CESP CIA ENERGETICA SAO PAULO"
+    },
+    {
+      "cd_cvm": 10243,
+      "company_name": "CHAPECO"
+    },
+    {
+      "cd_cvm": 3328,
+      "company_name": "CHESF"
+    },
+    {
+      "cd_cvm": 21466,
+      "company_name": "CIA DE ARREND MERCANTIL RCI BRASIL"
+    },
+    {
+      "cd_cvm": 14869,
+      "company_name": "CIA ENERG CEARA - COELCE"
+    },
+    {
+      "cd_cvm": 27154,
+      "company_name": "CIA ESTADUAL DE GERA\u00c7\u00c3O DE ENERGIA EL\u00c9TRICA - CEEE-G"
+    },
+    {
+      "cd_cvm": 3298,
+      "company_name": "CIA HABITASUL DE PARTICIPA\u00c7\u00d5ES"
+    },
+    {
+      "cd_cvm": 13854,
+      "company_name": "CIA MARCOPOLO"
+    },
+    {
+      "cd_cvm": 26107,
+      "company_name": "CIA SECURITIZADORA DE CRED. FIN. CART\u00d5ES CONSIGNADOS II"
+    },
+    {
+      "cd_cvm": 3077,
+      "company_name": "CIA. DE FIA\u00c7\u00c3O E TECIDOS CEDRO CACHOEIRA"
+    },
+    {
+      "cd_cvm": 18708,
+      "company_name": "CIA. DE PARTICIPA\u00c7\u00d5ES ALIAN\u00c7A DA BAHIA"
+    },
+    {
+      "cd_cvm": 27634,
+      "company_name": "CIABRASF - CIA. BRASILEIRA DE SERVI\u00c7OS FINANCEIROS S.A."
+    },
+    {
+      "cd_cvm": 21733,
+      "company_name": "CIELO S.A. - INSTITUI\u00c7\u00c3O DE PAGAMENTO"
+    },
+    {
+      "cd_cvm": 23531,
+      "company_name": "CLARO TELECOM PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 27243,
+      "company_name": "CLI SUL S.A."
+    },
+    {
+      "cd_cvm": 25682,
+      "company_name": "CM HOSPITALAR S.A"
+    },
+    {
+      "cd_cvm": 4448,
+      "company_name": "COBRASMA S/A"
+    },
+    {
+      "cd_cvm": 14524,
+      "company_name": "COELBA"
+    },
+    {
+      "cd_cvm": 26280,
+      "company_name": "COMERC ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 28002,
+      "company_name": "COMPANHIA BRASILEIRA DE EDUCA\u00c7\u00c3O E SISTEMA DE ENSINO S.A."
+    },
+    {
+      "cd_cvm": 23175,
+      "company_name": "COMPANHIA DE AGUAS DO BRASIL - CAB AMBIENTAL"
+    },
+    {
+      "cd_cvm": 15636,
+      "company_name": "COMPANHIA DE G\u00c1S DE S\u00c3O PAULO - COMG\u00c1S"
+    },
+    {
+      "cd_cvm": 27065,
+      "company_name": "COMPANHIA DO METROPOLITANO DE S\u00c3O PAULO - METR\u00d4"
+    },
+    {
+      "cd_cvm": 24422,
+      "company_name": "COMPANHIA ENERG\u00c9TICA JAGUARA"
+    },
+    {
+      "cd_cvm": 24430,
+      "company_name": "COMPANHIA ENERG\u00c9TICA MIRANDA"
+    },
+    {
+      "cd_cvm": 24155,
+      "company_name": "COMPANHIA ENERG\u00c9TICA SINOP S.A."
+    },
+    {
+      "cd_cvm": 3395,
+      "company_name": "COMPANHIA INDUSTRIAL CATAGUASES"
+    },
+    {
+      "cd_cvm": 24147,
+      "company_name": "COMPANHIA SECURITIZADORA DE CR\u00c9DITOS FINANCEIROS CART\u00d5ES CONSIGNADOS I"
+    },
+    {
+      "cd_cvm": 25127,
+      "company_name": "COMPASS G\u00c1S E ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 23868,
+      "company_name": "CONCEBRA - CONCESSIONARIA DAS RODOVIAS CENTRAIS DO BRASIL S.A."
+    },
+    {
+      "cd_cvm": 22268,
+      "company_name": "CONCESSIONARIA AUTO RAPOSO TAVARES SA-CART"
+    },
+    {
+      "cd_cvm": 26859,
+      "company_name": "CONCESSIONARIA CATARINENSE DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 27790,
+      "company_name": "CONCESSIONARIA DAS RODOVIAS DO LESTE MS S/A"
+    },
+    {
+      "cd_cvm": 26638,
+      "company_name": "CONCESSIONARIA ECOVIAS DO ARAGUAIA S.A."
+    },
+    {
+      "cd_cvm": 24139,
+      "company_name": "CONCESSIONARIA PONTE RIO-NITER\u00d3I S.A. - ECOPONTE"
+    },
+    {
+      "cd_cvm": 22721,
+      "company_name": "CONCESSIONARIA RODOVIAS TIETE SA"
+    },
+    {
+      "cd_cvm": 27294,
+      "company_name": "CONCESSIONARIA ROTA DE SANTA MARIA S.A"
+    },
+    {
+      "cd_cvm": 27731,
+      "company_name": "CONCESSION\u00c1RIA DA LINHA 4 DO METR\u00d4 DE S\u00c3O PAULO S.A."
+    },
+    {
+      "cd_cvm": 24104,
+      "company_name": "CONCESSION\u00c1RIA DA RODOVIA MG-050 S.A."
+    },
+    {
+      "cd_cvm": 22411,
+      "company_name": "CONCESSION\u00c1RIA DAS RODOVIAS AYRTON SENNA E CARVALHO PINTO S/A"
+    },
+    {
+      "cd_cvm": 23833,
+      "company_name": "CONCESSION\u00c1RIA DE RODOVIA SUL-MATOGROSSENSE S.A."
+    },
+    {
+      "cd_cvm": 23884,
+      "company_name": "CONCESSION\u00c1RIA DE RODOVIAS MINAS GERAIS S.A."
+    },
+    {
+      "cd_cvm": 27464,
+      "company_name": "CONCESSION\u00c1RIA DE RODOVIAS NOROESTE PAULISTA S.A"
+    },
+    {
+      "cd_cvm": 27898,
+      "company_name": "CONCESSION\u00c1RIA DE RODOVIAS PRVIAS S.A."
+    },
+    {
+      "cd_cvm": 27421,
+      "company_name": "CONCESSION\u00c1RIA DO SISTEMA RODOVI\u00c1RIO RIO-S\u00c3O PAULO S.A"
+    },
+    {
+      "cd_cvm": 26581,
+      "company_name": "CONCESSION\u00c1RIA ECOVIAS DO CERRADO S.A."
+    },
+    {
+      "cd_cvm": 27782,
+      "company_name": "CONCESSION\u00c1RIA RODOANEL NORTE SPE S.A."
+    },
+    {
+      "cd_cvm": 27588,
+      "company_name": "CONCESSION\u00c1RIA RODOVIAS DO CAF\u00c9 SPE S.A."
+    },
+    {
+      "cd_cvm": 27596,
+      "company_name": "CONCESSION\u00c1RIA RODOVIAS DO SUL DE MINAS SPE S.A."
+    },
+    {
+      "cd_cvm": 27537,
+      "company_name": "CONCESSION\u00c1RIA RODOVIAS DO TRI\u00c2NGULO SPE S.A."
+    },
+    {
+      "cd_cvm": 22071,
+      "company_name": "CONCESSION\u00c1RIA ROTA DAS BANDEIRAS S/A"
+    },
+    {
+      "cd_cvm": 23922,
+      "company_name": "CONCESSION\u00c1RIA ROTA DO OESTE S.A."
+    },
+    {
+      "cd_cvm": 20192,
+      "company_name": "CONCESSION\u00c1RIA SO SISTEMA ANHANGUERA BANDEIRANTES S/A"
+    },
+    {
+      "cd_cvm": 27405,
+      "company_name": "CONCESSION\u00c1RIA VIARIO S.A."
+    },
+    {
+      "cd_cvm": 25356,
+      "company_name": "CONCESS\u00c1RIA DAS RODOVIAS INTEGRADAS DO SUL S.A."
+    },
+    {
+      "cd_cvm": 4693,
+      "company_name": "CONSERVAS ODERICH SA"
+    },
+    {
+      "cd_cvm": 27340,
+      "company_name": "CONSTRUTORA METROCASA S.A."
+    },
+    {
+      "cd_cvm": 13030,
+      "company_name": "CONSTRUTORA SULTEPA S/A"
+    },
+    {
+      "cd_cvm": 21148,
+      "company_name": "CONSTRUTORA TENDA S/A"
+    },
+    {
+      "cd_cvm": 19100,
+      "company_name": "CONTAX PARTICIPA\u00c7\u00d5ES S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 19445,
+      "company_name": "COPASA MG"
+    },
+    {
+      "cd_cvm": 14311,
+      "company_name": "COPEL"
+    },
+    {
+      "cd_cvm": 26808,
+      "company_name": "COPEL DISTRIBUI\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 24740,
+      "company_name": "COPEL GERA\u00c7\u00c3O E TRANSMISS\u00c3O S/A"
+    },
+    {
+      "cd_cvm": 27669,
+      "company_name": "CORP\u00d3REOS - SERVI\u00c7OS TERAP\u00caUTICOS S.A."
+    },
+    {
+      "cd_cvm": 27260,
+      "company_name": "CORREDOR LOG\u00cdSTICA E INFRAESTRUTURA S.A."
+    },
+    {
+      "cd_cvm": 16748,
+      "company_name": "CORSAN"
+    },
+    {
+      "cd_cvm": 19836,
+      "company_name": "COSAN SA INDUSTRIA E COMERCIO"
+    },
+    {
+      "cd_cvm": 18139,
+      "company_name": "COSERN"
+    },
+    {
+      "cd_cvm": 3824,
+      "company_name": "CPFL"
+    },
+    {
+      "cd_cvm": 19275,
+      "company_name": "CPFL - PIRATININGA"
+    },
+    {
+      "cd_cvm": 18660,
+      "company_name": "CPFL ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 20540,
+      "company_name": "CPFL RENOV\u00c1VEIS"
+    },
+    {
+      "cd_cvm": 3204,
+      "company_name": "CPFL TRANSMISS\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 27839,
+      "company_name": "CPX DISTRIBUIDORA S.A."
+    },
+    {
+      "cd_cvm": 20630,
+      "company_name": "CR2 EMPREENDIMENTOS IMOBILI\u00c1RIOS S/A"
+    },
+    {
+      "cd_cvm": 19208,
+      "company_name": "CRT SA"
+    },
+    {
+      "cd_cvm": 25526,
+      "company_name": "CRUZEIRO DO SUL EDUCACIONAL S.A."
+    },
+    {
+      "cd_cvm": 4030,
+      "company_name": "CSN"
+    },
+    {
+      "cd_cvm": 25585,
+      "company_name": "CSN MINERA\u00c7\u00c3O S.A"
+    },
+    {
+      "cd_cvm": 20044,
+      "company_name": "CSU DIGITAL S.A."
+    },
+    {
+      "cd_cvm": 21032,
+      "company_name": "CTBC TELECOM"
+    },
+    {
+      "cd_cvm": 23981,
+      "company_name": "CTC - CENTRO DE TECNOLOGIA CANAVIEIRA S.A."
+    },
+    {
+      "cd_cvm": 18376,
+      "company_name": "CTEEP"
+    },
+    {
+      "cd_cvm": 23310,
+      "company_name": "CVC BRASIL OPERADORA E AG\u00caNCIA DE VIAGENS SA"
+    },
+    {
+      "cd_cvm": 14460,
+      "company_name": "CYRELA BRAZIL REALTY S.A."
+    },
+    {
+      "cd_cvm": 26026,
+      "company_name": "DESKTOP S.A"
+    },
+    {
+      "cd_cvm": 21091,
+      "company_name": "DEXCO S.A."
+    },
+    {
+      "cd_cvm": 16632,
+      "company_name": "DEXXOS PARTICPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 19623,
+      "company_name": "DIAGNOSTICOS DA AMERICA SA"
+    },
+    {
+      "cd_cvm": 14214,
+      "company_name": "DIBENS LEASING SA"
+    },
+    {
+      "cd_cvm": 20052,
+      "company_name": "DINAMICA ENERGIA S/A"
+    },
+    {
+      "cd_cvm": 21350,
+      "company_name": "DIRECIONAL ENGENHARIA SA"
+    },
+    {
+      "cd_cvm": 5207,
+      "company_name": "DOHLER"
+    },
+    {
+      "cd_cvm": 25836,
+      "company_name": "DOTZ S.A"
+    },
+    {
+      "cd_cvm": 5258,
+      "company_name": "DROGASIL SA"
+    },
+    {
+      "cd_cvm": 18597,
+      "company_name": "DTCOM"
+    },
+    {
+      "cd_cvm": 18368,
+      "company_name": "DUKE ENERGY INT,GERA\u00c7\u00c3O PARANAPANEMA SA"
+    },
+    {
+      "cd_cvm": 23582,
+      "company_name": "ECO101 CONCESSION\u00c1RIA DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 27456,
+      "company_name": "ECORIOMINAS CONCESSION\u00c1RIA DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 21903,
+      "company_name": "ECORODOVIAS CONCESS\u00d5ES E SERVI\u00c7OS S/A"
+    },
+    {
+      "cd_cvm": 19453,
+      "company_name": "ECORODOVIAS INFRAESTRUTURA E LOG\u00cdSTICA S.A."
+    },
+    {
+      "cd_cvm": 20397,
+      "company_name": "ECOVIAS DOS IMIGRANTES"
+    },
+    {
+      "cd_cvm": 10472,
+      "company_name": "EDITORA SARAIVA"
+    },
+    {
+      "cd_cvm": 19763,
+      "company_name": "EDP ENERGIAS DO BRASIL S/A"
+    },
+    {
+      "cd_cvm": 22810,
+      "company_name": "ELDORADO CELULOSE E PAPEL S/A"
+    },
+    {
+      "cd_cvm": 26948,
+      "company_name": "ELEA DIGITAL INFRAESTRUTURA E REDES DE TELECOMUNICA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 5380,
+      "company_name": "ELECTRO A\u00c7O ALTONA S/A"
+    },
+    {
+      "cd_cvm": 17485,
+      "company_name": "ELEKTRO REDES S.A."
+    },
+    {
+      "cd_cvm": 2437,
+      "company_name": "ELETROBRAS"
+    },
+    {
+      "cd_cvm": 27480,
+      "company_name": "ELETROBRAS CGT ELETROSUL"
+    },
+    {
+      "cd_cvm": 16993,
+      "company_name": "EMAE"
+    },
+    {
+      "cd_cvm": 15458,
+      "company_name": "EMBPAR PARTICIPA\u00c7\u00d5ES S/A"
+    },
+    {
+      "cd_cvm": 20087,
+      "company_name": "EMBRAER"
+    },
+    {
+      "cd_cvm": 22608,
+      "company_name": "EMPREENDIMENTOS PAGUE MENOS SA"
+    },
+    {
+      "cd_cvm": 24864,
+      "company_name": "ENERGIA SUL-SUDESTE - DISTRIBUIDORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 15253,
+      "company_name": "ENERGISA"
+    },
+    {
+      "cd_cvm": 14605,
+      "company_name": "ENERGISA MATO GROSSO - DISTRIBUIDORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 3271,
+      "company_name": "ENERGISA MINAS RIO - DISTRIBUIDORA DE ENERGIA S/A"
+    },
+    {
+      "cd_cvm": 21938,
+      "company_name": "ENERGISA PARAIBA - DISTRIBUIDORA DE ENERGIA S/A"
+    },
+    {
+      "cd_cvm": 18996,
+      "company_name": "ENERGISA SERGIPE"
+    },
+    {
+      "cd_cvm": 24589,
+      "company_name": "ENERGISA TRANSMISS\u00c3O DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 5576,
+      "company_name": "ENERSUL"
+    },
+    {
+      "cd_cvm": 21237,
+      "company_name": "ENEVA SA"
+    },
+    {
+      "cd_cvm": 24341,
+      "company_name": "ENTREVIAS CONCESSION\u00c1RIA DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 27928,
+      "company_name": "EPR IGUA\u00c7U S.A."
+    },
+    {
+      "cd_cvm": 27715,
+      "company_name": "EPR INFRAESTRUTURA PR S.A."
+    },
+    {
+      "cd_cvm": 27723,
+      "company_name": "EPR LITORAL PIONEIRO S.A."
+    },
+    {
+      "cd_cvm": 27863,
+      "company_name": "EPR VIA MINEIRA S.A."
+    },
+    {
+      "cd_cvm": 16608,
+      "company_name": "EQUATORIAL MARANH\u00c3O DISTRIBUIDORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 18309,
+      "company_name": "EQUATORIAL PAR\u00c1 DISTRIBUIDORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 20010,
+      "company_name": "EQUATORIAL S.A."
+    },
+    {
+      "cd_cvm": 27642,
+      "company_name": "EQUIPAV SANEAMENTO S.A."
+    },
+    {
+      "cd_cvm": 15342,
+      "company_name": "ESCELSA"
+    },
+    {
+      "cd_cvm": 26670,
+      "company_name": "ESPERANZA TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 26158,
+      "company_name": "ESSENTIA PCHS S.A."
+    },
+    {
+      "cd_cvm": 21016,
+      "company_name": "ESTACIO PARTICIPA\u00c7\u00d5ES SA"
+    },
+    {
+      "cd_cvm": 8427,
+      "company_name": "ESTRELA"
+    },
+    {
+      "cd_cvm": 5762,
+      "company_name": "ETERNIT"
+    },
+    {
+      "cd_cvm": 5770,
+      "company_name": "EUCATEX"
+    },
+    {
+      "cd_cvm": 26700,
+      "company_name": "EUROFARMA LABORAT\u00cbRIOS S.A."
+    },
+    {
+      "cd_cvm": 20524,
+      "company_name": "EVEN"
+    },
+    {
+      "cd_cvm": 1570,
+      "company_name": "EXCELSIOR"
+    },
+    {
+      "cd_cvm": 20770,
+      "company_name": "EZ TEC EMPREEND. E PARTICIPA\u00c7\u00d5ES S/A"
+    },
+    {
+      "cd_cvm": 3069,
+      "company_name": "FERBASA"
+    },
+    {
+      "cd_cvm": 22977,
+      "company_name": "FERREIRA GOMES ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 15369,
+      "company_name": "FERROVIA CENTRO-ATL\u00c2NTICA S.A."
+    },
+    {
+      "cd_cvm": 21814,
+      "company_name": "FERROVIA NORTE SUL"
+    },
+    {
+      "cd_cvm": 20621,
+      "company_name": "FERTILIZANTES HERINGER SA"
+    },
+    {
+      "cd_cvm": 15423,
+      "company_name": "FICTOR ALIMENTOS S.A."
+    },
+    {
+      "cd_cvm": 27529,
+      "company_name": "FISIA COM\u00c9RCIO DE PRODUTOS ESPORTIVOS S.A."
+    },
+    {
+      "cd_cvm": 21881,
+      "company_name": "FLEURY SA"
+    },
+    {
+      "cd_cvm": 14796,
+      "company_name": "FORPART SA"
+    },
+    {
+      "cd_cvm": 26697,
+      "company_name": "FOZ DO RIO CLARO ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 6211,
+      "company_name": "FRASLE MOBILITY S.A."
+    },
+    {
+      "cd_cvm": 23370,
+      "company_name": "FTL - FERROVIA TRANSNORDESTINA LOG\u00cdSTICA S.A."
+    },
+    {
+      "cd_cvm": 16101,
+      "company_name": "GAFISA"
+    },
+    {
+      "cd_cvm": 17965,
+      "company_name": "GAMA PARTICIPA\u00c7\u00d5ES SA"
+    },
+    {
+      "cd_cvm": 21008,
+      "company_name": "GENERAL SHOPPING BRASIL SA"
+    },
+    {
+      "cd_cvm": 3980,
+      "company_name": "GERDAU S.A."
+    },
+    {
+      "cd_cvm": 25887,
+      "company_name": "GETNINJAS S.A."
+    },
+    {
+      "cd_cvm": 27502,
+      "company_name": "GIGA MAIS FIBRA TELECOMUNICA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 19569,
+      "company_name": "GOL LINHAS AEREAS INTELIGENTES SA"
+    },
+    {
+      "cd_cvm": 25712,
+      "company_name": "GPS PARTICIPA\u00c7\u00d5ES E EMPREENDIMENTOS S/A"
+    },
+    {
+      "cd_cvm": 27219,
+      "company_name": "GRANJA FARIA S.A."
+    },
+    {
+      "cd_cvm": 4537,
+      "company_name": "GRAZZIOTIN"
+    },
+    {
+      "cd_cvm": 19615,
+      "company_name": "GRENDENE SA"
+    },
+    {
+      "cd_cvm": 26166,
+      "company_name": "GRUPO FARTURA DE HORTIFRUT S.A"
+    },
+    {
+      "cd_cvm": 26034,
+      "company_name": "GRUPO MULTI S.A."
+    },
+    {
+      "cd_cvm": 27820,
+      "company_name": "GRUPO SALTA EDUCA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 24694,
+      "company_name": "GRUPO SBF S.A."
+    },
+    {
+      "cd_cvm": 25461,
+      "company_name": "GRUPO TOKY S.A."
+    },
+    {
+      "cd_cvm": 26603,
+      "company_name": "GSH CORP PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 4669,
+      "company_name": "GUARARAPES CONFEC\u00c7\u00d5ES"
+    },
+    {
+      "cd_cvm": 13366,
+      "company_name": "HAGA"
+    },
+    {
+      "cd_cvm": 24392,
+      "company_name": "HAPVIDA PARTICIPA\u00c7\u00d5ES E INVESTIMENTOS S.A."
+    },
+    {
+      "cd_cvm": 14850,
+      "company_name": "HAUSCENTER"
+    },
+    {
+      "cd_cvm": 20877,
+      "company_name": "HELBOR"
+    },
+    {
+      "cd_cvm": 6629,
+      "company_name": "HERCULES S/A"
+    },
+    {
+      "cd_cvm": 22675,
+      "company_name": "HIDROVIAS DO BRASIL S.A."
+    },
+    {
+      "cd_cvm": 27880,
+      "company_name": "HIGHLINE BRASIL II INFRAESTRUTURA DE TELECOMUNICA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25674,
+      "company_name": "HMOBI PARTICIPA\u00c7\u00d5ES S.A"
+    },
+    {
+      "cd_cvm": 26565,
+      "company_name": "HOLDING DO ARAGUAIA S.A."
+    },
+    {
+      "cd_cvm": 26468,
+      "company_name": "HOSPITAL ANCHIETA S.A."
+    },
+    {
+      "cd_cvm": 25690,
+      "company_name": "HOSPITAL MATER DEI S.A."
+    },
+    {
+      "cd_cvm": 6700,
+      "company_name": "HOTEIS OTHON S.A."
+    },
+    {
+      "cd_cvm": 21431,
+      "company_name": "HYPERA PHARMA S/A"
+    },
+    {
+      "cd_cvm": 27332,
+      "company_name": "H\u00c9LIO VALGAS SOLAR PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 26905,
+      "company_name": "IFIN PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 20494,
+      "company_name": "IGUATEMI EMPRESA DE SHOPPING CENTERS S/A"
+    },
+    {
+      "cd_cvm": 8672,
+      "company_name": "IGUATEMI S.A."
+    },
+    {
+      "cd_cvm": 26727,
+      "company_name": "IGU\u00c1 RIO DE JANEIRO S.A."
+    },
+    {
+      "cd_cvm": 27812,
+      "company_name": "IGU\u00c1 SERGIPE S.A."
+    },
+    {
+      "cd_cvm": 22560,
+      "company_name": "INBRANDS SA"
+    },
+    {
+      "cd_cvm": 24279,
+      "company_name": "INC EMPREENDIMENTOS IMOBILI\u00c1RIOS S.A."
+    },
+    {
+      "cd_cvm": 3450,
+      "company_name": "INDL ITAUNENSE"
+    },
+    {
+      "cd_cvm": 17868,
+      "company_name": "INEPAR"
+    },
+    {
+      "cd_cvm": 7595,
+      "company_name": "INEPAR S/A"
+    },
+    {
+      "cd_cvm": 25747,
+      "company_name": "INFRACOMMERCE CXAAS S.A."
+    },
+    {
+      "cd_cvm": 21750,
+      "company_name": "INFRASEC SECURITIZADORA  S/A"
+    },
+    {
+      "cd_cvm": 25453,
+      "company_name": "INTELBRAS S.A."
+    },
+    {
+      "cd_cvm": 23574,
+      "company_name": "INTERNATIONAL MEAL COMAPANY ALIMENTA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 21849,
+      "company_name": "INTERVIAS"
+    },
+    {
+      "cd_cvm": 18775,
+      "company_name": "INVEPAR"
+    },
+    {
+      "cd_cvm": 15199,
+      "company_name": "INVESC"
+    },
+    {
+      "cd_cvm": 18589,
+      "company_name": "INVESTCO S.A."
+    },
+    {
+      "cd_cvm": 6041,
+      "company_name": "INVESTIMENTOS BEMGE"
+    },
+    {
+      "cd_cvm": 11932,
+      "company_name": "IOCHPE-MAXION"
+    },
+    {
+      "cd_cvm": 2429,
+      "company_name": "IRANI PAPEL E EMBALAGEM S.A."
+    },
+    {
+      "cd_cvm": 19348,
+      "company_name": "ITA\u00da UNIBANCO"
+    },
+    {
+      "cd_cvm": 7617,
+      "company_name": "ITA\u00daSA"
+    },
+    {
+      "cd_cvm": 21156,
+      "company_name": "J. MACEDO ALIM NORDESTE S/A  - AGUIA S/A"
+    },
+    {
+      "cd_cvm": 25496,
+      "company_name": "JALLES MACHADO S.A"
+    },
+    {
+      "cd_cvm": 20575,
+      "company_name": "JBS SA"
+    },
+    {
+      "cd_cvm": 20605,
+      "company_name": "JHSF"
+    },
+    {
+      "cd_cvm": 13285,
+      "company_name": "JOSAPAR S/A"
+    },
+    {
+      "cd_cvm": 7811,
+      "company_name": "JO\u00c3O FORTES ENGENHARIA S.A."
+    },
+    {
+      "cd_cvm": 22020,
+      "company_name": "JSL S.A."
+    },
+    {
+      "cd_cvm": 22446,
+      "company_name": "K-INFRA RODOVIA DO A\u00c7O S.A."
+    },
+    {
+      "cd_cvm": 25631,
+      "company_name": "KALUNGA S.A."
+    },
+    {
+      "cd_cvm": 4146,
+      "company_name": "KARSTEN"
+    },
+    {
+      "cd_cvm": 7870,
+      "company_name": "KEPLER WEBER SA"
+    },
+    {
+      "cd_cvm": 12653,
+      "company_name": "KLABIN"
+    },
+    {
+      "cd_cvm": 17973,
+      "company_name": "KROTON EDUCACIONAL S.A."
+    },
+    {
+      "cd_cvm": 26182,
+      "company_name": "LABORAT\u00d3RIO TEUTO BRASILEIRO S.A."
+    },
+    {
+      "cd_cvm": 21440,
+      "company_name": "LE LIS BLANC DEUX"
+    },
+    {
+      "cd_cvm": 23558,
+      "company_name": "LEADS CIA. SECURITIZADORA"
+    },
+    {
+      "cd_cvm": 27383,
+      "company_name": "LET'S RENT A CAR S.A."
+    },
+    {
+      "cd_cvm": 24872,
+      "company_name": "LIFEMED INDUSTRIAL DE EQUIP. E ART. MEDICOS E HOSP. S.A."
+    },
+    {
+      "cd_cvm": 27367,
+      "company_name": "LIGGA TELECOMUNICA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 8036,
+      "company_name": "LIGHT"
+    },
+    {
+      "cd_cvm": 23000,
+      "company_name": "LIGHT ENERGIA S.A"
+    },
+    {
+      "cd_cvm": 19879,
+      "company_name": "LIGHT S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 24937,
+      "company_name": "LINHA AMARELA S./A."
+    },
+    {
+      "cd_cvm": 23680,
+      "company_name": "LINHAS DE MACAP\u00c1 TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 23671,
+      "company_name": "LINHAS DE XINGU TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 15091,
+      "company_name": "LITEL PARTICIPACOES"
+    },
+    {
+      "cd_cvm": 24759,
+      "company_name": "LITELA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25895,
+      "company_name": "LIVETECH DA BAHIA IND\u00daSTRIA E COM\u00c9RCIO S.A."
+    },
+    {
+      "cd_cvm": 24880,
+      "company_name": "LM TRANSPORTES INTERESTADUAIS SERVI\u00c7OS E COM\u00c9RCIO S.A."
+    },
+    {
+      "cd_cvm": 24813,
+      "company_name": "LOCALIZA  FLEET S.A."
+    },
+    {
+      "cd_cvm": 19739,
+      "company_name": "LOCALIZA RENT A CAR"
+    },
+    {
+      "cd_cvm": 23272,
+      "company_name": "LOG COMMERCIAL PROPERTIES E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 20710,
+      "company_name": "LOG-IN LOGISTICA INTERMODAL SA"
+    },
+    {
+      "cd_cvm": 25038,
+      "company_name": "LOJAS QUERO-QUERO S.A."
+    },
+    {
+      "cd_cvm": 17434,
+      "company_name": "LONGDIS SA"
+    },
+    {
+      "cd_cvm": 20370,
+      "company_name": "LOPES"
+    },
+    {
+      "cd_cvm": 20060,
+      "company_name": "LUPATECH"
+    },
+    {
+      "cd_cvm": 24910,
+      "company_name": "LWSA S/A"
+    },
+    {
+      "cd_cvm": 20338,
+      "company_name": "M DIAS BRANCO SA IND E COM DE ALIMENTOS"
+    },
+    {
+      "cd_cvm": 23612,
+      "company_name": "MAESTRO LOCADORA DE VE\u00cdCULOS S.A."
+    },
+    {
+      "cd_cvm": 22470,
+      "company_name": "MAGAZINE LUIZA SA"
+    },
+    {
+      "cd_cvm": 8575,
+      "company_name": "MAHLE METAL LEVE"
+    },
+    {
+      "cd_cvm": 26719,
+      "company_name": "MANAUS TRANSMISSORA DE ENERGIA S.A"
+    },
+    {
+      "cd_cvm": 8397,
+      "company_name": "MANGELS"
+    },
+    {
+      "cd_cvm": 27952,
+      "company_name": "MANTIQUEIRA HOLDING S.A."
+    },
+    {
+      "cd_cvm": 8451,
+      "company_name": "MARCOPOLO"
+    },
+    {
+      "cd_cvm": 20788,
+      "company_name": "MARFRIG"
+    },
+    {
+      "cd_cvm": 16268,
+      "company_name": "MARINA PARK"
+    },
+    {
+      "cd_cvm": 22055,
+      "company_name": "MARISA LOJAS SA"
+    },
+    {
+      "cd_cvm": 3654,
+      "company_name": "MELHORAMENTOS"
+    },
+    {
+      "cd_cvm": 25232,
+      "company_name": "MELIUZ S.A."
+    },
+    {
+      "cd_cvm": 25119,
+      "company_name": "MELNICK EVEN DESENVOLVIMENTO IMOBILI\u00c1RIO S.A."
+    },
+    {
+      "cd_cvm": 4782,
+      "company_name": "MENDES JUNIOR ENGENHARIA S/A"
+    },
+    {
+      "cd_cvm": 20613,
+      "company_name": "METALFRIO SOLUTIONS S/A"
+    },
+    {
+      "cd_cvm": 13439,
+      "company_name": "METALURGICA RIOSULENSE S/A"
+    },
+    {
+      "cd_cvm": 8656,
+      "company_name": "METAL\u00daRGICA GERDAU"
+    },
+    {
+      "cd_cvm": 8745,
+      "company_name": "METANOR S.A METANOL DO NORDESTE"
+    },
+    {
+      "cd_cvm": 8753,
+      "company_name": "METISA"
+    },
+    {
+      "cd_cvm": 22144,
+      "company_name": "METR\u00d4RIO"
+    },
+    {
+      "cd_cvm": 11398,
+      "company_name": "MILLENNIUM INORGANIC CHEMICALS DO BRASIL"
+    },
+    {
+      "cd_cvm": 22012,
+      "company_name": "MILLS ESTRUTURAS E SERVI\u00c7OS DE ENGENHARIA S/A"
+    },
+    {
+      "cd_cvm": 8818,
+      "company_name": "MINASM\u00c1QUINAS S/A"
+    },
+    {
+      "cd_cvm": 20931,
+      "company_name": "MINERVA S/A"
+    },
+    {
+      "cd_cvm": 13765,
+      "company_name": "MINUPAR"
+    },
+    {
+      "cd_cvm": 22586,
+      "company_name": "MLOG S.A."
+    },
+    {
+      "cd_cvm": 26611,
+      "company_name": "MNLT S.A."
+    },
+    {
+      "cd_cvm": 1694,
+      "company_name": "MONARK"
+    },
+    {
+      "cd_cvm": 26328,
+      "company_name": "MONTE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 18821,
+      "company_name": "MOTIVA INFRAESTRUTURA DE MOBILIDADE S.A."
+    },
+    {
+      "cd_cvm": 21067,
+      "company_name": "MOURA DUBEUX"
+    },
+    {
+      "cd_cvm": 23825,
+      "company_name": "MOVIDA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25445,
+      "company_name": "MPM CORP\u00d3REOS S.A."
+    },
+    {
+      "cd_cvm": 17949,
+      "company_name": "MRS LOG\u00cdSTICA S/A"
+    },
+    {
+      "cd_cvm": 20915,
+      "company_name": "MRV ENGENHARIA"
+    },
+    {
+      "cd_cvm": 21520,
+      "company_name": "MULTINER"
+    },
+    {
+      "cd_cvm": 20982,
+      "company_name": "MULTIPLAN"
+    },
+    {
+      "cd_cvm": 5312,
+      "company_name": "MUNDIAL"
+    },
+    {
+      "cd_cvm": 25283,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25194,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25275,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27430,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23248,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26069,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23159,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25925,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26204,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25291,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27693,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23795,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26646,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26522,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27103,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25984,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25178,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23515,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25100,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25542,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25046,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26875,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25348,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25909,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25259,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26271,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25380,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25429,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25186,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25402,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27251,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 24180,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25798,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25879,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25062,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26506,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26379,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 24902,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26956,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26123,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23507,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25305,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25070,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23230,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27146,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23167,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23388,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25160,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23221,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27073,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26077,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25844,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23329,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25208,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 22780,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 23280,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 26050,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 25437,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27057,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 27189,
+      "company_name": "nan"
+    },
+    {
+      "cd_cvm": 19550,
+      "company_name": "NATURA COSMETICOS SA"
+    },
+    {
+      "cd_cvm": 15539,
+      "company_name": "NEOENERGIA S.A."
+    },
+    {
+      "cd_cvm": 25399,
+      "company_name": "NEOGRID PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 17540,
+      "company_name": "NEWTEL PARTICIPA\u00c7\u00d5ES S.A. - EM LIQUIDA\u00c7\u00c3O"
+    },
+    {
+      "cd_cvm": 21180,
+      "company_name": "NEXPE PARTICIPA\u00c3iES S.A."
+    },
+    {
+      "cd_cvm": 9083,
+      "company_name": "NORDON INDS METALURGICAS SA"
+    },
+    {
+      "cd_cvm": 24988,
+      "company_name": "NORTE BRASIL TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 25097,
+      "company_name": "NORTE ENERGIA S.A"
+    },
+    {
+      "cd_cvm": 27081,
+      "company_name": "NOVA SOCIEDADE DE NAVEGA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 24708,
+      "company_name": "NOVA TRANSPORTADORA DO SUDESTE S.A. - NTS"
+    },
+    {
+      "cd_cvm": 21334,
+      "company_name": "NUTRIPLANT"
+    },
+    {
+      "cd_cvm": 23620,
+      "company_name": "OCEANA OFFSHORE S.A."
+    },
+    {
+      "cd_cvm": 25534,
+      "company_name": "OCEANPACT SERVI\u00c7OS MAR\u00cdTIMOS S.A."
+    },
+    {
+      "cd_cvm": 20125,
+      "company_name": "ODONTOPREV S/A"
+    },
+    {
+      "cd_cvm": 26662,
+      "company_name": "ODOY\u00c1 TRANSMISSORA DE ENERGIA S.A"
+    },
+    {
+      "cd_cvm": 16438,
+      "company_name": "OPPORTUNITY SUL S.A."
+    },
+    {
+      "cd_cvm": 27910,
+      "company_name": "ORANJEBTC S.A. - EDUCA\u00c7\u00c3O E INVESTIMENTO"
+    },
+    {
+      "cd_cvm": 27227,
+      "company_name": "ORIGEM ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 27049,
+      "company_name": "ORIZON MEIO AMBIENTE S.A."
+    },
+    {
+      "cd_cvm": 25550,
+      "company_name": "ORIZON VALORIZA\u00c7\u00c3O DE RES\u00cdDUOS S.A."
+    },
+    {
+      "cd_cvm": 21342,
+      "company_name": "OSX BRASIL S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 27901,
+      "company_name": "OZN HEALTH SPE S.A."
+    },
+    {
+      "cd_cvm": 25143,
+      "company_name": "PACAEMBU CONSTRUTORA S.A."
+    },
+    {
+      "cd_cvm": 94,
+      "company_name": "PANATLANTICA"
+    },
+    {
+      "cd_cvm": 9342,
+      "company_name": "PANVEL FARM\u00c1CIAS"
+    },
+    {
+      "cd_cvm": 20729,
+      "company_name": "PARANA"
+    },
+    {
+      "cd_cvm": 9393,
+      "company_name": "PARANAPANEMA S.A."
+    },
+    {
+      "cd_cvm": 14680,
+      "company_name": "PARCOM PARTICIPACOES SA EM LIQUIDACAO"
+    },
+    {
+      "cd_cvm": 27448,
+      "company_name": "PARSAN S.A."
+    },
+    {
+      "cd_cvm": 21644,
+      "company_name": "PDG COMPANHIA SECURITIZADORA"
+    },
+    {
+      "cd_cvm": 20478,
+      "company_name": "PDG REALTY SA EMPREENDIMENTOS E PARTS"
+    },
+    {
+      "cd_cvm": 2100,
+      "company_name": "PENALTY"
+    },
+    {
+      "cd_cvm": 25089,
+      "company_name": "PET CENTER COM\u00c9RCIO E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 22187,
+      "company_name": "PETRO RIO S.A."
+    },
+    {
+      "cd_cvm": 9512,
+      "company_name": "PETROBRAS"
+    },
+    {
+      "cd_cvm": 9520,
+      "company_name": "PETROLUSA"
+    },
+    {
+      "cd_cvm": 25780,
+      "company_name": "PETROREC\u00d4NCAVO S.A."
+    },
+    {
+      "cd_cvm": 9539,
+      "company_name": "PETTENATI"
+    },
+    {
+      "cd_cvm": 13471,
+      "company_name": "PLASCAR PARTICIPA\u00c7\u00d5ES INDUSTRIAIS S.A"
+    },
+    {
+      "cd_cvm": 27995,
+      "company_name": "PLAT\u00c3O CAPITAL S.A."
+    },
+    {
+      "cd_cvm": 13447,
+      "company_name": "POLPAR S.A."
+    },
+    {
+      "cd_cvm": 19658,
+      "company_name": "POMIFRUTAS S/A"
+    },
+    {
+      "cd_cvm": 6505,
+      "company_name": "PONTO FRIO"
+    },
+    {
+      "cd_cvm": 15407,
+      "company_name": "PORTO PONTA DO FELIX S"
+    },
+    {
+      "cd_cvm": 27618,
+      "company_name": "PORTO SA\u00daDE PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 16659,
+      "company_name": "PORTO SEGURO SA"
+    },
+    {
+      "cd_cvm": 27600,
+      "company_name": "PORTO SERVI\u00c7O S.A"
+    },
+    {
+      "cd_cvm": 23523,
+      "company_name": "PORTO SUDESTE V.M. S.A."
+    },
+    {
+      "cd_cvm": 13773,
+      "company_name": "PORTOBELLO S/A"
+    },
+    {
+      "cd_cvm": 9717,
+      "company_name": "PORTUENSE"
+    },
+    {
+      "cd_cvm": 20362,
+      "company_name": "POSITIVO INFORMATICA SA"
+    },
+    {
+      "cd_cvm": 24236,
+      "company_name": "PRINER SERVI\u00c7OS INDUSTRIAIS S.A."
+    },
+    {
+      "cd_cvm": 27740,
+      "company_name": "PRIO FORTE S.A."
+    },
+    {
+      "cd_cvm": 20346,
+      "company_name": "PROFARMA"
+    },
+    {
+      "cd_cvm": 23469,
+      "company_name": "PROLAGOS S.A"
+    },
+    {
+      "cd_cvm": 19232,
+      "company_name": "PROMAN"
+    },
+    {
+      "cd_cvm": 18333,
+      "company_name": "PROMPT PARTICIPA\u00c7\u00d5ES S/A"
+    },
+    {
+      "cd_cvm": 24546,
+      "company_name": "PR\u00c1TICA KLIMAQUIP IND\u00daSTRIA E COM\u00c9RCIO S.A."
+    },
+    {
+      "cd_cvm": 14826,
+      "company_name": "P\u00c3O DE A\u00c7\u00daCAR"
+    },
+    {
+      "cd_cvm": 22497,
+      "company_name": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A."
+    },
+    {
+      "cd_cvm": 23302,
+      "company_name": "QUALITY SOFWARE S.A."
+    },
+    {
+      "cd_cvm": 27855,
+      "company_name": "QUANTUM PARTICIPA\u00c7\u00d5ES S.A"
+    },
+    {
+      "cd_cvm": 27685,
+      "company_name": "R/HOLDINGS S.A."
+    },
+    {
+      "cd_cvm": 14109,
+      "company_name": "RANDON S.A. IMPLEMENTOS E PARTICIPA\u00c7\u00d5ES"
+    },
+    {
+      "cd_cvm": 25917,
+      "company_name": "RA\u00cdZEN S.A."
+    },
+    {
+      "cd_cvm": 12572,
+      "company_name": "RECRUSUL"
+    },
+    {
+      "cd_cvm": 24821,
+      "company_name": "REDE D'OR S\u00c3O LUIZ S.A."
+    },
+    {
+      "cd_cvm": 3190,
+      "company_name": "REDE ENERGIA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 9989,
+      "company_name": "REFINARIA DE PETR\u00d3LEOS DE MANGUINHOS S.A"
+    },
+    {
+      "cd_cvm": 26921,
+      "company_name": "REGENERA RIO S.A."
+    },
+    {
+      "cd_cvm": 7544,
+      "company_name": "RENAUXVIEW"
+    },
+    {
+      "cd_cvm": 8133,
+      "company_name": "RENNER"
+    },
+    {
+      "cd_cvm": 21636,
+      "company_name": "RENOVA ENERGIA S/A"
+    },
+    {
+      "cd_cvm": 27561,
+      "company_name": "REVEE MCO S.A."
+    },
+    {
+      "cd_cvm": 27650,
+      "company_name": "REVEE S.A."
+    },
+    {
+      "cd_cvm": 25720,
+      "company_name": "RIO ALTO ENERGIAS RENOV\u00c1VEIS S.A."
+    },
+    {
+      "cd_cvm": 25623,
+      "company_name": "RIO PARANA ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 20451,
+      "company_name": "RODOBENS NEGOCIOS IMOBILIARIOS SA"
+    },
+    {
+      "cd_cvm": 25801,
+      "company_name": "RODOBENS S.A."
+    },
+    {
+      "cd_cvm": 26352,
+      "company_name": "RODOVIAS DO BRASIL HOLDING S.A."
+    },
+    {
+      "cd_cvm": 7510,
+      "company_name": "ROMI S.A."
+    },
+    {
+      "cd_cvm": 16306,
+      "company_name": "ROSSI RESIDENCIAL S.A. - EM RECUPERA\u00c7\u00c3O JUDICIAL"
+    },
+    {
+      "cd_cvm": 26484,
+      "company_name": "RUMO MALHA CENTRAL S.A."
+    },
+    {
+      "cd_cvm": 14443,
+      "company_name": "SABESP"
+    },
+    {
+      "cd_cvm": 16241,
+      "company_name": "SANASA-CAMPINAS"
+    },
+    {
+      "cd_cvm": 19186,
+      "company_name": "SANEAGO"
+    },
+    {
+      "cd_cvm": 18627,
+      "company_name": "SANEPAR"
+    },
+    {
+      "cd_cvm": 12696,
+      "company_name": "SANSUY S.A. IND\u00daSTRIA DE PL\u00c1STICOS"
+    },
+    {
+      "cd_cvm": 4081,
+      "company_name": "SANTANENSE"
+    },
+    {
+      "cd_cvm": 17892,
+      "company_name": "SANTOS BRASIL PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 25410,
+      "company_name": "SBF COM\u00c9RCIO DE PRODUTOS ESPORTIVOS S.A."
+    },
+    {
+      "cd_cvm": 3549,
+      "company_name": "SCHLOSSER TECIDOS"
+    },
+    {
+      "cd_cvm": 14664,
+      "company_name": "SCHULZ"
+    },
+    {
+      "cd_cvm": 19720,
+      "company_name": "SECME - COMPANHIA SECURITIZADORA DE CR\u00c9DITOS IMOBILI\u00c1RIOS"
+    },
+    {
+      "cd_cvm": 10561,
+      "company_name": "SEIVA S.A. - FLORESTAS E IND\u00daSTRIAS"
+    },
+    {
+      "cd_cvm": 25372,
+      "company_name": "SENDAS DISTRIBUIDORA S.A."
+    },
+    {
+      "cd_cvm": 26786,
+      "company_name": "SENIOR SISTEMAS S.A."
+    },
+    {
+      "cd_cvm": 26441,
+      "company_name": "SERENA ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 23426,
+      "company_name": "SERENA GERA\u00c7\u00c3O S.A."
+    },
+    {
+      "cd_cvm": 25003,
+      "company_name": "SIMPAR S.A."
+    },
+    {
+      "cd_cvm": 20745,
+      "company_name": "SLC AGRICOLA SA"
+    },
+    {
+      "cd_cvm": 24260,
+      "company_name": "SMARTFIT ESCOLA DE GIN\u00c1STICA E DAN\u00c7A S.A."
+    },
+    {
+      "cd_cvm": 14303,
+      "company_name": "SNB PARTICIPA\u00c7\u00d5ES S/A"
+    },
+    {
+      "cd_cvm": 27014,
+      "company_name": "SOLAR BEBIDAS S.A."
+    },
+    {
+      "cd_cvm": 10880,
+      "company_name": "SONDOTECNICA S/A."
+    },
+    {
+      "cd_cvm": 27758,
+      "company_name": "SPE NOVO NORTE AEROPORTOS S.A"
+    },
+    {
+      "cd_cvm": 16586,
+      "company_name": "SUDESTE S.A."
+    },
+    {
+      "cd_cvm": 15741,
+      "company_name": "SUNPLAZA SA"
+    },
+    {
+      "cd_cvm": 9067,
+      "company_name": "SUZANO HOLDING S.A."
+    },
+    {
+      "cd_cvm": 13986,
+      "company_name": "SUZANO PAPEL E CELULOSE SA"
+    },
+    {
+      "cd_cvm": 21040,
+      "company_name": "SYN PROP & TECH S.A."
+    },
+    {
+      "cd_cvm": 13781,
+      "company_name": "S\u00c3O CARLOS EMPREEND.E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 5983,
+      "company_name": "S\u00c3O JOS\u00c9"
+    },
+    {
+      "cd_cvm": 20516,
+      "company_name": "S\u00c3O MARTINHO SA"
+    },
+    {
+      "cd_cvm": 9415,
+      "company_name": "S\u00c3O PAULO TURISMO S. A."
+    },
+    {
+      "cd_cvm": 22454,
+      "company_name": "T4F ENTRETENIMENTO SA"
+    },
+    {
+      "cd_cvm": 24481,
+      "company_name": "TAPAJ\u00d3S TRANSMISSORA DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 6173,
+      "company_name": "TAURUS ARMAS S.A."
+    },
+    {
+      "cd_cvm": 11215,
+      "company_name": "TECBLU"
+    },
+    {
+      "cd_cvm": 22519,
+      "company_name": "TECHNOS SA"
+    },
+    {
+      "cd_cvm": 26760,
+      "company_name": "TECIDOS E ARMARINHOS MIGUEL BARTOLOMEU S.A."
+    },
+    {
+      "cd_cvm": 20435,
+      "company_name": "TECNISA S/A"
+    },
+    {
+      "cd_cvm": 27847,
+      "company_name": "TECNOGERA-LOCA\u00c7\u00c3O E TRANSFORMA\u00c7\u00c3O DE ENERGIA S.A."
+    },
+    {
+      "cd_cvm": 20800,
+      "company_name": "TEGMA GEST\u00c3O LOG\u00cdSTICA SA"
+    },
+    {
+      "cd_cvm": 11223,
+      "company_name": "TEKA S.A."
+    },
+    {
+      "cd_cvm": 11231,
+      "company_name": "TEKNO"
+    },
+    {
+      "cd_cvm": 11258,
+      "company_name": "TELEBRAS"
+    },
+    {
+      "cd_cvm": 17671,
+      "company_name": "TELEF\u00d4NICA BRASIL"
+    },
+    {
+      "cd_cvm": 27804,
+      "company_name": "TERP GLBL BRASIL I PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 26255,
+      "company_name": "TIGRE S.A. PARTICIPA\u00c7\u00d5ES"
+    },
+    {
+      "cd_cvm": 27090,
+      "company_name": "TIM BRASIL SERVI\u00c7OS E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 24929,
+      "company_name": "TIM S.A."
+    },
+    {
+      "cd_cvm": 24333,
+      "company_name": "TOKE INVEST SECURITIZADORA S.A."
+    },
+    {
+      "cd_cvm": 19992,
+      "company_name": "TOTVS S.A"
+    },
+    {
+      "cd_cvm": 19330,
+      "company_name": "TPI"
+    },
+    {
+      "cd_cvm": 17329,
+      "company_name": "TRACTEBEL ENERGIA"
+    },
+    {
+      "cd_cvm": 22225,
+      "company_name": "TRANSBRASILIANA CONCESSION\u00c1RIA DE RODOVIA SA"
+    },
+    {
+      "cd_cvm": 20257,
+      "company_name": "TRANSMISSORA ALIAN\u00c7A DE ENERGIA EL\u00c9TRICA S.A."
+    },
+    {
+      "cd_cvm": 26654,
+      "company_name": "TRANSMISSORA JOS\u00c9 MARIA DE MACEDO DE ELETRICIDADE S.A"
+    },
+    {
+      "cd_cvm": 20443,
+      "company_name": "TRANSNORDESTINA LOGISTICA SA"
+    },
+    {
+      "cd_cvm": 25240,
+      "company_name": "TRAVESSIA SECURITIZADORA DE CR\u00c9DITOS FINANCEIROS S.A."
+    },
+    {
+      "cd_cvm": 26824,
+      "company_name": "TRAVESSIA SECURITIZADORA DE CR\u00c9DITOS MERCANTIS VI"
+    },
+    {
+      "cd_cvm": 24082,
+      "company_name": "TRAVESSIA SECURITIZADORA S.A."
+    },
+    {
+      "cd_cvm": 8192,
+      "company_name": "TREVISA INVESTIMENTOS SA"
+    },
+    {
+      "cd_cvm": 21130,
+      "company_name": "TRISUL"
+    },
+    {
+      "cd_cvm": 25950,
+      "company_name": "TR\u00caS TENTOS AGROINDUSTRIAL S.A."
+    },
+    {
+      "cd_cvm": 26000,
+      "company_name": "TS AGRO S.A."
+    },
+    {
+      "cd_cvm": 27944,
+      "company_name": "TUPI ENERGIAS RENOV\u00c1VEIS S.A."
+    },
+    {
+      "cd_cvm": 6343,
+      "company_name": "TUPY"
+    },
+    {
+      "cd_cvm": 27197,
+      "company_name": "TURBI COMPARTILHAMENTO DE VE\u00cdCULOS S.A."
+    },
+    {
+      "cd_cvm": 18465,
+      "company_name": "ULTRAPAR PARTICIPA\u00c7\u00d5ES SA"
+    },
+    {
+      "cd_cvm": 27162,
+      "company_name": "UNIDAS LOCADORA S.A."
+    },
+    {
+      "cd_cvm": 11592,
+      "company_name": "UNIPAR CARBOCLORO S.A."
+    },
+    {
+      "cd_cvm": 27766,
+      "company_name": "UNI\u00c3O PET PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 26867,
+      "company_name": "UNI\u00c3O QU\u00cdMICA FARMAC\u00caUTICA NACIONAL S.A."
+    },
+    {
+      "cd_cvm": 14320,
+      "company_name": "USIMINAS"
+    },
+    {
+      "cd_cvm": 24945,
+      "company_name": "USINA TERMEL\u00c9TRICA PAMPA SUL S.A."
+    },
+    {
+      "cd_cvm": 4170,
+      "company_name": "VALE"
+    },
+    {
+      "cd_cvm": 27707,
+      "company_name": "VAMOS COM\u00c9RCIO DE M\u00c1QUINAS LINHA AMARELA S.A."
+    },
+    {
+      "cd_cvm": 24716,
+      "company_name": "VAMOS LOCA\u00c7\u00c3O DE CAMINH\u00d5ES, M\u00c1QUINAS E EQUIPAMENTOS S.A."
+    },
+    {
+      "cd_cvm": 26409,
+      "company_name": "VERO S.A."
+    },
+    {
+      "cd_cvm": 27936,
+      "company_name": "VIA ARAUC\u00c1RIA CONCESSION\u00c1RIA DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 26913,
+      "company_name": "VIA BRASIL BR 163 CONCESSION\u00c1RIA DE RODOVIAS S.A."
+    },
+    {
+      "cd_cvm": 25607,
+      "company_name": "VIAPAULISTA S.A."
+    },
+    {
+      "cd_cvm": 22543,
+      "company_name": "VIARONDON CONCESSION\u00c1RIA DE RODOVIA SA"
+    },
+    {
+      "cd_cvm": 24295,
+      "company_name": "VIBRA ENERGIA S/A"
+    },
+    {
+      "cd_cvm": 27510,
+      "company_name": "VITAL ENGENHARIA AMBIENTAL S.A."
+    },
+    {
+      "cd_cvm": 25763,
+      "company_name": "VITTIA S.A."
+    },
+    {
+      "cd_cvm": 24805,
+      "company_name": "VIVARA PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 20702,
+      "company_name": "VIVER"
+    },
+    {
+      "cd_cvm": 21202,
+      "company_name": "VIX LOG\u00cdSTICA S/A"
+    },
+    {
+      "cd_cvm": 27324,
+      "company_name": "VOKE S.A."
+    },
+    {
+      "cd_cvm": 27235,
+      "company_name": "VRENTAL LOCA\u00c7\u00c3O DE M\u00c1QUINAS E EQUIPAMENTOS S.A."
+    },
+    {
+      "cd_cvm": 11762,
+      "company_name": "VULCABRAS S/A."
+    },
+    {
+      "cd_cvm": 25852,
+      "company_name": "W2W E-COMMERCE DE VINHOS S.A"
+    },
+    {
+      "cd_cvm": 5410,
+      "company_name": "WEG SA"
+    },
+    {
+      "cd_cvm": 25518,
+      "company_name": "WESTWING COM\u00c9RCIO VAREJISTA S.A."
+    },
+    {
+      "cd_cvm": 11991,
+      "company_name": "WETZEL S.A."
+    },
+    {
+      "cd_cvm": 14346,
+      "company_name": "WHIRLPOOL S.A"
+    },
+    {
+      "cd_cvm": 23590,
+      "company_name": "WIZ CO PARTICIPA\u00c7\u00d5ES E CORRETAGEM DE SEGUROS S.A."
+    },
+    {
+      "cd_cvm": 11070,
+      "company_name": "WLM"
+    },
+    {
+      "cd_cvm": 16551,
+      "company_name": "WTC RIO EMPR PARTS"
+    },
+    {
+      "cd_cvm": 20001,
+      "company_name": "XX DE NOVEMBRO SEC DE CREDITOS IMOB S.A"
+    },
+    {
+      "cd_cvm": 23604,
+      "company_name": "YOU INC INCORPORADORA E PARTICIPA\u00c7\u00d5ES S.A."
+    },
+    {
+      "cd_cvm": 24317,
+      "company_name": "ZAMP S.A."
+    },
+    {
+      "cd_cvm": 25615,
+      "company_name": "\u00c1GUAS DE TERESINA SANEAMENTO SPE S.A."
+    },
+    {
+      "cd_cvm": 27979,
+      "company_name": "\u00c1GUAS DO PAR\u00c1 A SPE S.A"
+    },
+    {
+      "cd_cvm": 27960,
+      "company_name": "\u00c1GUAS DO PAR\u00c1 B SPE S.A."
+    },
+    {
+      "cd_cvm": 27987,
+      "company_name": "\u00c1GUAS DO PAR\u00c1 D SPE S.A."
+    },
+    {
+      "cd_cvm": 26735,
+      "company_name": "\u00c1GUAS DO RIO 1 SPE S.A."
+    },
+    {
+      "cd_cvm": 26743,
+      "company_name": "\u00c1GUAS DO RIO 4 SPE S.A."
+    },
+    {
+      "cd_cvm": 27359,
+      "company_name": "\u00c1GUAS DO SERTAO S.A."
+    }
+  ]
+}
