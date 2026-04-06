@@ -4,7 +4,7 @@
 
 ## Single Issue Template
 
-```markdown
+````markdown
 #### {{severity_emoji}} [{{id}}] {{category}}
 
 - **严重程度**: {{severity}}
@@ -34,7 +34,7 @@
 - {{this}}
 {{/each}}
 {{/if}}
-```
+````
 
 ## Issue Object Schema
 
