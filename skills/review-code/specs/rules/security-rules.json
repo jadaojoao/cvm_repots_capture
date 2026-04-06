@@ -8,7 +8,7 @@
       "category": "xss-risk",
       "severity": "critical",
       "pattern": "innerHTML\\s*=|dangerouslySetInnerHTML",
-      "patternType": "includes",
+      "patternType": "regex",
       "description": "Direct HTML injection via innerHTML or dangerouslySetInnerHTML can lead to XSS vulnerabilities",
       "recommendation": "Use textContent for plain text, or sanitize HTML input using a library like DOMPurify before injection",
       "fixExample": "// Before\nelement.innerHTML = userInput;\n<div dangerouslySetInnerHTML={{__html: data}} />\n\n// After\nelement.textContent = userInput;\n// or\nimport DOMPurify from 'dompurify';\nelement.innerHTML = DOMPurify.sanitize(userInput);"
