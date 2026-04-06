@@ -6,7 +6,7 @@
 
 ---
 
-## Estado Atual (2026-04-05)
+## Estado Atual (2026-04-06)
 
 ### Dashboard
 - **3 abas renderizadas** em `dashboard/app.py`:
@@ -17,7 +17,7 @@
 - Atualizacao de dados nao acontece no Streamlit; ela pertence ao app PyQt6 e aos scripts
 
 ### Banco de Dados
-- **449 empresas**, 1,735,340 registros, 2022-2025
+- **449 empresas**, 1,735,340 registros, 2022-2025 (last confirmed)
 - SQLite local: `data/db/cvm_financials.db` (WAL mode)
 - Ticker map central em `src/ticker_map.py`
 - Tabelas: `financial_reports` (UPPER_CASE), `companies`, `account_names` (snake_case)
@@ -28,7 +28,7 @@
 - Paralelismo configuravel 2-8 workers, barra de progresso total e bloco "Saude da Base"
 
 ### Testes
-- **114 pytest passing** (`pytest tests/ -v`)
+- **114 pytest passing** (`pytest tests/ -v`, last confirmed)
 - `pytest tests/ -v` e a validacao mais confiavel do fluxo atual
 
 ### Issues Abertas
@@ -60,6 +60,11 @@
 - Roadmap consolidado em produtividade, cloud, observabilidade/qualidade e descoberta da V2
 - Backlog do GitHub planejado em torno de 4 epicos: ativacao do Pack, estabilizacao da stack atual, observabilidade/qualidade e descoberta da V2
 - Milestone `Student Pack 60 dias` criado no GitHub com issues `#2` a `#14` cobrindo epicos e fases do plano
+
+### Sessao 25 - 2026-04-06 (docs cleanup)
+- `COMO_RODAR.md` e `docs/AGENTS.md` alinhados ao fluxo atual do repo
+- Fluxo principal reforcado como `setup_db.py` -> `setup_companies_table.py` -> `cvm_pyqt_app.py` -> `dashboard/app.py`
+- Estado atual mantido curto e orientado ao que esta realmente ativo hoje
 
 ### Sessao 23 - 2026-04-05 (docs alinhados ao estado real)
 - `README.md`, `docs/CONTEXT.md` e `COMO_RODAR.md` atualizados para refletir o fluxo atual

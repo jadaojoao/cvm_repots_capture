@@ -75,16 +75,17 @@ CVM website → `src/scraper.py` (CVMScraper) → `src/standardizer.py` (Account
 ### Database
 
 - **Local**: `data/db/cvm_financials.db` (SQLite, WAL mode)
-- **Production**: Supabase PostgreSQL via `DATABASE_URL` env var or `st.secrets["database"]["url"]`
-- Connection fallback order: Streamlit secrets → env var → SQLite (in `dashboard/db.py`)
+- **Production**: PostgreSQL via `DATABASE_URL`
+- Connection fallback order: `DATABASE_URL` → SQLite (in `src/db.py`)
+- Write path lives in `src/database.py`; read/query path lives in `src/query_layer.py`
 - Core table: `financial_reports` (UPPER_CASE columns); metadata tables: `companies`, `account_names` (snake_case)
 - Key column: `LINE_ID_BASE` (never `LINE_ID`)
 
 ### Dashboard Modules
 
-`dashboard/app.py` is the slim orchestrator (~143 lines). Current tab structure:
+`dashboard/app.py` is the slim orchestrator. Current tab structure:
 
-- `dashboard/tabs/visao_geral.py` — Sankey DRE trimestral, KPI metrics, quarterly charts
+- `dashboard/tabs/visao_geral.py` — KPI summary blocks and quarterly/period views
 - `dashboard/tabs/demonstracoes.py` — Financial statement pivot tables (BPA, BPP, DRE, DFC, DVA, DMPL)
 - `dashboard/tabs/download.py` — Excel export with KPIs
 
@@ -100,18 +101,18 @@ CVM website → `src/scraper.py` (CVMScraper) → `src/standardizer.py` (Account
 
 ### PyQt6 Desktop App (`cvm_pyqt_app.py`)
 
-Data refresh GUI (~2400 lines). Features:
-- Company search with `QLineEdit` + `QCompleter` (fuzzy match by name, ticker, or CVM code)
-- Batch update with progress tracking, year/period selection
-- Signals/slots architecture: `add_company_requested` signal → `UpdateController.on_add_company_requested()`
+Operational updater GUI. Main moving parts:
+- `IntelligentSelectorService` ranks and prioritizes refresh work
+- `UpdateWorker` builds the company/year plan, runs `CVMScraper`, and syncs `company_refresh_status`
+- The UI exposes company search, year selection, progress tracking, and base-health summaries
 
 ### Scraper Core (`src/scraper.py`)
 
-CVMScraper class (~1,550 lines). Key design choices:
+`CVMScraper` is the ingestion entrypoint for both CLI and PyQt flows. Key design choices:
 - Vectorized Pandas (Boolean masks, no row-by-row loops)
 - `ThreadPoolExecutor` for concurrent downloads (`max_workers=5` default)
 - SQLite WAL + `synchronous=OFF` for bulk inserts
-- 3-retry logic with backoff on network errors
+- retry + backoff around company-level DB write failures
 - DFC YTD→standalone conversion (`convert_dfc_ytd_to_standalone`)
 - BPA/BPP closing validation + QA logs per run
 
@@ -124,7 +125,7 @@ Active scripts in `scripts/`. Key ones:
 
 Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 
-**Script convention**: every executable script must have a `# USER CONFIGURATION` block at the top (after imports) with all configurable variables — no magic numbers or hardcoded paths buried in logic.
+**Script convention**: prefer keeping user-tunable values near the top of executable scripts and avoid burying operational constants deep in the logic.
 
 ## Critical Conventions
 
@@ -150,9 +151,7 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 
 ## Deployment
 
-**Streamlit Cloud**: Set `[database] url = "postgresql://..."` in `.streamlit/secrets.toml`.
-
-**Environment variable**: `DATABASE_URL=postgresql://...` (used by scraper and dashboard).
+**Environment variable**: `DATABASE_URL=postgresql://...` (used by scraper, query layer, and dashboard).
 
 **Task Scheduler**: `CVM_Atualizar_Dados` task runs `scripts/atualizar_dados.ps1` every Sunday at 07:00.
 

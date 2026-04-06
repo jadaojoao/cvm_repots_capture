@@ -20,19 +20,19 @@ from pathlib import Path
 # Values are human-readable doc references.
 
 SYNC_TABLE: dict[str, list[str]] = {
-    "dashboard/tabs/":      ["COMO_RODAR.md (tab descriptions)", "docs/AGENTS.md (Estado Atual)"],
-    "dashboard/app.py":     ["COMO_RODAR.md (tab names/order)"],
-    "dashboard/kpis.py":    ["docs/CONTEXT.md (KPI section if indicators changed)"],
-    "dashboard/charts.py":  ["docs/AGENTS.md (recent sessions — new chart types)"],
-    "dashboard/constants.py": ["docs/AGENTS.md (ticker count)", "CLAUDE.md (TICKER_MAP note)"],
-    "dashboard/loaders.py": ["docs/CONTEXT.md (Data Flow section)"],
-    "src/scraper.py":       ["docs/CONTEXT.md (Pipeline section)", "CLAUDE.md (Scraper Core)"],
-    "src/database.py":      ["docs/CONTEXT.md (Database section)", "CLAUDE.md (Database)"],
+    "dashboard/app.py":     ["README.md (dashboard section)", "COMO_RODAR.md (dashboard steps)", "docs/AGENTS.md (Estado Atual)"],
+    "dashboard/components/": ["README.md (dashboard description)", "docs/CONTEXT.md (dashboard data flow)"],
+    "dashboard/tabs/":      ["README.md (tab descriptions)", "COMO_RODAR.md (dashboard steps)", "docs/AGENTS.md (Estado Atual)"],
+    "src/scraper.py":       ["README.md (workflow)", "docs/CONTEXT.md (Pipeline section)", "CLAUDE.md (Scraper Core)"],
+    "src/database.py":      ["README.md (storage notes)", "docs/CONTEXT.md (Database section)", "CLAUDE.md (Database)"],
+    "src/query_layer.py":   ["README.md (dashboard data path)", "docs/CONTEXT.md (Read/query section)"],
+    "src/kpi_engine.py":    ["README.md (KPI/export notes)", "docs/CONTEXT.md (Analytics/export section)"],
+    "src/excel_exporter.py":["README.md (export workflow)", "COMO_RODAR.md (verification/export steps)"],
     "src/standardizer.py":  ["docs/CONTEXT.md (account normalization rules)"],
-    "scripts/":             ["README.md (workflow)", "CLAUDE.md (Scripts Structure)"],
-    "tests/":               ["docs/AGENTS.md (test count in Estado Atual)"],
-    "requirements.txt":     ["docs/CONTEXT.md (Stack section)"],
-    "cvm_pyqt_app.py":      ["docs/AGENTS.md (App Desktop section)", "README.md"],
+    "scripts/":             ["README.md (workflow)", "COMO_RODAR.md (setup/validation)", "CLAUDE.md (Scripts Structure)"],
+    "tests/":               ["docs/AGENTS.md (test count in Estado Atual)", "README.md (verification section)"],
+    "requirements.txt":     ["docs/CONTEXT.md (Stack section)", "COMO_RODAR.md (install step)"],
+    "cvm_pyqt_app.py":      ["README.md (operational UI)", "COMO_RODAR.md (update flow)", "docs/AGENTS.md (App Desktop section)"],
     "docs/":                [],  # doc changes don't trigger other doc updates
 }
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-01
 **Scope:** Scripts, dashboard modules, tests, documentation
-**Outcome:** Full cleanup — dead code archived, docs rewritten, test config added
+**Status:** Historical record of the cleanup pass. This file is not the current-state source of truth.
 
 ---
 
@@ -49,24 +49,9 @@ All archived scripts moved to `archive/` (top-level, outside `scripts/` to avoid
 
 ### Dashboard
 
-| File | Status | Action |
-|---|---|---|
-| All 11 tabs in `dashboard/tabs/` | Wired & complete | No change |
-| `dashboard/chart_registry.py` | 972 lines, **never imported anywhere** | Archived |
-| `dashboard/data/data_loader.py` | Legacy SQLite reader, superseded by `dashboard/loaders.py` | Archived |
-| `dashboard/components/filters.py` | Used in 6 tab files | No change |
-| `dashboard/update_center.py` | Imported in `app.py` line 46 | No change |
+At the time of this audit, the dashboard was a much larger surface. That description is intentionally stale now.
 
-**Tab labels** (current, as of app.py):
-1. 📈 Visão Geral
-2. 📊 Indicadores
-3. 💰 Fluxo de Caixa
-4. 🔬 DuPont & Valor
-5. 📐 Compostos
-6. 📊 DVA
-7. 📋 Demonstrações
-8. 🏢 Peers & Mercado
-9. 🔍 Screener & Export
+The later repo state reduced the live dashboard to 3 tabs and moved the canonical description into `README.md`, `docs/CONTEXT.md`, and `docs/AGENTS.md`.
 
 ---
 
@@ -117,3 +102,12 @@ Test files are healthy — no action needed beyond adding `pytest.ini`.
 - [x] Verified: `pytest tests/ -v` → 113 passed
 - [x] Verified: `python scripts/smoke_validate.py` → OK
 - [x] Verified: `python scripts/batch_completo.py --help` → flags match docs
+
+---
+
+## Later Drift Notes
+
+- The active dashboard is now read-only and has 3 tabs: `Visao Geral`, `Demonstrações`, `Download`.
+- `cvm_pyqt_app.py` became the operational updater and the main write path.
+- The documentation truth moved to `README.md`, `docs/CONTEXT.md`, `docs/AGENTS.md`, and `COMO_RODAR.md`.
+- The audit's test counts and dashboard tab counts should not be treated as current.

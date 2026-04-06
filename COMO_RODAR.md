@@ -3,11 +3,13 @@
 Este guia explica como usar o sistema de coleta e consulta de dados financeiros da CVM, passo a passo.
 Nao e necessario saber programar para seguir as instrucoes.
 
+Fluxo principal atual: `setup_db.py` -> `setup_companies_table.py` -> `cvm_pyqt_app.py` -> `dashboard/app.py`.
+
 ---
 
 ## Antes de comecar
 
-- **Python 3.10 ou superior**
+- **Python 3.11 ou superior**
   ```powershell
   python --version
   ```
@@ -124,7 +126,7 @@ Ou:
 python scripts/atualizar_todos.py --anos 2024 2025
 ```
 
-Os logs ficam em `logs/` e `output/logs/`.
+Os logs principais ficam em `output/logs/`.
 
 ### Opcao D - Atualizacao automatica aos domingos
 
@@ -175,6 +177,8 @@ Suite principal:
 ```powershell
 pytest tests/ -q
 ```
+
+Se precisar confirmar o numero de testes, use a suite acima como referencia; os docs mantem o ultimo valor confirmado em `docs/AGENTS.md`.
 
 Validacoes de workbook/exportacao:
 ```powershell
