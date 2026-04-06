@@ -218,10 +218,10 @@ class CVMScraper:
 
     def calculate_quarters(self, df, report_type):
         if df.empty: return pd.DataFrame()
+        df = df.copy()
         for col in ['DT_REFER', 'DT_INI_EXERC', 'DT_FIM_EXERC']:
             if col in df.columns: df[col] = pd.to_datetime(df[col], errors='coerce')
-        
-        df = df.copy()
+
         df['PERIOD_LABEL'] = df.apply(lambda row: self._create_period_label(row, report_type), axis=1)
         df = df[df['PERIOD_LABEL'].notna()]
         if df.empty: return pd.DataFrame()
