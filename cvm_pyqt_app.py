@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import sqlite3
 import subprocess
 import sys
@@ -36,6 +37,7 @@ try:
         QAbstractItemView,
         QComboBox,
         QCompleter,
+        QDialog,
         QFormLayout,
         QGroupBox,
         QHBoxLayout,
@@ -317,6 +319,9 @@ class RankedCompany:
     year_gap: int
     days_since_update: float | None
     is_recently_updated: bool
+    is_recent_no_data: bool
+    has_source_presence: bool
+    source_presence_years_count: int
     only_end_year_history: bool
 
     def to_row(self) -> dict[str, Any]:
@@ -332,6 +337,9 @@ class RankedCompany:
             "mktcap_bi": self.mktcap / 1_000_000_000 if self.mktcap > 0 else 0.0,
             "liq_milhoes": self.avg_volume / 1_000_000 if self.avg_volume > 0 else 0.0,
             "recent_update": "Sim" if self.is_recently_updated else "Nao",
+            "recent_no_data": "Sim" if self.is_recent_no_data else "Nao",
+            "has_source_presence": "Sim" if self.has_source_presence else "Nao",
+            "source_presence_years_count": self.source_presence_years_count,
             "days_since_update": self.days_since_update,
             "coverage": "So ano final" if self.only_end_year_history else "Multi-ano",
             "only_end_year_history": self.only_end_year_history,
@@ -370,6 +378,10 @@ class IntelligentSelectorService:
     ACTIVE_UNIVERSE_CACHE_TTL_HOURS = 24
     ETA_MIN_SUCCESS_SAMPLES = 3
     ETA_WINDOW_HOURS = 24
+    HEALTH_STATUS_CRITICAL_THRESHOLD = 70.0
+    HEALTH_STATUS_OK_THRESHOLD = 90.0
+    PRIORITY_LIST_LIMIT = 15
+    NO_DATA_COOLDOWN_DAYS = 7
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
@@ -378,6 +390,7 @@ class IntelligentSelectorService:
         self.reports_dir = project_root / "output" / "reports"
         self.base_health_cache_path = project_root / "data" / "cache" / "base_health_snapshot.json"
         self.active_universe_cache_path = project_root / "data" / "cache" / "active_universe_cache.json"
+        self.processed_presence_cache_path = project_root / "data" / "cache" / "processed_presence_index.json"
         self.processed_dir = project_root / "data" / "input" / "processed"
 
     def _load_market_cache(self) -> dict[str, Any]:
@@ -387,6 +400,31 @@ class IntelligentSelectorService:
             return json.loads(self.cache_path.read_text(encoding="utf-8"))
         except Exception:
             return {}
+
+    @staticmethod
+    def _health_status_from_score(score: float) -> str:
+        if score < IntelligentSelectorService.HEALTH_STATUS_CRITICAL_THRESHOLD:
+            return "critico"
+        if score < IntelligentSelectorService.HEALTH_STATUS_OK_THRESHOLD:
+            return "atencao"
+        return "ok"
+
+    @staticmethod
+    def _risk_level(missing_years_count: int, gap_to_leader_years: int) -> str:
+        if int(missing_years_count) >= 2 or int(gap_to_leader_years) >= 2:
+            return "alto"
+        if int(missing_years_count) >= 1 or int(gap_to_leader_years) >= 1:
+            return "medio"
+        return "baixo"
+
+    @staticmethod
+    def _priority_action(years_missing: list[int]) -> str:
+        if not years_missing:
+            return "Sem acao pendente"
+        sorted_years = sorted(int(y) for y in years_missing)
+        if len(sorted_years) == 1:
+            return f"Atualizar ano {sorted_years[0]}"
+        return f"Atualizar anos {sorted_years[0]}-{sorted_years[-1]}"
 
     def _save_market_cache(self, cache: dict[str, Any]) -> None:
         self.cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -758,11 +796,19 @@ class IntelligentSelectorService:
         }
         presence: dict[tuple[int, int], set[str]] = defaultdict(set)
 
+        cached_index = self._read_cached_json(self.processed_presence_cache_path)
+        cached_files = cached_index.get("files", {}) if isinstance(cached_index, dict) else {}
+        cached_files = cached_files if isinstance(cached_files, dict) else {}
+
+        updated_files: dict[str, Any] = {}
+        cache_dirty = False
+
         for csv_path in self.processed_dir.glob("*.csv"):
             stem = csv_path.stem
             parts = stem.split("_")
             if len(parts) < 6:
                 continue
+
             stem_upper = stem.upper()
             token = ""
             if "_DFC_MD_" in stem_upper:
@@ -775,30 +821,94 @@ class IntelligentSelectorService:
                 token = "BPP"
             elif "_DRE_" in stem_upper:
                 token = "DRE"
+
             canonical_stmt = canonical_by_token.get(token)
             if canonical_stmt is None:
                 continue
+
             try:
                 year = int(parts[-1])
             except Exception:
                 continue
-            if year < int(start_year) or year > int(end_year):
-                continue
 
             try:
-                df_codes = pd.read_csv(
-                    csv_path,
-                    sep=";",
-                    encoding="latin1",
-                    usecols=["CD_CVM"],
-                    low_memory=False,
-                )
+                stat = csv_path.stat()
+                signature = {
+                    "mtime": float(stat.st_mtime),
+                    "size": int(stat.st_size),
+                }
             except Exception:
                 continue
 
-            codes = pd.to_numeric(df_codes["CD_CVM"], errors="coerce").dropna().astype(int).unique().tolist()
-            for cd in codes:
-                presence[(int(cd), int(year))].add(canonical_stmt)
+            file_key = csv_path.name
+            cached_entry = cached_files.get(file_key) if isinstance(cached_files, dict) else None
+            cached_sig = cached_entry.get("signature") if isinstance(cached_entry, dict) else None
+            cached_stmt = cached_entry.get("statement") if isinstance(cached_entry, dict) else None
+            cached_year = cached_entry.get("year") if isinstance(cached_entry, dict) else None
+            cached_codes = cached_entry.get("codes") if isinstance(cached_entry, dict) else None
+
+            try:
+                cached_year_int = int(cached_year)
+            except Exception:
+                cached_year_int = None
+
+            use_cached_codes = (
+                isinstance(cached_entry, dict)
+                and isinstance(cached_sig, dict)
+                and cached_sig == signature
+                and str(cached_stmt or "") == canonical_stmt
+                and cached_year_int == int(year)
+                and isinstance(cached_codes, list)
+            )
+
+            codes: list[int] = []
+            if use_cached_codes:
+                try:
+                    codes = sorted({int(v) for v in cached_codes})
+                except Exception:
+                    codes = []
+            else:
+                try:
+                    df_codes = pd.read_csv(
+                        csv_path,
+                        sep=";",
+                        encoding="latin1",
+                        usecols=["CD_CVM"],
+                        low_memory=False,
+                    )
+                    codes = sorted(
+                        {
+                            int(v)
+                            for v in pd.to_numeric(df_codes["CD_CVM"], errors="coerce").dropna().tolist()
+                        }
+                    )
+                except Exception:
+                    codes = []
+                cache_dirty = True
+
+            updated_files[file_key] = {
+                "signature": signature,
+                "statement": canonical_stmt,
+                "year": int(year),
+                "codes": codes,
+            }
+
+            if int(start_year) <= int(year) <= int(end_year):
+                for cd in codes:
+                    presence[(int(cd), int(year))].add(canonical_stmt)
+
+        if set(updated_files.keys()) != set(cached_files.keys()):
+            cache_dirty = True
+
+        if cache_dirty:
+            self._write_cached_json(
+                self.processed_presence_cache_path,
+                {
+                    "generated_at": datetime.now().replace(microsecond=0).isoformat(),
+                    "files": updated_files,
+                },
+            )
+
         return dict(presence)
 
     def _estimate_throughput_per_hour(self) -> dict[str, Any]:
@@ -878,6 +988,7 @@ class IntelligentSelectorService:
         last_success_marker = self._latest_refresh_success_marker()
 
         cached = self._read_cached_json(self.base_health_cache_path)
+        previous_snapshot = cached if isinstance(cached, dict) else None
         if isinstance(cached, dict) and not force_refresh:
             generated_at = self._parse_fetched_at(str(cached.get("generated_at") or ""))
             is_fresh = (
@@ -1010,6 +1121,59 @@ class IntelligentSelectorService:
             )
         )
 
+        risks_summary = {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "total_companies": int(total_companies),
+        }
+        prioritized_companies: list[dict[str, Any]] = []
+        for row in lagging_rows:
+            missing_years_count = int(row.get("missing_years_count", 0) or 0)
+            gap_to_leader_years = int(row.get("gap_to_leader_years", 0) or 0)
+            gap_to_own_ceiling_years = int(row.get("gap_to_own_ceiling_years", 0) or 0)
+            risk_level = self._risk_level(missing_years_count, gap_to_leader_years)
+            if risk_level == "alto":
+                risks_summary["high"] += 1
+            elif risk_level == "medio":
+                risks_summary["medium"] += 1
+            else:
+                risks_summary["low"] += 1
+
+            if missing_years_count <= 0:
+                continue
+
+            years_missing = [int(y) for y in row.get("years_missing", [])]
+            priority_score = (missing_years_count * 100) + (gap_to_leader_years * 25) + (gap_to_own_ceiling_years * 15)
+            if risk_level == "alto":
+                reason = "Cobertura muito atrasada"
+            elif risk_level == "medio":
+                reason = "Gap relevante com lider"
+            else:
+                reason = "Ajuste fino de cobertura"
+
+            prioritized_companies.append(
+                {
+                    "cd_cvm": int(row["cd_cvm"]),
+                    "company_name": str(row["company_name"]),
+                    "risk_level": risk_level,
+                    "priority_score": int(priority_score),
+                    "missing_years_count": missing_years_count,
+                    "gap_to_leader_years": gap_to_leader_years,
+                    "years_missing": years_missing,
+                    "recommended_action": self._priority_action(years_missing),
+                    "reason": reason,
+                }
+            )
+
+        prioritized_companies.sort(
+            key=lambda item: (
+                -int(item["priority_score"]),
+                str(item["company_name"]).upper(),
+            )
+        )
+        prioritized_companies = prioritized_companies[: self.PRIORITY_LIST_LIMIT]
+
         global_total = int(total_companies * len(years))
         global_completed = sum(int(bucket["completed"]) for bucket in per_year_buckets.values())
         global_missing = max(0, global_total - global_completed)
@@ -1017,6 +1181,7 @@ class IntelligentSelectorService:
 
         throughput = self._estimate_throughput_per_hour()
         throughput_per_hour = throughput.get("per_hour")
+        throughput_confidence = str(throughput.get("confidence") or "low")
         remaining_company_count = sum(1 for row in companies if int(row["missing_years_count"]) > 0)
         eta_global_hours = (
             float(remaining_company_count) / float(throughput_per_hour)
@@ -1047,6 +1212,46 @@ class IntelligentSelectorService:
                 }
             )
 
+        end_year_row = next((row for row in per_year_rows if int(row.get("year", 0)) == int(end)), None)
+        end_year_pct = float(end_year_row.get("pct", global_pct) if end_year_row else global_pct)
+
+        if throughput_per_hour:
+            throughput_score = {
+                "high": 100.0,
+                "medium": 75.0,
+                "low": 55.0,
+            }.get(throughput_confidence, 55.0)
+        else:
+            throughput_score = {
+                "high": 70.0,
+                "medium": 50.0,
+                "low": 30.0,
+            }.get(throughput_confidence, 30.0)
+
+        health_score = max(
+            0.0,
+            min(
+                100.0,
+                (0.6 * float(global_pct)) + (0.2 * float(end_year_pct)) + (0.2 * float(throughput_score)),
+            ),
+        )
+        health_status = self._health_status_from_score(health_score)
+
+        prev_global = previous_snapshot.get("global", {}) if isinstance(previous_snapshot, dict) else {}
+        prev_completed = int(prev_global.get("completed_cells", 0) or 0)
+        prev_missing = int(prev_global.get("missing_cells", 0) or 0)
+        prev_pct = float(prev_global.get("pct", 0.0) or 0.0)
+        has_previous = isinstance(previous_snapshot, dict) and bool(prev_global)
+
+        delta_completed = int(global_completed) - prev_completed
+        delta_missing = int(global_missing) - prev_missing
+        delta_pct = float(global_pct) - prev_pct
+        trend = "estavel"
+        if delta_completed > 0 or delta_pct > 0:
+            trend = "melhora"
+        elif delta_completed < 0 or delta_pct < 0:
+            trend = "piora"
+
         snapshot = {
             "generated_at": now.replace(microsecond=0).isoformat(),
             "start_year": start,
@@ -1067,6 +1272,17 @@ class IntelligentSelectorService:
             "per_year": per_year_rows,
             "top_lagging": lagging_rows[:10],
             "companies": companies,
+            "health_score": round(float(health_score), 2),
+            "health_status": health_status,
+            "progress_delta": {
+                "has_previous": bool(has_previous),
+                "delta_completed_cells": int(delta_completed),
+                "delta_missing_cells": int(delta_missing),
+                "delta_pct": round(float(delta_pct), 4),
+                "trend": trend,
+            },
+            "risks_summary": risks_summary,
+            "prioritized_companies": prioritized_companies,
         }
         self._write_cached_json(self.base_health_cache_path, snapshot)
         return snapshot
@@ -1078,6 +1294,13 @@ class IntelligentSelectorService:
 
         cache = self._load_market_cache()
         refresh_status = self._load_refresh_status_map()
+        db_presence = self._load_statement_presence(start_year, end_year)
+        raw_presence = self._scan_processed_statement_presence(start_year, end_year)
+        combined_presence: dict[tuple[int, int], set[str]] = defaultdict(set)
+        for key, values in db_presence.items():
+            combined_presence[key].update(values)
+        for key, values in raw_presence.items():
+            combined_presence[key].update(values)
         fetch_budget = {"remaining": self.MAX_ONLINE_FETCH}
         now = datetime.now()
 
@@ -1107,6 +1330,8 @@ class IntelligentSelectorService:
             refresh_row = refresh_status.get(cd_cvm, {})
             refresh_success = self._parse_fetched_at(refresh_row.get("last_success_at"))
             refresh_attempt = self._parse_fetched_at(refresh_row.get("last_attempt_at"))
+            refresh_state = str(refresh_row.get("last_status") or "").strip().lower()
+            refresh_error = str(refresh_row.get("last_error") or "")
             last_file_update = self._find_last_file_update(company_name)
             db_ref = datetime(last_report_year, 12, 31) if last_report_year else None
             if refresh_success is not None:
@@ -1133,6 +1358,20 @@ class IntelligentSelectorService:
                 days_since_update is not None
                 and days_since_update < (self.RECENT_UPDATE_COOLDOWN_HOURS / 24.0)
             )
+            is_recent_no_data = (
+                refresh_attempt is not None
+                and refresh_attempt >= now - timedelta(days=self.NO_DATA_COOLDOWN_DAYS)
+                and (
+                    refresh_state == "no_data"
+                    or "No financial rows found for selected years" in refresh_error
+                )
+            )
+            source_presence_years_count = sum(
+                1
+                for year in range(int(start_year), int(end_year) + 1)
+                if combined_presence.get((cd_cvm, int(year)))
+            )
+            has_source_presence = source_presence_years_count > 0
 
             staged_rows.append(
                 {
@@ -1148,6 +1387,9 @@ class IntelligentSelectorService:
                     "days_since_update": days_since_update,
                     "recency_for_score": recency_for_score,
                     "is_recently_updated": is_recently_updated,
+                    "is_recent_no_data": is_recent_no_data,
+                    "has_source_presence": has_source_presence,
+                    "source_presence_years_count": int(source_presence_years_count),
                     "only_end_year_history": only_end_year_history,
                 }
             )
@@ -1174,10 +1416,12 @@ class IntelligentSelectorService:
                 + self.STALENESS_RECENCY_WEIGHT * staleness_recency
             )
             cooldown_penalty = 0.35 if row["is_recently_updated"] else 0.0
+            no_data_penalty = 0.60 if row["is_recent_no_data"] else 0.0
             total_score = (
                 self.IMPORTANCE_WEIGHT * importance_score
                 + self.STALENESS_WEIGHT * staleness_score
                 - cooldown_penalty
+                - no_data_penalty
             )
 
             ranked.append(
@@ -1196,13 +1440,19 @@ class IntelligentSelectorService:
                     year_gap=row["year_gap"],
                     days_since_update=row["days_since_update"],
                     is_recently_updated=row["is_recently_updated"],
+                    is_recent_no_data=row["is_recent_no_data"],
+                    has_source_presence=row["has_source_presence"],
+                    source_presence_years_count=row["source_presence_years_count"],
                     only_end_year_history=row["only_end_year_history"],
                 )
             )
 
         ranked.sort(
             key=lambda r: (
+                0 if r.has_source_presence else 1,  # no-source candidates last
+                1 if r.is_recent_no_data else 0,   # recent no-data last
                 1 if r.is_recently_updated else 0,   # recently-updated last
+                -int(r.source_presence_years_count), # more years with source presence first
                 0 if r.only_end_year_history else 1,  # end-year-only first
                 -float(r.year_gap),                   # highest defasagem first
                 -r.total_score,                       # then by composite score
@@ -1312,6 +1562,10 @@ class RankingWorker(QThread):
 
 
 class UpdateWorker(QThread):
+    REQUIRED_PACKAGE_STATEMENTS = ("BPA", "BPP", "DRE", "DFC")
+    FAST_LANE_RECENT_YEARS = 2
+    MAX_AUTO_REPORTING_YEAR_LAG = 1
+
     progress_changed = pyqtSignal(int, int, str)
     log_message = pyqtSignal(str)
     status_changed = pyqtSignal(str)
@@ -1325,6 +1579,9 @@ class UpdateWorker(QThread):
         start_year: int,
         end_year: int,
         max_workers: int,
+        skip_complete_company_years: bool = True,
+        enable_fast_lane: bool = True,
+        force_refresh: bool = False,
         parent=None,
     ):
         super().__init__(parent)
@@ -1332,8 +1589,136 @@ class UpdateWorker(QThread):
         self._start_year = start_year
         self._end_year = end_year
         self._max_workers = max_workers
+        self._skip_complete_company_years = bool(skip_complete_company_years)
+        self._enable_fast_lane = bool(enable_fast_lane)
+        self._force_refresh = bool(force_refresh)
         self._cancel_requested = False
         self._cancel_triggered = False
+
+    def _load_complete_company_years(
+        self,
+        db_path: Path,
+        company_codes: list[int],
+    ) -> dict[int, set[int]]:
+        if self._force_refresh or not self._skip_complete_company_years:
+            return {}
+        if not company_codes or not db_path.exists():
+            return {}
+
+        try:
+            with sqlite3.connect(str(db_path)) as conn:
+                if not self._table_exists(conn, "financial_reports"):
+                    return {}
+
+                placeholders_company = ",".join("?" for _ in company_codes)
+                placeholders_stmt = ",".join("?" for _ in self.REQUIRED_PACKAGE_STATEMENTS)
+                query = f"""
+                    SELECT
+                        "CD_CVM" AS cd_cvm,
+                        "REPORT_YEAR" AS report_year,
+                        COUNT(DISTINCT "STATEMENT_TYPE") AS stmt_count
+                    FROM financial_reports
+                    WHERE "CD_CVM" IN ({placeholders_company})
+                      AND "REPORT_YEAR" BETWEEN ? AND ?
+                      AND "STATEMENT_TYPE" IN ({placeholders_stmt})
+                    GROUP BY "CD_CVM", "REPORT_YEAR"
+                    HAVING COUNT(DISTINCT "STATEMENT_TYPE") >= ?
+                """
+                required_count = len(self.REQUIRED_PACKAGE_STATEMENTS)
+                params: list[Any] = [
+                    *[int(cd) for cd in company_codes],
+                    int(self._start_year),
+                    int(self._end_year),
+                    *self.REQUIRED_PACKAGE_STATEMENTS,
+                    int(required_count),
+                ]
+                rows = conn.execute(query, params).fetchall()
+        except Exception:
+            return {}
+
+        completed_map: dict[int, set[int]] = defaultdict(set)
+        for row in rows:
+            try:
+                cd = int(row[0])
+                year = int(row[1])
+            except Exception:
+                continue
+            completed_map[cd].add(year)
+        return dict(completed_map)
+
+    def _build_company_year_plan(
+        self,
+        db_path: Path,
+    ) -> tuple[list[str], dict[int, list[int]], dict[str, int]]:
+        raw_years_scope = list(range(int(self._start_year), int(self._end_year) + 1))
+        max_auto_year = datetime.now().year - self.MAX_AUTO_REPORTING_YEAR_LAG
+        years_scope = [int(y) for y in raw_years_scope if int(y) <= int(max_auto_year)]
+        if not years_scope:
+            return [], {}, {
+                "requested_company_years": 0,
+                "planned_company_years": 0,
+                "skipped_complete_company_years": 0,
+                "deferred_fast_lane_company_years": 0,
+                "planned_companies": 0,
+                "skipped_companies_all_complete": 0,
+                "dropped_future_years": int(len(raw_years_scope)),
+            }
+
+        unique_company_codes: list[int] = []
+        seen_codes: set[int] = set()
+        for raw in self._companies:
+            try:
+                cd = int(raw)
+            except Exception:
+                continue
+            if cd in seen_codes:
+                continue
+            seen_codes.add(cd)
+            unique_company_codes.append(cd)
+
+        completed_map = self._load_complete_company_years(db_path, unique_company_codes)
+
+        recent_floor_year = datetime.now().year - (self.FAST_LANE_RECENT_YEARS - 1)
+        planned_companies: list[str] = []
+        company_year_overrides: dict[int, list[int]] = {}
+
+        skipped_complete_company_years = 0
+        deferred_fast_lane_company_years = 0
+        skipped_companies_all_complete = 0
+
+        for cd in unique_company_codes:
+            completed_years = completed_map.get(cd, set())
+            years_needed = [int(y) for y in years_scope if int(y) not in completed_years]
+            skipped_complete_company_years += (len(years_scope) - len(years_needed))
+
+            if not years_needed:
+                skipped_companies_all_complete += 1
+                continue
+
+            years_to_run = years_needed
+            if self._enable_fast_lane and not self._force_refresh:
+                recent_years = [int(y) for y in years_needed if int(y) >= int(recent_floor_year)]
+                if recent_years:
+                    deferred_fast_lane_company_years += (len(years_needed) - len(recent_years))
+                    years_to_run = recent_years
+
+            if not years_to_run:
+                skipped_companies_all_complete += 1
+                continue
+
+            planned_companies.append(str(cd))
+            company_year_overrides[int(cd)] = sorted(set(int(y) for y in years_to_run))
+
+        stats = {
+            "requested_company_years": int(len(unique_company_codes) * len(raw_years_scope)),
+            "planned_company_years": int(sum(len(v) for v in company_year_overrides.values())),
+            "skipped_complete_company_years": int(skipped_complete_company_years),
+            "deferred_fast_lane_company_years": int(deferred_fast_lane_company_years),
+            "planned_companies": int(len(planned_companies)),
+            "skipped_companies_all_complete": int(skipped_companies_all_complete),
+            "dropped_future_years": int(len(raw_years_scope) - len(years_scope)),
+        }
+        return planned_companies, company_year_overrides, stats
 
     def request_cancel(self):
         self._cancel_requested = True
@@ -1458,7 +1843,12 @@ class UpdateWorker(QThread):
                 company_name = str(payload.get("company_name") or result_key)
 
                 raw_status = str(payload.get("status") or "error").strip().lower()
-                status = "success" if raw_status == "success" else "error"
+                if raw_status == "success":
+                    status = "success"
+                elif raw_status == "no_data":
+                    status = "no_data"
+                else:
+                    status = "error"
 
                 rows_from_payload = payload.get("rows_inserted")
                 try:
@@ -1535,8 +1925,36 @@ class UpdateWorker(QThread):
             root_dir = Path(__file__).resolve().parent
             data_dir = str(root_dir / "data" / "input")
             output_dir = str(root_dir / "output" / "reports")
+            db_path = root_dir / "data" / "db" / "cvm_financials.db"
+
+            planned_companies, company_year_overrides, plan_stats = self._build_company_year_plan(db_path)
+            self.log_message.emit(
+                "Planejamento de execucao: "
+                f"solicitado={plan_stats['requested_company_years']} empresa-anos, "
+                f"planejado={plan_stats['planned_company_years']}, "
+                f"skip_completos={plan_stats['skipped_complete_company_years']}, "
+                f"adiados_fast_lane={plan_stats['deferred_fast_lane_company_years']}."
+            )
+            if plan_stats.get("dropped_future_years", 0) > 0:
+                self.log_message.emit(
+                    "Filtro automatico: "
+                    f"{plan_stats['dropped_future_years']} ano(s) futuro(s) foram ignorados no planejamento."
+                )
+            if plan_stats["skipped_companies_all_complete"] > 0:
+                self.log_message.emit(
+                    "Skip inteligente: "
+                    f"{plan_stats['skipped_companies_all_complete']} empresa(s) ja completas no periodo."
+                )
+
+            if not planned_companies:
+                self.status_changed.emit("Nada para atualizar no periodo selecionado.")
+                self.log_message.emit("Nenhuma empresa com anos pendentes apos aplicar politicas de skip/fast lane.")
+                self.finished_success.emit(0)
+                return
 
             self.log_message.emit(f"Paralelismo definido: {self._max_workers} worker(s).")
+            if self._enable_fast_lane and not self._force_refresh:
+                self.log_message.emit("Fast Lane automatico ativo para anos recentes (janela de 2 anos).")
             self.status_changed.emit("Inicializando motor CVM...")
 
             scraper = CVMScraper(
@@ -1550,9 +1968,10 @@ class UpdateWorker(QThread):
 
             with redirect_stdout(log_stream), redirect_stderr(log_stream):
                 results = scraper.run(
-                    companies=self._companies,
+                    companies=planned_companies,
                     start_year=self._start_year,
                     end_year=self._end_year,
+                    company_year_overrides=company_year_overrides,
                     progress_callback=self._on_progress,
                     should_cancel=self._should_cancel,
                 )
@@ -1618,6 +2037,8 @@ class MainWindow(QMainWindow):
     preset_selected = pyqtSignal(str)
     selection_changed = pyqtSignal(int)
     add_company_requested = pyqtSignal(str)
+    base_health_refresh_requested = pyqtSignal()
+    base_health_priorities_requested = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -1625,6 +2046,7 @@ class MainWindow(QMainWindow):
         self._is_running = False
         self._is_building = False
         self._can_start = False
+        self._last_base_health_snapshot: dict[str, Any] | None = None
 
         self._build_ui()
         self._wire_signals()
@@ -1635,6 +2057,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(780, 540)
 
         current_year = datetime.now().year
+        latest_reporting_year = max(1990, current_year - 1)
 
         # Scrollable container so the UI works on smaller/secondary screens
         scroll = QScrollArea(self)
@@ -1673,12 +2096,12 @@ class MainWindow(QMainWindow):
 
         self.start_year_spin = QSpinBox()
         self.start_year_spin.setRange(1990, current_year + 1)
-        self.start_year_spin.setValue(current_year - 2)
+        self.start_year_spin.setValue(max(1990, latest_reporting_year - 2))
         self.start_year_spin.setMinimumWidth(75)
 
         self.end_year_spin = QSpinBox()
         self.end_year_spin.setRange(1990, current_year + 1)
-        self.end_year_spin.setValue(current_year)
+        self.end_year_spin.setValue(latest_reporting_year)
         self.end_year_spin.setMinimumWidth(75)
 
         years_layout.addWidget(QLabel("Preset:"))
@@ -1760,11 +2183,30 @@ class MainWindow(QMainWindow):
         self.health_global_label.setText("Aguardando calculo de cobertura...")
         health_layout.addWidget(global_row)
 
-        years_row_h, self.health_years_label = _health_row("Por ano")
+        years_row_h, self.health_years_label = _health_row("Tendencia")
         health_layout.addWidget(years_row_h)
 
-        laggards_row, self.health_laggards_label = _health_row("Mais defasadas")
+        laggards_row, self.health_laggards_label = _health_row("Riscos e prioridades")
         health_layout.addWidget(laggards_row)
+
+        actions_row = QWidget()
+        actions_layout = QHBoxLayout(actions_row)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.setSpacing(8)
+
+        self.health_refresh_button = QPushButton("Recalcular Saude")
+        self.health_refresh_button.setObjectName("buildButton")
+        self.health_refresh_button.setMinimumWidth(160)
+
+        self.health_priorities_button = QPushButton("Ver Prioridades")
+        self.health_priorities_button.setObjectName("dashboardButton")
+        self.health_priorities_button.setMinimumWidth(140)
+        self.health_priorities_button.setEnabled(False)
+
+        actions_layout.addWidget(self.health_refresh_button)
+        actions_layout.addWidget(self.health_priorities_button)
+        actions_layout.addStretch(1)
+        health_layout.addWidget(actions_row)
 
         root.addWidget(health_box)
 
@@ -1871,6 +2313,8 @@ class MainWindow(QMainWindow):
         self.company_search_edit.returnPressed.connect(
             lambda: self.add_company_requested.emit(self.company_search_edit.text().strip())
         )
+        self.health_refresh_button.clicked.connect(lambda: self.base_health_refresh_requested.emit())
+        self.health_priorities_button.clicked.connect(lambda: self.base_health_priorities_requested.emit())
 
     def _on_build_clicked(self):
         self.build_requested.emit(
@@ -1985,6 +2429,8 @@ class MainWindow(QMainWindow):
         self.preset_combo.setEnabled(not building and not self._is_running)
         self.max_workers_spin.setEnabled(not self._is_running)
         self.start_button.setEnabled((not building) and (not self._is_running) and self._can_start)
+        self.health_refresh_button.setEnabled((not building) and (not self._is_running))
+        self.health_priorities_button.setEnabled((not building) and (not self._is_running) and self._last_base_health_snapshot is not None)
 
     def set_running_state(self, running: bool):
         self._is_running = running
@@ -1996,6 +2442,8 @@ class MainWindow(QMainWindow):
         self.max_workers_spin.setEnabled(not running)
         self.cancel_button.setEnabled(running)
         self.start_button.setEnabled((not running) and (not self._is_building) and self._can_start)
+        self.health_refresh_button.setEnabled((not running) and (not self._is_building))
+        self.health_priorities_button.setEnabled((not running) and (not self._is_building) and self._last_base_health_snapshot is not None)
 
     def set_status(self, text: str):
         self.status_label.setText(f"Status: {text}")
@@ -2026,10 +2474,15 @@ class MainWindow(QMainWindow):
 
     def set_base_health(self, snapshot: dict[str, Any] | None):
         if not snapshot:
+            self._last_base_health_snapshot = None
             self.health_global_label.setText("Cobertura indisponivel.")
             self.health_years_label.setText("N/D")
             self.health_laggards_label.setText("N/D")
+            self.health_global_label.setStyleSheet("color: #e5e7eb; font-size: 12px;")
+            self.health_priorities_button.setEnabled(False)
             return
+
+        self._last_base_health_snapshot = snapshot
 
         global_stats = snapshot.get("global", {})
         pct = float(global_stats.get("pct", 0.0) or 0.0)
@@ -2039,29 +2492,133 @@ class MainWindow(QMainWindow):
         eta_text = self._format_eta(global_stats.get("eta_hours"))
         throughput = snapshot.get("throughput", {})
         confidence = str(throughput.get("confidence") or "low")
+        health_score = float(snapshot.get("health_score", 0.0) or 0.0)
+        health_status = str(snapshot.get("health_status") or "atencao")
+
+        if health_status == "critico":
+            status_label = "CRITICO"
+            status_color = "#f87171"
+        elif health_status == "ok":
+            status_label = "OK"
+            status_color = "#34d399"
+        else:
+            status_label = "ATENCAO"
+            status_color = "#fbbf24"
+
+        self.health_global_label.setStyleSheet(f"color: {status_color}; font-size: 12px; font-weight: 600;")
 
         self.health_global_label.setText(
-            f"{pct:.1f}% concluido ({complete}/{expected}) | faltantes: {missing} | {eta_text} | confianca ETA: {confidence}"
+            f"Status {status_label} | Score {health_score:.1f}/100 | {pct:.1f}% concluido ({complete}/{expected}) | faltantes: {missing} | {eta_text} | confianca ETA: {confidence}"
         )
 
+        progress_delta = snapshot.get("progress_delta", {})
+        delta_pct = float(progress_delta.get("delta_pct", 0.0) or 0.0)
+        delta_cells = int(progress_delta.get("delta_completed_cells", 0) or 0)
+        trend = str(progress_delta.get("trend") or "estavel")
+
+        if delta_pct > 0:
+            delta_pct_txt = f"+{delta_pct:.2f} pp"
+        elif delta_pct < 0:
+            delta_pct_txt = f"{delta_pct:.2f} pp"
+        else:
+            delta_pct_txt = "0.00 pp"
+
+        if delta_cells > 0:
+            delta_cells_txt = f"+{delta_cells} celulas"
+        elif delta_cells < 0:
+            delta_cells_txt = f"{delta_cells} celulas"
+        else:
+            delta_cells_txt = "0 celulas"
+
         per_year_entries: list[str] = []
-        for row in snapshot.get("per_year", []):
+        per_year_rows = sorted(snapshot.get("per_year", []), key=lambda row: int(row.get("year", 0)))
+        for row in per_year_rows[-3:]:
             year = row.get("year")
             year_pct = float(row.get("pct", 0.0) or 0.0)
             year_missing = int(row.get("missing", 0) or 0)
-            year_eta = self._format_eta(row.get("eta_hours"))
-            per_year_entries.append(
-                f"{year}: {year_pct:.1f}% (faltam {year_missing}, {year_eta})"
-            )
-        self.health_years_label.setText(" | ".join(per_year_entries) if per_year_entries else "N/D")
+            per_year_entries.append(f"{year}: {year_pct:.1f}% (faltam {year_missing})")
+        trend_text = f"Tendencia {trend} | delta {delta_pct_txt} | {delta_cells_txt}"
+        self.health_years_label.setText(
+            f"{trend_text} | " + " | ".join(per_year_entries) if per_year_entries else trend_text
+        )
 
-        lag_parts: list[str] = []
-        for row in snapshot.get("top_lagging", [])[:5]:
+        risks = snapshot.get("risks_summary", {})
+        high_risk = int(risks.get("high", 0) or 0)
+        medium_risk = int(risks.get("medium", 0) or 0)
+        low_risk = int(risks.get("low", 0) or 0)
+
+        priorities = snapshot.get("prioritized_companies", [])
+        priority_parts: list[str] = []
+        for row in priorities[:3]:
             name = str(row.get("company_name") or f"CVM {row.get('cd_cvm')}")
             miss = int(row.get("missing_years_count", 0) or 0)
-            gap_leader = int(row.get("gap_to_leader_years", 0) or 0)
-            lag_parts.append(f"{name} (faltam {miss}, gap lider {gap_leader})")
-        self.health_laggards_label.setText(" | ".join(lag_parts) if lag_parts else "N/D")
+            action = str(row.get("recommended_action") or "Revisar")
+            priority_parts.append(f"{name} (faltam {miss}, {action})")
+
+        risks_text = f"Risco alto: {high_risk} | medio: {medium_risk} | baixo: {low_risk}"
+        if priority_parts:
+            risks_text += " | Prioridades: " + " ; ".join(priority_parts)
+        self.health_laggards_label.setText(risks_text)
+        self.health_priorities_button.setEnabled(bool(priorities) and not self._is_running and not self._is_building)
+
+    def show_base_health_priorities_dialog(self) -> None:
+        snapshot = self._last_base_health_snapshot or {}
+        priorities = snapshot.get("prioritized_companies", [])
+        if not priorities:
+            return
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Prioridades de Atualizacao")
+        dlg.resize(960, 460)
+
+        layout = QVBoxLayout(dlg)
+        title = QLabel(
+            f"Top {len(priorities)} empresas com maior impacto para cobertura no periodo selecionado."
+        )
+        title.setWordWrap(True)
+        title.setStyleSheet("color: #93c5fd; font-weight: 600;")
+        layout.addWidget(title)
+
+        table = QTableWidget(len(priorities), 7)
+        table.setHorizontalHeaderLabels(
+            [
+                "Empresa",
+                "CVM",
+                "Risco",
+                "Faltam (anos)",
+                "Gap lider",
+                "Motivo",
+                "Acao recomendada",
+            ]
+        )
+        table.verticalHeader().setVisible(False)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeMode.Stretch)
+
+        for idx, row in enumerate(priorities):
+            table.setItem(idx, 0, QTableWidgetItem(str(row.get("company_name") or "")))
+            table.setItem(idx, 1, QTableWidgetItem(str(row.get("cd_cvm") or "")))
+            table.setItem(idx, 2, QTableWidgetItem(str(row.get("risk_level") or "")))
+            table.setItem(idx, 3, QTableWidgetItem(str(int(row.get("missing_years_count", 0) or 0))))
+            table.setItem(idx, 4, QTableWidgetItem(str(int(row.get("gap_to_leader_years", 0) or 0))))
+            table.setItem(idx, 5, QTableWidgetItem(str(row.get("reason") or "")))
+            table.setItem(idx, 6, QTableWidgetItem(str(row.get("recommended_action") or "")))
+
+        layout.addWidget(table)
+
+        close_row = QHBoxLayout()
+        close_row.addStretch(1)
+        close_btn = QPushButton("Fechar")
+        close_btn.setObjectName("dashboardButton")
+        close_btn.clicked.connect(dlg.accept)
+        close_row.addWidget(close_btn)
+        layout.addLayout(close_row)
+
+        dlg.exec()
 
     def append_log(self, message: str):
         ts = datetime.now().strftime("%H:%M:%S")
@@ -2145,6 +2702,9 @@ class UpdateController(QObject):
         self.view = view
         self.service = service
         self.project_root = service.project_root
+        self._skip_complete_company_years = os.getenv("UPDATER_SKIP_COMPLETE", "1") != "0"
+        self._enable_fast_lane = os.getenv("UPDATER_FAST_LANE", "1") != "0"
+        self._force_refresh_updates = os.getenv("UPDATER_FORCE_REFRESH", "0") == "1"
         self.update_worker: UpdateWorker | None = None
         self.ranking_worker: RankingWorker | None = None
         self.health_worker: HealthWorker | None = None
@@ -2158,6 +2718,8 @@ class UpdateController(QObject):
         self.view.preset_selected.connect(self.on_preset_selected)
         self.view.selection_changed.connect(self.on_selection_changed)
         self.view.add_company_requested.connect(self.on_add_company_requested)
+        self.view.base_health_refresh_requested.connect(self.on_base_health_refresh_requested)
+        self.view.base_health_priorities_requested.connect(self.on_base_health_priorities_requested)
 
         self._apply_preset_if_needed(self.view.preset_combo.currentText())
         self._validate_form()
@@ -2265,9 +2827,9 @@ class UpdateController(QObject):
         if preset_name not in self.PRESET_YEARS:
             return
         n_years = self.PRESET_YEARS[preset_name]
-        current_year = datetime.now().year
-        start_year = current_year - (n_years - 1)
-        self.view.set_years(start_year, current_year)
+        latest_reporting_year = max(1990, datetime.now().year - 1)
+        start_year = latest_reporting_year - (n_years - 1)
+        self.view.set_years(start_year, latest_reporting_year)
 
     def _bind_update_worker(self, worker: UpdateWorker):
         worker.progress_changed.connect(self.on_worker_progress)
@@ -2366,6 +2928,12 @@ class UpdateController(QObject):
         self.view.append_log(
             f"Iniciando atualizacao de {len(company_codes)} empresa(s), periodo {start_year}-{end_year}, {max_workers} workers."
         )
+        self.view.append_log(
+            "Politicas: "
+            f"skip_completos={'on' if self._skip_complete_company_years else 'off'}, "
+            f"fast_lane={'on' if self._enable_fast_lane else 'off'}, "
+            f"force_refresh={'on' if self._force_refresh_updates else 'off'}."
+        )
         self.view.reset_progress()
         self.view.set_status("Preparando execucao...")
         self.view.set_running_state(True)
@@ -2375,6 +2943,9 @@ class UpdateController(QObject):
             start_year=start_year,
             end_year=end_year,
             max_workers=max_workers,
+            skip_complete_company_years=self._skip_complete_company_years,
+            enable_fast_lane=self._enable_fast_lane,
+            force_refresh=self._force_refresh_updates,
             parent=self.view,
         )
         self._bind_update_worker(self.update_worker)
@@ -2434,6 +3005,15 @@ class UpdateController(QObject):
         self.view.add_company_row(match)
         self.view.append_log(f"Empresa adicionada manualmente: {match.get('company_name')} (CVM {match.get('cd_cvm')}).")
         self._validate_form()
+
+    def on_base_health_refresh_requested(self) -> None:
+        if self.health_worker is not None:
+            return
+        self.view.append_log("Recalculando Saude da Base (force refresh)...")
+        self._refresh_base_health(force_refresh=True)
+
+    def on_base_health_priorities_requested(self) -> None:
+        self.view.show_base_health_priorities_dialog()
 
     def on_cancel_requested(self):
         if self.update_worker is None:

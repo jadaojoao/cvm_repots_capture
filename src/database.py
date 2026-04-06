@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 SQLITE_WRITE_MAX_RETRIES = 3
 SQLITE_WRITE_BACKOFF_SECONDS = 0.6
+DEFAULT_TO_SQL_CHUNKSIZE = 2000
+SQLITE_SAFE_MAX_VARIABLES = 900
 
 
 class CVMDatabase:
@@ -131,11 +133,19 @@ class CVMDatabase:
         """Retry writes for transient SQLite lock errors without masking final failures."""
         dialect = self._engine.dialect.name
         max_retries = SQLITE_WRITE_MAX_RETRIES if dialect == "sqlite" else 1
+        chunksize = self._resolve_to_sql_chunksize(df)
         attempt = 0
         while True:
             attempt += 1
             try:
-                df.to_sql(table_name, conn, if_exists='append', index=False, method='multi', chunksize=2000)
+                df.to_sql(
+                    table_name,
+                    conn,
+                    if_exists='append',
+                    index=False,
+                    method='multi',
+                    chunksize=chunksize,
+                )
                 return
             except OperationalError as exc:
                 if attempt >= max_retries:
@@ -149,6 +159,15 @@ class CVMDatabase:
                     exc,
                 )
                 time.sleep(sleep_s)
+
+    def _resolve_to_sql_chunksize(self, df: pd.DataFrame) -> int:
+        """Keep SQLite inserts below the engine parameter limit for multi-row writes."""
+        if self._engine.dialect.name != "sqlite":
+            return DEFAULT_TO_SQL_CHUNKSIZE
+
+        column_count = max(1, len(getattr(df, "columns", [])))
+        safe_chunksize = SQLITE_SAFE_MAX_VARIABLES // column_count
+        return max(1, min(DEFAULT_TO_SQL_CHUNKSIZE, safe_chunksize))
 
     def insert_company_data(self, company_name: str, cvm_code: int, company_type: str,
                             processed_reports: dict, qa_logs: list,

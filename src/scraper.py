@@ -422,12 +422,22 @@ class CVMScraper:
         companies,
         start_year,
         end_year,
+        company_year_overrides: dict[int, list[int]] | None = None,
         progress_callback: Callable[[int, int, str], None] | None = None,
         should_cancel: Callable[[], bool] | None = None,
     ):
         self.fetch_company_list()
         resolved = self.resolve_company_codes(companies)
-        for year in range(start_year, end_year + 1):
+
+        download_years: set[int] = set()
+        if company_year_overrides:
+            for years in company_year_overrides.values():
+                for year in years:
+                    download_years.add(int(year))
+        if not download_years:
+            download_years = set(range(int(start_year), int(end_year) + 1))
+
+        for year in sorted(download_years):
             self.download_and_extract(year, 'DFP')
             self.download_and_extract(year, 'ITR')
         
@@ -435,7 +445,7 @@ class CVMScraper:
         total_companies = len(company_items)
         results = {}
         completed = 0
-        years_requested = list(range(int(start_year), int(end_year) + 1))
+        default_years = list(range(int(start_year), int(end_year) + 1))
         for name, cvm in company_items:
             if progress_callback is not None:
                 progress_callback(completed, total_companies, name)
@@ -443,10 +453,16 @@ class CVMScraper:
                 print("Execution cancelled before next company.")
                 break
 
+            years_requested = default_years
+            if company_year_overrides:
+                years_requested = company_year_overrides.get(int(cvm), default_years)
+            years_requested = sorted(set(int(y) for y in years_requested))
+
             print(f"Processing {name}...")
             payload = {
                 "company_name": str(name),
                 "cvm_code": int(cvm),
+                "requested_years": years_requested,
                 "years_processed": [],
                 "rows_inserted": 0,
                 "status": "error",
@@ -456,16 +472,19 @@ class CVMScraper:
             }
             raw = self.process_data(cvm, years_requested)
             if raw is None:
+                payload["status"] = "no_data"
                 payload["error"] = "No financial rows found for selected years"
                 results[str(int(cvm))] = payload
                 completed += 1
                 continue
 
             proc, qas = self.process_all_reports(raw)
+            years_min = min(years_requested) if years_requested else int(start_year)
+            years_max = max(years_requested) if years_requested else int(end_year)
             payload["years_processed"] = self._extract_years_processed(
                 proc,
-                start_year,
-                end_year,
+                years_min,
+                years_max,
             )
             if not proc:
                 payload["error"] = "No supported statements found after processing"

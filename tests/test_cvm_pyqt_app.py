@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import json
 from pathlib import Path
 import sqlite3
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 import pytest
 
@@ -26,6 +28,29 @@ def _create_db(path: Path):
                 (9512, "PETROBRAS", 2024),
                 (4170, "VALE", 2023),
             ],
+        )
+        conn.commit()
+
+
+def _create_db_with_statements(path: Path, rows: list[tuple[int, str, int, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(str(path)) as conn:
+        conn.execute(
+            """
+            CREATE TABLE financial_reports (
+                CD_CVM INTEGER,
+                COMPANY_NAME TEXT,
+                REPORT_YEAR INTEGER,
+                STATEMENT_TYPE TEXT
+            )
+            """
+        )
+        conn.executemany(
+            """
+            INSERT INTO financial_reports (CD_CVM, COMPANY_NAME, REPORT_YEAR, STATEMENT_TYPE)
+            VALUES (?, ?, ?, ?)
+            """,
+            rows,
         )
         conn.commit()
 
@@ -362,6 +387,93 @@ def test_update_worker_sync_refresh_status_records_error_without_overwriting_las
     assert row[2] == "2026-01-01T00:00:00"
 
 
+def test_update_worker_build_company_year_plan_skips_completed_company_years(tmp_path):
+    db_path = tmp_path / "cvm_financials.db"
+    _create_db_with_statements(
+        db_path,
+        [
+            (9512, "PETROBRAS", 2024, "BPA"),
+            (9512, "PETROBRAS", 2024, "BPP"),
+            (9512, "PETROBRAS", 2024, "DRE"),
+            (9512, "PETROBRAS", 2024, "DFC"),
+            (9512, "PETROBRAS", 2025, "BPA"),
+            (9512, "PETROBRAS", 2025, "BPP"),
+            (9512, "PETROBRAS", 2025, "DRE"),
+            (4170, "VALE", 2024, "BPA"),
+            (4170, "VALE", 2024, "BPP"),
+            (4170, "VALE", 2024, "DRE"),
+            (4170, "VALE", 2024, "DFC"),
+            (4170, "VALE", 2025, "BPA"),
+            (4170, "VALE", 2025, "BPP"),
+            (4170, "VALE", 2025, "DRE"),
+            (4170, "VALE", 2025, "DFC"),
+        ],
+    )
+
+    worker = UpdateWorker(
+        companies=["9512", "4170"],
+        start_year=2024,
+        end_year=2025,
+        max_workers=2,
+        skip_complete_company_years=True,
+        enable_fast_lane=False,
+        force_refresh=False,
+    )
+    planned_companies, year_overrides, stats = worker._build_company_year_plan(db_path)
+
+    assert planned_companies == ["9512"]
+    assert year_overrides[9512] == [2025]
+    assert stats["requested_company_years"] == 4
+    assert stats["planned_company_years"] == 1
+    assert stats["skipped_complete_company_years"] == 3
+    assert stats["skipped_companies_all_complete"] == 1
+
+
+def test_update_worker_build_company_year_plan_fast_lane_recent_years(tmp_path):
+    db_path = tmp_path / "cvm_financials.db"
+    _create_db_with_statements(db_path, [])
+
+    current_year = datetime.now().year
+    worker = UpdateWorker(
+        companies=["9512"],
+        start_year=current_year - 3,
+        end_year=current_year,
+        max_workers=2,
+        skip_complete_company_years=True,
+        enable_fast_lane=True,
+        force_refresh=False,
+    )
+    planned_companies, year_overrides, stats = worker._build_company_year_plan(db_path)
+
+    assert planned_companies == ["9512"]
+    assert year_overrides[9512] == [current_year - 1, current_year]
+    assert stats["planned_company_years"] == 2
+    assert stats["deferred_fast_lane_company_years"] == 2
+
+
+def test_scan_processed_statement_presence_uses_incremental_index_cache(tmp_path):
+    project_root = tmp_path
+    processed_dir = project_root / "data" / "input" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = processed_dir / "itr_cia_aberta_BPA_con_2025.csv"
+    csv_path.write_text("CD_CVM;X\n9512;1\n4170;1\n", encoding="latin1")
+
+    service = IntelligentSelectorService(project_root)
+    presence_first = service._scan_processed_statement_presence(2025, 2025)
+    assert (9512, 2025) in presence_first
+    assert presence_first[(9512, 2025)] == {"BPA"}
+
+    cache_path = project_root / "data" / "cache" / "processed_presence_index.json"
+    assert cache_path.exists()
+    cache_payload = json.loads(cache_path.read_text(encoding="utf-8"))
+    assert "itr_cia_aberta_BPA_con_2025.csv" in cache_payload.get("files", {})
+
+    with patch("cvm_pyqt_app.pd.read_csv", side_effect=RuntimeError("should not read csv")):
+        presence_second = service._scan_processed_statement_presence(2025, 2025)
+
+    assert presence_second == presence_first
+
+
 def test_build_base_health_snapshot_requires_full_package(tmp_path):
     project_root = tmp_path
     db_path = project_root / "data" / "db" / "cvm_financials.db"
@@ -448,3 +560,8 @@ def test_build_base_health_snapshot_requires_full_package(tmp_path):
     assert snapshot["throughput"]["per_hour"] is None
     assert snapshot["top_lagging"][0]["company_name"] == "ALFA"
     assert snapshot["top_lagging"][0]["missing_years_count"] == 1
+    assert snapshot["health_status"] in {"critico", "atencao", "ok"}
+    assert 0.0 <= float(snapshot["health_score"]) <= 100.0
+    assert "progress_delta" in snapshot
+    assert "risks_summary" in snapshot
+    assert "prioritized_companies" in snapshot

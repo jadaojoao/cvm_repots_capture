@@ -62,6 +62,16 @@ def _new_db_with_engine(engine):
     return db
 
 
+class _FakeFrame:
+    def __init__(self, columns: list[str]):
+        self.columns = columns
+        self.calls: list[dict] = []
+
+    def to_sql(self, *args, **kwargs):
+        self.calls.append(kwargs)
+        return None
+
+
 def test_init_db_applies_pragmas_for_sqlite_only():
     db = _new_db_with_engine(_FakeEngine("sqlite"))
     db._init_db()
@@ -123,3 +133,29 @@ def test_upsert_company_metadata_raises_on_failure():
             setor_cvm=None,
             ticker_b3=None,
         )
+
+
+def test_to_sql_with_retry_scales_chunksize_for_sqlite_variable_limit():
+    db = _new_db_with_engine(_FakeEngine("sqlite"))
+    frame = _FakeFrame(
+        [
+            "COMPANY_NAME", "CD_CVM", "COMPANY_TYPE", "STATEMENT_TYPE",
+            "REPORT_YEAR", "PERIOD_LABEL", "LINE_ID_BASE", "CD_CONTA",
+            "DS_CONTA", "STANDARD_NAME", "QA_CONFLICT", "VL_CONTA",
+        ]
+    )
+
+    db._to_sql_with_retry("financial_reports", frame, _RecorderConn())
+
+    assert len(frame.calls) == 1
+    assert frame.calls[0]["chunksize"] == 75
+
+
+def test_to_sql_with_retry_keeps_default_chunksize_for_postgresql():
+    db = _new_db_with_engine(_FakeEngine("postgresql"))
+    frame = _FakeFrame(["a", "b", "c"])
+
+    db._to_sql_with_retry("financial_reports", frame, _RecorderConn())
+
+    assert len(frame.calls) == 1
+    assert frame.calls[0]["chunksize"] == 2000
