@@ -20,6 +20,20 @@ Before changing any versioned file:
 4. Work in a branch named `codex/<issue-number>-<slug>`.
 5. Open a PR with `Closes #<issue-number>` in the body.
 6. Update the issue and relevant docs before considering the task complete.
+7. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+
+## Publish and Merge Policy
+
+- Do not leave completed work only in the local worktree.
+- Commit when you reach a coherent, validated checkpoint.
+- Push when the checkpoint should be preserved remotely or reflected in the PR.
+- Open or update a draft PR as soon as the branch is reviewable.
+- When acceptance criteria are satisfied and relevant checks pass:
+  - update the issue;
+  - mark the PR ready if needed;
+  - merge into `master`.
+- Prefer squash merge for short-lived Codex branches.
+- After merge, confirm the linked task closes and the remote branch is removed when possible.
 
 Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub Issues.
 
