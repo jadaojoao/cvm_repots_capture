@@ -1,67 +1,83 @@
 # CVM Reports Capture
 
-Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM, com persistencia em SQLite/PostgreSQL, app desktop operacional em PyQt6 e dashboard analitico em Streamlit.
+Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM, com persistencia em SQLite/PostgreSQL, app desktop operacional em PyQt6, dashboard analitico em Streamlit e API read-only da Fase 1 da V2 em FastAPI.
 
-> Este repositorio tem proposito duplo: manter o sistema operacional atual funcionando e servir como trilha de aprendizado para evolui-lo rumo a uma web app mais proxima de producao. A direcao da V2 esta registrada em [docs/decisions/0002-student-pack-v2-stack.md](docs/decisions/0002-student-pack-v2-stack.md), no [docs/STUDENT_PACK_PLAN.md](docs/STUDENT_PACK_PLAN.md) e no roadmap de execucao [docs/WEBAPP_TRANSFORMATION_PLAN.md](docs/WEBAPP_TRANSFORMATION_PLAN.md).
+> Este repositorio tem proposito duplo: manter o sistema operacional atual funcionando e servir como trilha de aprendizado para evolui-lo rumo a uma web app mais proxima de producao. A direcao da V2 esta registrada em [docs/decisions/0002-student-pack-v2-stack.md](docs/decisions/0002-student-pack-v2-stack.md), no [docs/STUDENT_PACK_PLAN.md](docs/STUDENT_PACK_PLAN.md), no roadmap [docs/WEBAPP_TRANSFORMATION_PLAN.md](docs/WEBAPP_TRANSFORMATION_PLAN.md), no guia da fase [docs/V2_PHASE1_BACKEND.md](docs/V2_PHASE1_BACKEND.md) e no contrato [docs/V2_API_CONTRACT.md](docs/V2_API_CONTRACT.md).
 
 ## Estrutura principal
 
 - `desktop/cvm_pyqt_app.py`: [OFICIAL] app desktop em PyQt6 para atualizacao local e operacao do refresh.
 - `main.py`: CLI suportada para rodar o scraper de forma pontual.
+- `apps/api/`: API `FastAPI` read-only da Fase 1 da V2.
 - `src/`: pipeline de captura, padronizacao, consulta e exportacao.
 - `scripts/`: scripts auxiliares, setup de banco, batches e validacoes.
 - `data/`: entrada, metadados, cache e banco SQLite local (`cvm_financials.db`).
-- `output/`: artefatos gerados, incluindo relatórios e logs.
+- `output/`: artefatos gerados, incluindo relatorios e logs.
 - `dashboard/`: aplicacao analitica em Streamlit com 3 abas: `Visao Geral`, `Demonstracoes` e `Download`.
-- `docs/`: documentacao de referencia (`CONTEXT.md`, `AGENTS.md`, `AUDIT.md`, `STUDENT_PACK_PLAN.md`, `WEBAPP_TRANSFORMATION_PLAN.md`).
+- `docs/`: documentacao de referencia (`CONTEXT.md`, `AGENTS.md`, `AUDIT.md`, `STUDENT_PACK_PLAN.md`, `WEBAPP_TRANSFORMATION_PLAN.md`, `V2_PHASE1_BACKEND.md`, `V2_API_CONTRACT.md`).
 
-## Fluxo recomendado (estado atual)
+## Fluxo recomendado
 
-1. Instalar dependencias:
+1. Instalar dependencias da V1:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Validar ambiente e diagnostico de bootstrap:
+2. Se voce tambem vai rodar a API da V2:
+```bash
+pip install -r apps/api/requirements-dev.txt
+```
+
+3. Validar ambiente e diagnostico de bootstrap:
 ```bash
 python scripts/runtime_doctor.py --require-canonical
 ```
 
-3. Inicializar o banco em uma maquina nova ou apos migracao:
+4. Inicializar o banco em uma maquina nova ou apos migracao:
 ```bash
 python scripts/setup_db.py
 python scripts/setup_companies_table.py
 ```
 
-4. Atualizar dados pela interface operacional principal:
+5. Atualizar dados pela interface operacional principal:
 ```bash
 python desktop/cvm_pyqt_app.py
 ```
 
-5. Alternativa para coleta pontual via CLI headless:
+6. Alternativa para coleta pontual via CLI headless:
 ```bash
 python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated --skip_complete
 ```
 
-6. Alternativas para atualizacao em lote:
+7. Alternativas para atualizacao em lote:
 ```bash
 python scripts/batch_completo.py --dry-run
 python scripts/atualizar_todos.py --anos 2024 2025
 ```
 
-7. Subir o dashboard analitico read-only:
+8. Subir o dashboard analitico read-only:
 ```bash
 streamlit run dashboard/app.py
 ```
 
-> Observacao: `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` continuam uteis em fluxos especificos, mas nao sao pre-requisitos do caminho principal PyQt6 -> banco -> dashboard descrito em `CLAUDE.md`.
+9. Subir a API read-only da Fase 1 da V2:
+```bash
+uvicorn apps.api.app.main:app --reload
+```
+
+Docs da API:
+- Swagger: `http://127.0.0.1:8000/docs`
+- OpenAPI: `http://127.0.0.1:8000/openapi.json`
+
+> Observacao: `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` continuam uteis em fluxos especificos, mas nao sao pre-requisitos do caminho principal PyQt6 -> banco -> dashboard/API.
 
 ## Contrato operacional atual
 
 - Configuracao centralizada em `src/settings.py`, baseada em env vars e caminhos canonicos.
-- Diagnostico de startup em `src/startup.py`, consumido por CLI, desktop, dashboard e scripts.
+- Diagnostico de startup em `src/startup.py`, consumido por CLI, desktop, dashboard, scripts e API.
 - Refresh headless em `src/refresh_service.py`, que virou o caminho comum para CLI, workers PyQt e automacoes.
-- Leitura headless em `src/read_service.py`, que virou o contrato consumido pelo dashboard.
+- Leitura headless em `src/read_service.py`, que virou o contrato consumido pelo dashboard e pela API.
+- `apps/api` e a superficie HTTP oficial da Fase 1 da V2. O frontend futuro deve consumir a API, nao reimplementar queries.
 
 Variaveis principais em `.env.example`:
 - `DATABASE_URL` para PostgreSQL
@@ -81,10 +97,11 @@ python scripts/quick_verify.py --xlsx output/reports/PETROBRAS_financials.xlsx
 python scripts/final_verification.py --xlsx output/reports/PETROBRAS_financials.xlsx
 ```
 
-Smoke test adicional:
+Smoke tests:
 
 ```bash
 pytest tests/ -q
+pytest apps/api/tests -q
 ```
 
 Diagnostico adicional:
@@ -98,7 +115,7 @@ python scripts/db_portability_smoke.py --database-url postgresql://user:pass@hos
 
 ## Interfaces oficiais
 
-### 1. App Desktop PyQt6 (operacional)
+### 1. App Desktop PyQt6
 
 Modo inteligente para atualizacao:
 - ranking por importancia (40% market cap + 60% liquidez),
@@ -112,7 +129,7 @@ Modo inteligente para atualizacao:
 python desktop/cvm_pyqt_app.py
 ```
 
-### 2. Dashboard Analitico (Streamlit)
+### 2. Dashboard Analitico
 
 Aplicacao read-only para consulta e exportacao do que ja esta no banco:
 - busca empresa por nome, ticker ou codigo CVM,
@@ -123,17 +140,27 @@ Aplicacao read-only para consulta e exportacao do que ja esta no banco:
 streamlit run dashboard/app.py
 ```
 
-## Otimizacao de performance
+### 3. API V2 Phase 1
 
-O motor de captura foi reconstruido para suportar repopulacoes massivas sem travar o computador:
-- vetorizacao com Pandas Boolean Masks,
-- downloads simultaneos via `ThreadPoolExecutor`,
-- SQLite em WAL mode com insercoes em lote.
+Aplicacao `FastAPI` read-only em `apps/api`, criada para servir a futura web app:
+- `GET /health`
+- `GET /companies`
+- `GET /companies/{cd_cvm}`
+- `GET /companies/{cd_cvm}/years`
+- `GET /companies/{cd_cvm}/statements`
+- `GET /companies/{cd_cvm}/kpis`
+- `GET /refresh-status`
+- `GET /base-health`
+
+```powershell
+uvicorn apps.api.app.main:app --reload
+```
 
 ## Observacoes
 
 - Prefira `desktop/cvm_pyqt_app.py` como interface operacional principal.
 - Prefira `src/refresh_service.py` e `src/read_service.py` como contratos de nucleo ao criar novas interfaces.
+- Prefira `apps/api` como superficie HTTP oficial da Fase 1 da V2.
 - Use `scripts/db_portability_smoke.py` para validar o backend de banco antes de subir uma API web.
 - Use `scripts/canonicalize_data_layout.py` para auditar ou limpar arquivos fora do layout canonico `data/input/raw|processed`.
 - O dashboard atual possui 3 abas. Referencias antigas a 9 abas nos docs estao desatualizadas.

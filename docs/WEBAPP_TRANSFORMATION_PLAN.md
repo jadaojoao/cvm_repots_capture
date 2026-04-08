@@ -1,7 +1,7 @@
 # WEBAPP_TRANSFORMATION_PLAN.md - Roteiro da transicao da V1 para uma web app real
 
 > Documento de execucao para a transformacao do projeto atual em uma web app mais proxima de producao.
-> Escopo deste documento: roadmap, primeiro slice tecnico e objetivos de aprendizado.
+> Escopo deste documento: roadmap, refinamento por fases e objetivo de aprendizado.
 > Base arquitetural: [0002 - Stack recomendada para a V2 com GitHub Student Developer Pack](./decisions/0002-student-pack-v2-stack.md).
 
 ---
@@ -19,58 +19,84 @@ Esta transicao tem dois objetivos simultaneos:
 ## 2. Principios da transicao
 
 - A V1 continua operacional em paralelo durante toda a transicao.
-- O scraper/updater permanece em Python e fica fora do escopo da Fase 1 da V2.
-- O primeiro slice da V2 e somente leitura.
+- O scraper/updater permanece em Python.
+- A V2 comeca read-only.
 - A primeira publicacao remota assume deploy gerenciado e separado por camada.
 - Nao ha migracao direta do Streamlit para a nova UI; a V2 nasce ao lado da V1.
+- O frontend web so entra depois que a fronteira HTTP da V2 estiver estavel.
 
 ---
 
 ## 3. Primeiro slice tecnico documentado agora
 
-### Web UI
+### Fase 1 refinada: backend-first
 
-Aplicacao `Next.js`, read-only, com duas rotas iniciais:
-- `/` para busca/selecionar empresa e anos;
-- `/companies/[cd_cvm]` para detalhe da empresa.
+O primeiro slice da V2 foi refinado para um backend `FastAPI` local em `apps/api`, mantendo `apps/web` fora da implementacao inicial.
 
-### API
+Motivo:
+- a V1 ainda carregava risco operacional demais para iniciar pela UI;
+- o ganho real da fase era estabilizar um contrato HTTP em cima do nucleo headless;
+- isso reduz retrabalho quando o frontend web entrar.
 
-Aplicacao `FastAPI`, read-only, com os endpoints iniciais:
-- `GET /companies?search=`
+### API da Fase 1
+
+Aplicacao `FastAPI`, read-only, com os endpoints:
+- `GET /health`
+- `GET /companies?search=&limit=`
 - `GET /companies/{cd_cvm}`
+- `GET /companies/{cd_cvm}/years`
 - `GET /companies/{cd_cvm}/statements?years=&stmt=`
 - `GET /companies/{cd_cvm}/kpis?years=`
+- `GET /refresh-status?cd_cvm=`
+- `GET /base-health?start_year=&end_year=&force_refresh=`
 
 ### Fronteira de dados
 
-- leitura reaproveita a logica Python existente, principalmente `src/query_layer.py` e `src/kpi_engine.py`;
-- nenhuma rota de escrita entra no primeiro slice;
-- `PostgreSQL` e o banco alvo compartilhado da V2;
-- `SQLite` continua valido para uso local e para a V1.
+- leitura reaproveita `src/read_service.py` e os DTOs de `src/contracts.py`;
+- nenhuma rota de escrita entra na Fase 1;
+- `SQLite` continua sendo o default local;
+- `PostgreSQL` continua sendo o alvo da V2 e o gate obrigatorio de validacao.
 
 ---
 
 ## 4. Fases
 
-### Fase 1 - Slice local read-only
+### Fase 1 - Backend local read-only
 
 Meta de entrega:
-- subir localmente uma UI web minima em `Next.js`;
-- subir localmente uma API `FastAPI` somente leitura;
-- validar busca de empresa, detalhe da empresa, demonstracoes e KPIs com base na logica ja existente em Python.
+- subir localmente uma API `FastAPI` somente leitura em `apps/api`;
+- estabilizar contratos HTTP para busca, detalhe, anos, demonstracoes, KPIs, refresh status e health snapshot;
+- documentar bootstrap, testes e validacao SQLite/PostgreSQL.
 
 Meta de aprendizado:
-- aprender a separar UI, API e banco sem reescrever o dominio;
-- aprender o fluxo basico de consumo HTTP entre frontend e backend;
-- aprender a transformar regras existentes em contratos de API pequenos e claros.
+- aprender a transformar contratos Python internos em contratos HTTP claros;
+- aprender a separar nucleo de produto e adaptador HTTP;
+- aprender a documentar e testar uma API antes da UI web.
+
+Saida esperada:
+- API local com Swagger/OpenAPI;
+- suite HTTP com `TestClient`;
+- CI minima rodando V1 + API;
+- backlog da Fase 2 reduzido a consumo frontend.
+
+### Fase 2 - Web read-only em cima da API
+
+Meta de entrega:
+- criar `apps/web` em `Next.js`;
+- entregar duas rotas iniciais: `/` e `/companies/[cd_cvm]`;
+- consumir exclusivamente a API da Fase 1.
+
+Meta de aprendizado:
+- aprender a consumir contratos HTTP estaveis sem furar a fronteira do dominio;
+- aprender a construir a primeira UX web sem reabrir decisoes de banco ou regras;
+- aprender navegacao, estado e fetching sobre uma API local/preview.
 
 Saida esperada:
 - uma navegacao web minima funcional;
-- um contrato inicial de API estabilizado;
-- clareza sobre o que pode ser reaproveitado da V1 sem refactor profundo.
+- paridade inicial de busca + detalhe rico de empresa;
+- base pronta para deploy de preview.
 
-### Fase 2 - Primeiro deploy gerenciado
+### Fase 3 - Primeiro deploy gerenciado
 
 Meta de entrega:
 - publicar frontend, API e banco em modo separado;
@@ -87,7 +113,7 @@ Saida esperada:
 - ambiente de teste com `PostgreSQL` remoto;
 - base pronta para Sentry, Codecov e demais ferramentas do Student Pack.
 
-### Fase 3 - Hardening para app real
+### Fase 4 - Hardening para app real
 
 Meta de entrega:
 - adicionar auth quando houver necessidade funcional clara;
@@ -108,20 +134,18 @@ Saida esperada:
 
 ## 5. Proximos passos concretos
 
-1. Registrar a direcao da V2 e do aprendizado nos docs do repo.
-2. Congelar a fronteira da V1: scraper/updater seguem em Python e fora da primeira fatia web.
-3. Definir o contrato da API read-only com base nas consultas atuais.
-4. Criar a primeira UI web minima consumindo a API local.
-5. Testar o slice local completo antes de qualquer deploy remoto.
-6. Publicar o primeiro slice em deploy gerenciado, sem introduzir `Nginx` cedo demais.
-7. Integrar observabilidade e qualidade antes de expandir escopo funcional.
+1. Fechar a Fase 1 com validacao PostgreSQL real.
+2. Criar `apps/web` consumindo apenas a API da Fase 1.
+3. Testar o slice local completo antes de qualquer deploy remoto.
+4. Publicar o primeiro slice em deploy gerenciado, sem introduzir `Nginx` cedo demais.
+5. Integrar observabilidade e qualidade antes de expandir escopo funcional.
 
 ---
 
 ## 6. O que este documento nao faz
 
 - nao muda a stack atual da V1;
-- nao cria `apps/web` ou `apps/api` neste commit;
+- nao substitui a documentacao detalhada da Fase 1 em `docs/V2_PHASE1_BACKEND.md`;
 - nao define provedor especifico de deploy;
 - nao introduz endpoints de escrita;
 - nao substitui o ADR 0002, que continua sendo a decisao arquitetural principal.

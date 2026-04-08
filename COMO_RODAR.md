@@ -3,7 +3,7 @@
 Este guia explica como usar o sistema de coleta e consulta de dados financeiros da CVM, passo a passo.
 Nao e necessario saber programar para seguir as instrucoes.
 
-Fluxo principal atual: `runtime_doctor.py` -> `setup_db.py` -> `setup_companies_table.py` -> `desktop/cvm_pyqt_app.py` -> `dashboard/app.py`.
+Fluxo principal atual: `runtime_doctor.py` -> `setup_db.py` -> `setup_companies_table.py` -> `desktop/cvm_pyqt_app.py` -> `dashboard/app.py` -> `apps/api`.
 
 ---
 
@@ -61,6 +61,11 @@ Com o ambiente virtual ativo:
 pip install -r requirements.txt
 ```
 
+Se voce tambem vai usar a API da V2:
+```powershell
+pip install -r apps/api/requirements-dev.txt
+```
+
 ---
 
 ## Passo 4 - Rodar o diagnostico de runtime
@@ -112,7 +117,7 @@ python scripts/setup_companies_table.py
 Esses scripts:
 - criam indices e tabelas de apoio,
 - preenchem a tabela `companies`,
-- preparam o banco para o app desktop e o dashboard.
+- preparam o banco para o app desktop, dashboard e API.
 
 Opcional:
 ```powershell
@@ -167,30 +172,6 @@ python scripts/atualizar_todos.py --anos 2024 2025
 Os logs principais ficam em `output/logs/`.
 As execucoes headless tambem ficam registradas em `output/logs/refresh_runs.jsonl`.
 
-### Opcao D - Atualizacao automatica aos domingos
-
-Para criar a tarefa agendada no Windows:
-
-```powershell
-$action  = New-ScheduledTaskAction -Execute "powershell.exe" `
-             -Argument "-ExecutionPolicy Bypass -File `"$PWD\scripts\atualizar_dados.ps1`"" `
-             -WorkingDirectory $PWD
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 07:00
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable
-Register-ScheduledTask -TaskName "CVM_Atualizar_Dados" `
-  -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest
-```
-
-Verificar:
-```powershell
-Get-ScheduledTask -TaskName CVM_Atualizar_Dados
-```
-
-Rodar agora:
-```powershell
-Start-ScheduledTask -TaskName CVM_Atualizar_Dados
-```
-
 ---
 
 ## Passo 7 - Abrir o dashboard analitico
@@ -211,14 +192,46 @@ O dashboard consome o contrato de leitura centralizado em `src/read_service.py`.
 
 ---
 
-## Passo 8 - Validar
+## Passo 8 - Subir a API da Fase 1 da V2
+
+A API web desta fase e somente leitura e reaproveita o mesmo contrato headless da V1.
+
+```powershell
+uvicorn apps.api.app.main:app --reload
+```
+
+Abrir:
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
+
+Endpoints principais:
+- `GET /health`
+- `GET /companies`
+- `GET /companies/{cd_cvm}`
+- `GET /companies/{cd_cvm}/years`
+- `GET /companies/{cd_cvm}/statements`
+- `GET /companies/{cd_cvm}/kpis`
+- `GET /refresh-status`
+- `GET /base-health`
+
+Exemplo rapido:
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/companies?search=petro
+```
+
+---
+
+## Passo 9 - Validar
 
 Suite principal:
 ```powershell
 pytest tests/ -q
 ```
 
-Se precisar confirmar o numero de testes, use a suite acima como referencia; os docs mantem o ultimo valor confirmado em `docs/AGENTS.md`.
+Suite da API:
+```powershell
+pytest apps/api/tests -q
+```
 
 Validacoes de workbook/exportacao:
 ```powershell
@@ -232,23 +245,7 @@ Observacao:
 - `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` existem, mas nao sao passos obrigatorios do fluxo principal atual.
 - `src/settings.py` e `.env.example` definem o contrato central de configuracao por ambiente.
 - `scripts/restaurar_historico.py` usa o planner headless para detectar company-years faltantes antes de uma restauracao.
-
----
-
-## Adicionar uma nova empresa
-
-1. Baixe os dados da empresa:
-```powershell
-python main.py --companies NOME_EMPRESA --start_year 2022 --end_year 2025
-```
-
-2. Se precisar mapear ticker manualmente, edite `src/ticker_map.py`:
-```python
-99999: 'NOVO3.SA',   # NOME DA EMPRESA
-```
-
-- `99999` = codigo CVM
-- `'NOVO3.SA'` = ticker no Yahoo Finance
+- `apps/api/app/main.py` e o entrypoint da API read-only da V2.
 
 ---
 
@@ -261,31 +258,5 @@ python main.py --companies NOME_EMPRESA --start_year 2022 --end_year 2025
 | `runtime_doctor.py` falha com `venv-broken` | Recrie a `.venv` com `python -m venv .venv` e reinstale `requirements.txt`. |
 | App abre mas nao mostra empresas | Rode `setup_db.py` e `setup_companies_table.py`, depois atualize dados. |
 | Dashboard vazio | Verifique se a empresa/anos escolhidos ja foram processados e se `financial_reports` tem linhas. |
+| API responde `503` | Valide `runtime_doctor.py`, tabelas obrigatorias e a conexao de banco. |
 | Erro de permissao no PowerShell | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |
-| Batch interrompido | Rode novamente; os scripts de lote evitam reprocessar o que ja foi concluido. |
-| Cotacao nao aparece | Verifique internet e mapeamento de ticker. |
-
----
-
-## Estrutura dos arquivos
-
-```text
-cvm_repots_capture/
-|-- src/                   # Motor do scraper e da consulta
-|-- scripts/               # Automacao, setup, batch e validacoes
-|-- data/db/               # Banco SQLite local
-|-- logs/                  # Registros das atualizacoes
-|-- dashboard/             # App Streamlit read-only
-|-- desktop/               # App desktop PyQt6 (cvm_pyqt_app.py)
-|-- main.py                # CLI para coleta pontual
-`-- requirements.txt       # Dependencias
-```
-
-Para alterar:
-- ticker map: `src/ticker_map.py`
-- conexao de banco: `src/db.py`
-- configuracao e paths: `src/settings.py`
-- diagnostico de bootstrap: `src/startup.py`
-- refresh headless: `src/refresh_service.py`
-- leitura headless: `src/read_service.py`
-- scraper: `src/scraper.py`
