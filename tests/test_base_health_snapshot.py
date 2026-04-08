@@ -6,7 +6,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from desktop.cvm_pyqt_app import IntelligentSelectorService
+from desktop.services import IntelligentSelectorService
 
 
 def _init_db(db_path: Path) -> None:

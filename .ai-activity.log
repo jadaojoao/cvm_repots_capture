@@ -19,3 +19,5 @@
 [2026-04-07T00:00:00Z] ai:claude create .ai-activity.log Initialize traceability log (this file)
 [2026-04-07T00:00:00Z] ai:claude create docs/decisions/0001-desktop-folder.md ADR for moving cvm_pyqt_app.py to desktop/
 [2026-04-07T00:00:00Z] ai:claude create .project-state.json Snapshot of project state after project-architect audit
+
+[2026-04-07T00:00:00] [ai:claude] [refactor] split desktop/cvm_pyqt_app.py (3112 lines) into desktop/services.py, desktop/workers.py, desktop/ui.py, desktop/controller.py; entry point reduced to ~40 lines; fixed Path(__file__).parent bug (now .parent.parent in workers/entrypoint); updated test imports
