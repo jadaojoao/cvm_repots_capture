@@ -4,7 +4,7 @@ Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM,
 
 ## Estrutura principal
 
-- `cvm_pyqt_app.py`: [OFICIAL] app desktop em PyQt6 para atualizacao local e operacao do refresh.
+- `desktop/cvm_pyqt_app.py`: [OFICIAL] app desktop em PyQt6 para atualizacao local e operacao do refresh.
 - `main.py`: CLI suportada para rodar o scraper de forma pontual.
 - `src/`: pipeline de captura, padronizacao, consulta e exportacao.
 - `scripts/`: scripts auxiliares, setup de banco, batches e validacoes.
@@ -28,7 +28,7 @@ python scripts/setup_companies_table.py
 
 3. Atualizar dados pela interface operacional principal:
 ```bash
-python cvm_pyqt_app.py
+python desktop/cvm_pyqt_app.py
 ```
 
 4. Alternativa para coleta pontual via CLI:
@@ -79,7 +79,7 @@ Modo inteligente para atualizacao:
 - botao para abrir o dashboard local.
 
 ```powershell
-python cvm_pyqt_app.py
+python desktop/cvm_pyqt_app.py
 ```
 
 ### 2. Dashboard Analitico (Streamlit)
@@ -102,6 +102,6 @@ O motor de captura foi reconstruido para suportar repopulacoes massivas sem trav
 
 ## Observacoes
 
-- Prefira `cvm_pyqt_app.py` como interface operacional principal.
+- Prefira `desktop/cvm_pyqt_app.py` como interface operacional principal.
 - O dashboard atual possui 3 abas. Referencias antigas a 9 abas nos docs estao desatualizadas.
 - Erros de lote sao gravados em `output/logs/batch_errors.log`.

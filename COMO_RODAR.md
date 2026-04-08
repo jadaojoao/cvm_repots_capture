@@ -3,7 +3,7 @@
 Este guia explica como usar o sistema de coleta e consulta de dados financeiros da CVM, passo a passo.
 Nao e necessario saber programar para seguir as instrucoes.
 
-Fluxo principal atual: `setup_db.py` -> `setup_companies_table.py` -> `cvm_pyqt_app.py` -> `dashboard/app.py`.
+Fluxo principal atual: `setup_db.py` -> `setup_companies_table.py` -> `desktop/cvm_pyqt_app.py` -> `dashboard/app.py`.
 
 ---
 
@@ -91,7 +91,7 @@ python scripts/expand_tickers.py --dry-run
 Este e o caminho principal do projeto.
 
 ```powershell
-python cvm_pyqt_app.py
+python desktop/cvm_pyqt_app.py
 ```
 
 No app:
@@ -233,7 +233,7 @@ cvm_repots_capture/
 |-- data/db/               # Banco SQLite local
 |-- logs/                  # Registros das atualizacoes
 |-- dashboard/             # App Streamlit read-only
-|-- cvm_pyqt_app.py        # App desktop PyQt6
+|-- desktop/               # App desktop PyQt6 (cvm_pyqt_app.py)
 |-- main.py                # CLI para coleta pontual
 `-- requirements.txt       # Dependencias
 ```

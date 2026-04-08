@@ -18,7 +18,7 @@ Hybrid Python project: a CLI scraper that extracts DFP/ITR financial reports fro
 streamlit run dashboard/app.py
 
 # Desktop GUI (PyQt6 — official; handles data refresh)
-python cvm_pyqt_app.py
+python desktop/cvm_pyqt_app.py
 
 # CLI scraper
 python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated
@@ -71,10 +71,11 @@ CVM website → `src/scraper.py` (CVMScraper) → `src/standardizer.py` (Account
 - `src/kpi_engine.py` — `compute_all_kpis()`, `compute_quarterly_kpis()`: 60+ financial indicators (ROE, ROA, margins, solvency, etc.). Outputs include `UNIDADE` column (`"%"` or `"x"`). Quarterly mode trims leading periods where LTM flow KPIs are not computable.
 - `src/ticker_map.py` — B3 ticker ↔ CVM code mapping utilities
 - `src/excel_exporter.py` — Excel report generation with QA logs and validations. KPI sheet has columns: INDICADOR, FÓRMULA, UNIDADE, [periods], Δ YoY, Tendência. Category headers use individual cell writes (no merge_range).
+- `src/statement_summary.py` — condensed multi-block statement builder (DRE, BPA, BPP, DFC). Filters to subtotal/summary `CD_CONTA` codes and optionally expands direct children. Used for high-level views without loading full pivot tables.
 
 ### Database
 
-- **Local**: `data/db/cvm_financials.db` (SQLite, WAL mode)
+- **Local**: `data/db/cvm_financials.db` (SQLite, WAL mode); `data/cache/base_health_snapshot.json` stores the last base-health check result (committed to git, updated by PyQt6 app)
 - **Production**: PostgreSQL via `DATABASE_URL`
 - Connection fallback order: `DATABASE_URL` → SQLite (in `src/db.py`)
 - Write path lives in `src/database.py`; read/query path lives in `src/query_layer.py`
@@ -122,6 +123,7 @@ Active scripts in `scripts/`. Key ones:
 - `scripts/restaurar_historico.py` — restore historical data
 - `scripts/patch_database_sectors_v2.py` — sector metadata patching
 - `scripts/sync_docs_check.py` — warns when docs are out of sync with code changes
+- `scripts/validation/` — one-off diagnostic scripts (DFC standalone verification, missing quarters, trimestral checks); safe to run as read-only audits
 
 Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 
@@ -160,4 +162,4 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 - Tests use `unittest.mock.patch` — no real CVM API calls or DB writes
 - Fixtures provide mocked `CVMScraper`, `CVMDatabase`, `AccountStandardizer`
 - `conftest.py` at repo root inserts the project root into `sys.path` (required for `cvm_pyqt_app` imports)
-- Test files: `test_scraper.py`, `test_cvm_pyqt_app.py`, `test_base_health_snapshot.py`, `test_database_portability.py`
+- Test files: `test_scraper.py`, `test_cvm_pyqt_app.py`, `test_base_health_snapshot.py`, `test_database_portability.py`, `test_excel_exporter.py`, `test_statement_summary.py`, `test_utils.py`

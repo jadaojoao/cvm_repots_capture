@@ -38,6 +38,7 @@ docs/references/sites_ex/
 
 # Logs
 *.log
+!.ai-activity.log
 logs/
 
 # Browser test artifacts

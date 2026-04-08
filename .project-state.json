@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-04-07T00:00:00Z",
+  "repository": "cvm_repots_capture",
+  "skill_version": "project-architect@1.0",
+  "maturity_level": "mature",
+  "stack": ["python", "pyqt6", "streamlit", "sqlalchemy", "sqlite", "postgresql", "pandas", "plotly"],
+  "layout_strategy": "src-layout + flat scripts",
+  "decisions_adopted": [
+    "docs/decisions/0001-desktop-folder.md"
+  ],
+  "conventions": {
+    "naming": "snake_case",
+    "commit_prefix": "ai(scope) for AI changes, feat/fix/chore for human",
+    "test_dir": "tests/",
+    "key_column": "LINE_ID_BASE (never LINE_ID)",
+    "db_tables_core": "UPPER_CASE (financial_reports)",
+    "db_tables_meta": "snake_case (companies, account_names)"
+  },
+  "structure_snapshot": {
+    "root_dirs": ["src", "dashboard", "desktop", "scripts", "tests", "docs", "data", "output", "logs"],
+    "root_py_files": ["main.py", "conftest.py"],
+    "context_files": ["CLAUDE.md", "README.md", "COMO_RODAR.md", "docs/CONTEXT.md", "docs/AGENTS.md"],
+    "traceability_files": [".ai-activity.log", "docs/decisions/", ".project-state.json"]
+  },
+  "database": {
+    "local": "data/db/cvm_financials.db",
+    "companies": 449,
+    "records": 1735340,
+    "years": "2022-2025"
+  },
+  "test_modules": 7,
+  "last_audit": {
+    "date": "2026-04-07",
+    "findings": 6,
+    "applied": 4,
+    "status": "applied"
+  }
+}

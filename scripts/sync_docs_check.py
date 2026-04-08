@@ -32,7 +32,7 @@ SYNC_TABLE: dict[str, list[str]] = {
     "scripts/":             ["README.md (workflow)", "COMO_RODAR.md (setup/validation)", "CLAUDE.md (Scripts Structure)"],
     "tests/":               ["docs/AGENTS.md (test count in Estado Atual)", "README.md (verification section)"],
     "requirements.txt":     ["docs/CONTEXT.md (Stack section)", "COMO_RODAR.md (install step)"],
-    "cvm_pyqt_app.py":      ["README.md (operational UI)", "COMO_RODAR.md (update flow)", "docs/AGENTS.md (App Desktop section)"],
+    "desktop/cvm_pyqt_app.py": ["README.md (operational UI)", "COMO_RODAR.md (update flow)", "docs/AGENTS.md (App Desktop section)"],
     "docs/":                [],  # doc changes don't trigger other doc updates
 }
 

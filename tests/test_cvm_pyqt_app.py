@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cvm_pyqt_app import IntelligentSelectorService, UpdateWorker, _minmax_normalize, _safe_name
+from desktop.cvm_pyqt_app import IntelligentSelectorService, UpdateWorker, _minmax_normalize, _safe_name
 
 
 def _create_db(path: Path):
@@ -468,7 +468,7 @@ def test_scan_processed_statement_presence_uses_incremental_index_cache(tmp_path
     cache_payload = json.loads(cache_path.read_text(encoding="utf-8"))
     assert "itr_cia_aberta_BPA_con_2025.csv" in cache_payload.get("files", {})
 
-    with patch("cvm_pyqt_app.pd.read_csv", side_effect=RuntimeError("should not read csv")):
+    with patch("desktop.cvm_pyqt_app.pd.read_csv", side_effect=RuntimeError("should not read csv")):
         presence_second = service._scan_processed_statement_presence(2025, 2025)
 
     assert presence_second == presence_first

@@ -1,0 +1,21 @@
+[2026-04-07T00:00:00Z] human+ai create CLAUDE.md Created project context file for AI assistants (session 1)
+[2026-04-07T00:00:00Z] human+ai create docs/CONTEXT.md Business rules, pipeline details and troubleshooting reference
+[2026-04-07T00:00:00Z] human+ai create docs/AGENTS.md Session history and current state tracker for AI agents
+[2026-04-07T00:00:00Z] human+ai create src/kpi_engine.py 60+ financial KPI engine (ROE, ROA, margins, solvency, etc.)
+[2026-04-07T00:00:00Z] human+ai create src/excel_exporter.py Excel report generation with QA logs and validations
+[2026-04-07T00:00:00Z] human+ai create src/statement_summary.py Condensed multi-block statement builder (DRE, BPA, BPP, DFC)
+[2026-04-07T00:00:00Z] human+ai create dashboard/ Streamlit analytics dashboard (3 tabs: Visão Geral, Demonstrações, Download)
+[2026-04-07T00:00:00Z] human+ai create tests/ pytest test suite — 7 modules covering scraper, KPIs, Excel, DB portability
+[2026-04-07T00:00:00Z] ai:claude modify CLAUDE.md Updated: added statement_summary.py, scripts/validation/, 3 test files, base_health_snapshot path
+[2026-04-07T00:00:00Z] ai:claude move cvm_pyqt_app.py Moved root cvm_pyqt_app.py → desktop/cvm_pyqt_app.py; created desktop/__init__.py
+[2026-04-07T00:00:00Z] ai:claude modify tests/test_cvm_pyqt_app.py Updated import: from cvm_pyqt_app → from desktop.cvm_pyqt_app
+[2026-04-07T00:00:00Z] ai:claude modify tests/test_base_health_snapshot.py Updated import: from cvm_pyqt_app → from desktop.cvm_pyqt_app
+[2026-04-07T00:00:00Z] ai:claude modify CLAUDE.md Updated run command: python cvm_pyqt_app.py → python desktop/cvm_pyqt_app.py
+[2026-04-07T00:00:00Z] ai:claude modify COMO_RODAR.md Updated run command and file structure diagram
+[2026-04-07T00:00:00Z] ai:claude modify README.md Updated all references to cvm_pyqt_app.py → desktop/cvm_pyqt_app.py
+[2026-04-07T00:00:00Z] ai:claude modify scripts/sync_docs_check.py Updated SYNC_TABLE key: cvm_pyqt_app.py → desktop/cvm_pyqt_app.py
+[2026-04-07T00:00:00Z] ai:claude decide docs/decisions/ ADR-0001: move desktop app to dedicated folder
+[2026-04-07T00:00:00Z] ai:claude create .env.example Document DATABASE_URL and SQLITE_PATH environment variables
+[2026-04-07T00:00:00Z] ai:claude create .ai-activity.log Initialize traceability log (this file)
+[2026-04-07T00:00:00Z] ai:claude create docs/decisions/0001-desktop-folder.md ADR for moving cvm_pyqt_app.py to desktop/
+[2026-04-07T00:00:00Z] ai:claude create .project-state.json Snapshot of project state after project-architect audit
