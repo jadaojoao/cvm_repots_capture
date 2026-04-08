@@ -55,6 +55,20 @@
 
 ## Sessoes Recentes
 
+### Sessao 26 - 2026-04-07 (ADR da stack V2 com Student Pack)
+- `docs/decisions/0002-student-pack-v2-stack.md` criado para congelar a recomendacao da V2
+- Stack recomendada registrada como `Next.js` + `FastAPI/Uvicorn` + `PostgreSQL` + `Ubuntu Linux`
+- `Nginx` registrado como opcional no inicio, apenas para self-hosting/reverse proxy
+- Correcao documental: evitar citar `Copilot Pro`; usar formulacao neutra `GitHub Copilot` e revalidar o beneficio vigente na pagina oficial
+- `docs/STUDENT_PACK_PLAN.md` atualizado para apontar para o ADR 0002
+
+### Sessao 27 - 2026-04-07 (roadmap da transformacao web + aprendizado)
+- `docs/WEBAPP_TRANSFORMATION_PLAN.md` criado para registrar a execucao da V1 para a V2
+- O repo passa a registrar explicitamente proposito duplo: sistema operacional atual + trilha de aprendizado por construcao
+- Primeiro slice da V2 documentado como `Next.js` read-only consumindo API `FastAPI` read-only
+- Deploy inicial assumido como gerenciado e separado por camada; `Nginx` segue opcional e tardio
+- `README.md` e `docs/STUDENT_PACK_PLAN.md` atualizados para apontar para o roadmap da transformacao web
+
 ### Sessao 24 - 2026-04-05 (student pack roadmap)
 - `docs/STUDENT_PACK_PLAN.md` criado como documento-base para registrar beneficios do GitHub Student Pack e os proximos 60 dias
 - Roadmap consolidado em produtividade, cloud, observabilidade/qualidade e descoberta da V2

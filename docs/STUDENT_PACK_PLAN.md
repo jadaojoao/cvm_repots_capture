@@ -20,6 +20,29 @@ Direcao para os proximos 60 dias:
 - preparar uma V2 em formato `frontend + API + Postgres`;
 - adiar a escolha exata de framework para depois da fase inicial de estudo.
 
+Atualizacao em 2026-04-07:
+- a stack recomendada para a V2 foi congelada no ADR [0002 - Stack recomendada para a V2 com GitHub Student Developer Pack](./decisions/0002-student-pack-v2-stack.md);
+- a execucao da transformacao passa a ser acompanhada em [WEBAPP_TRANSFORMATION_PLAN.md](./WEBAPP_TRANSFORMATION_PLAN.md);
+- direcao escolhida: `Next.js` + `FastAPI/Uvicorn` + `PostgreSQL` + `Ubuntu Linux`;
+- `Nginx` fica opcional no inicio e entra apenas quando houver self-hosting ou necessidade real de reverse proxy.
+
+## 1.1 Aprendizado por construcao
+
+Este projeto nao e apenas uma migracao de stack. Ele tambem funciona como trilha pratica de aprendizado em:
+- arquitetura web moderna sobre uma base Python ja existente;
+- separacao entre frontend, API e banco compartilhado;
+- deploy gerenciado, observabilidade e qualidade de software;
+- tomada de decisao incremental sem descartar a V1 operacional.
+
+Por isso, o Student Pack entra em duas frentes ao mesmo tempo:
+- **frente de entrega:** acelerar a descoberta e a construcao da V2;
+- **frente de aprendizado:** usar a propria evolucao do projeto para aprender fullstack, deploy e operacao com contexto real.
+
+Sequencia adotada:
+1. `docs/decisions/0002-student-pack-v2-stack.md` congela a stack recomendada.
+2. `docs/WEBAPP_TRANSFORMATION_PLAN.md` define as fases, o primeiro slice tecnico e os objetivos de aprendizado.
+3. `docs/STUDENT_PACK_PLAN.md` registra como os beneficios do Pack apoiam essa trajetoria.
+
 ---
 
 ## 2. Legenda de status

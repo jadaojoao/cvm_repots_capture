@@ -2,6 +2,8 @@
 
 Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM, com persistencia em SQLite/PostgreSQL, app desktop operacional em PyQt6 e dashboard analitico em Streamlit.
 
+> Este repositorio tem proposito duplo: manter o sistema operacional atual funcionando e servir como trilha de aprendizado para evolui-lo rumo a uma web app mais proxima de producao. A direcao da V2 esta registrada em [docs/decisions/0002-student-pack-v2-stack.md](docs/decisions/0002-student-pack-v2-stack.md), no [docs/STUDENT_PACK_PLAN.md](docs/STUDENT_PACK_PLAN.md) e no roadmap de execucao [docs/WEBAPP_TRANSFORMATION_PLAN.md](docs/WEBAPP_TRANSFORMATION_PLAN.md).
+
 ## Estrutura principal
 
 - `desktop/cvm_pyqt_app.py`: [OFICIAL] app desktop em PyQt6 para atualizacao local e operacao do refresh.
@@ -11,7 +13,7 @@ Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM,
 - `data/`: entrada, metadados, cache e banco SQLite local (`cvm_financials.db`).
 - `output/`: artefatos gerados, incluindo relatórios e logs.
 - `dashboard/`: aplicacao analitica em Streamlit com 3 abas: `Visao Geral`, `Demonstracoes` e `Download`.
-- `docs/`: documentacao de referencia (`CONTEXT.md`, `AGENTS.md`, `AUDIT.md`, `STUDENT_PACK_PLAN.md`).
+- `docs/`: documentacao de referencia (`CONTEXT.md`, `AGENTS.md`, `AUDIT.md`, `STUDENT_PACK_PLAN.md`, `WEBAPP_TRANSFORMATION_PLAN.md`).
 
 ## Fluxo recomendado (estado atual)
 
