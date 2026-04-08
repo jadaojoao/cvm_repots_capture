@@ -445,10 +445,12 @@ def test_update_worker_build_company_year_plan_fast_lane_recent_years(tmp_path):
     )
     planned_companies, year_overrides, stats = worker._build_company_year_plan(db_path)
 
+    # MAX_AUTO_REPORTING_YEAR_LAG=1 caps scope at current_year-1; current_year is excluded.
+    # FAST_LANE_RECENT_YEARS=2 → recent_floor=current_year-1, so only [current_year-1] qualifies.
     assert planned_companies == ["9512"]
-    assert year_overrides[9512] == [current_year - 1, current_year]
-    assert stats["planned_company_years"] == 2
-    assert stats["deferred_fast_lane_company_years"] == 2
+    assert year_overrides[9512] == [current_year - 1]
+    assert stats["planned_company_years"] == 1
+    assert stats["deferred_fast_lane_company_years"] == 2  # current_year-3 and current_year-2 deferred
 
 
 def test_scan_processed_statement_presence_uses_incremental_index_cache(tmp_path):
