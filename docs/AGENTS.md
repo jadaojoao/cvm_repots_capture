@@ -83,7 +83,7 @@
 - `AGENTS.md` criado na raiz como contrato operacional para agentes e contribuidores
 - `.github/ISSUE_TEMPLATE/` criado com forms de `epic` e `task`; blank issues desabilitadas
 - `.github/PULL_REQUEST_TEMPLATE.md` criado com referencia obrigatoria a issue
-- `.github/workflows/pr-issue-guardrails.yml` criado para validar branch `codex/<issue-number>-<slug>`, `Closes #<issue>` e label `kind:task`
+- `.github/workflows/pr-issue-guardrails.yml` criado para validar branch `task/<issue-number>-<slug>`, `Closes #<issue>` e label `kind:task`
 - `CLAUDE.md` atualizado para abandonar `tasks/todo.md` e seguir fluxo issue-first
 - `docs/STUDENT_PACK_PLAN.md` atualizado para apontar para milestone/epics/tasks do GitHub em vez de espelhar backlog diario
 - Labels operacionais criadas no GitHub: `kind:*`, `status:*`, `priority:*`, `area:*`

@@ -16,7 +16,7 @@ Closes #
 
 ## Checklist
 
-- [ ] a branch segue `codex/<issue-number>-<slug>`
+- [ ] a branch segue `task/<issue-number>-<slug>`
 - [ ] a issue vinculada esta atualizada com checklist/status/evidencias
 - [ ] docs relevantes foram atualizados quando necessario
 - [ ] PR em draft apenas enquanto o trabalho ou as validacoes ainda estiverem incompletos

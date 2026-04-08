@@ -17,7 +17,7 @@ Before changing any versioned file:
 1. Find or create an open `task issue` in GitHub.
 2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, and one `area:*` label.
 3. Update the issue when work starts and keep the checklist/evidence current.
-4. Work in a branch named `codex/<issue-number>-<slug>`.
+4. Work in a branch named `task/<issue-number>-<slug>`.
 5. Open a PR with `Closes #<issue-number>` in the body.
 6. Update the issue and relevant docs before considering the task complete.
 7. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
@@ -231,7 +231,7 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 ## Issue Management
 
 1. **Issue First**: no executable work starts without a `task issue`
-2. **Branch From Issue**: use `codex/<issue-number>-<slug>`
+2. **Branch From Issue**: use `task/<issue-number>-<slug>`
 3. **Track Progress in Issue**: keep status, checklist, and evidence current
 4. **Close via PR**: use `Closes #<issue-number>` in the PR body
 5. **Keep Docs Durable**: ADRs and durable docs stay in `docs/`; operational state stays in GitHub Issues
