@@ -62,7 +62,7 @@ export function CompanySearchHero({
 
         if (!response.ok) {
           setSuggestions([]);
-          setSuggestionError(payload.error ?? "Não foi possível buscar sugestões.");
+          setSuggestionError(payload.error ?? "Nao foi possivel buscar sugestoes.");
           return;
         }
 
@@ -72,7 +72,7 @@ export function CompanySearchHero({
           return;
         }
         setSuggestions([]);
-        setSuggestionError("Não foi possível buscar sugestões.");
+        setSuggestionError("Nao foi possivel buscar sugestoes.");
       } finally {
         if (active) {
           setLoadingSuggestions(false);
@@ -123,15 +123,15 @@ export function CompanySearchHero({
       <div className="relative space-y-6">
         <div className="space-y-4">
           <Badge className="rounded-full bg-secondary px-3 py-1 text-[0.68rem] uppercase tracking-[0.2em] text-secondary-foreground">
-            Descoberta orientada a análise
+            Descoberta orientada a analise
           </Badge>
           <div className="space-y-4">
             <h1 className="max-w-4xl font-heading text-4xl leading-[1.02] tracking-[-0.05em] text-foreground sm:text-5xl lg:text-6xl">
-              Entre por empresa e vá direto ao histórico que importa.
+              Entre por empresa e va direto ao historico que importa.
             </h1>
             <p className="max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-              Busque companhias abertas pelo nome, ticker ou código CVM e caia
-              direto em uma leitura pública, rápida e rastreável dos números.
+              Busque companhias abertas pelo nome, ticker ou codigo CVM e caia
+              direto em uma leitura publica, rapida e rastreavel dos numeros.
             </p>
           </div>
         </div>
@@ -184,7 +184,7 @@ export function CompanySearchHero({
               <div className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-20 overflow-hidden rounded-[1.5rem] border border-border/70 bg-background/98 shadow-[0_20px_50px_-35px_rgba(16,30,24,0.35)]">
                 {loadingSuggestions ? (
                   <p className="px-5 py-4 text-sm text-muted-foreground">
-                    Buscando sugestões…
+                    Buscando sugestoes...
                   </p>
                 ) : suggestionError ? (
                   <p className="px-5 py-4 text-sm text-destructive">{suggestionError}</p>
@@ -202,7 +202,7 @@ export function CompanySearchHero({
                               {item.company_name}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {item.ticker_b3 ?? "Sem ticker"} · CVM {item.cd_cvm}
+                              {item.ticker_b3 ?? "Sem ticker"} - CVM {item.cd_cvm}
                             </p>
                           </div>
                           <div className="space-y-1 text-right">
@@ -223,7 +223,7 @@ export function CompanySearchHero({
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1.5">
-            {apiAvailable ? "API pronta para busca" : "API indisponível no momento"}
+            {apiAvailable ? "API pronta para busca" : "API indisponivel no momento"}
           </span>
           {totalCompanies !== null ? (
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1.5">

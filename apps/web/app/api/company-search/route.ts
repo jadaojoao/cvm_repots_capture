@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { fetchCompanies } from "@/lib/api";
+import { fetchCompanies, getUserFacingErrorMessage } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       items: payload.items,
     });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
       {
         items: [],
-        error: "Não foi possível buscar sugestões.",
+        error: getUserFacingErrorMessage(error),
       },
       { status: 503 },
     );

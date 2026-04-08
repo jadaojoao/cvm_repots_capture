@@ -92,7 +92,11 @@ export function mergeSearchParams(
   const params = new URLSearchParams(currentSearch);
 
   Object.entries(updates).forEach(([key, value]) => {
-    if (value === undefined || value === null || value === "") {
+    if (value === undefined) {
+      return;
+    }
+
+    if (value === null || value === "") {
       params.delete(key);
       return;
     }

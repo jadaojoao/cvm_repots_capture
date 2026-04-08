@@ -22,16 +22,25 @@ type CompanyDirectoryFiltersProps = {
   currentSearch: string;
   currentSector: string | null;
   sectors: CompanySectorFilter[];
+  sectorFilterUnavailable?: boolean;
 };
 
 export function CompanyDirectoryFilters({
   currentSearch,
   currentSector,
   sectors,
+  sectorFilterUnavailable = false,
 }: CompanyDirectoryFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(currentSearch);
+  const hasCurrentSector = sectors.some(
+    (sector) => sector.sector_slug === currentSector,
+  );
+  const selectValue =
+    sectorFilterUnavailable || !hasCurrentSector
+      ? "all"
+      : currentSector ?? "all";
 
   function pushFilters(updates: Record<string, string | number | null | undefined>) {
     const query = mergeSearchParams(searchParams.toString(), updates);
@@ -49,8 +58,13 @@ export function CompanyDirectoryFilters({
       sector: currentSector,
       source: "search",
     });
+
     pushFilters({
       busca: search.trim() || null,
+      setor:
+        sectorFilterUnavailable || (currentSector !== null && !hasCurrentSector)
+          ? null
+          : undefined,
       pagina: null,
     });
   }
@@ -66,14 +80,15 @@ export function CompanyDirectoryFilters({
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Buscar por nome, ticker ou código CVM"
+          placeholder="Buscar por nome, ticker ou codigo CVM"
           className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
         />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row lg:w-auto">
         <Select
-          value={currentSector ?? "all"}
+          value={selectValue}
+          disabled={sectorFilterUnavailable}
           onValueChange={(value) => {
             const nextSector = value === "all" ? null : value;
             track("companies_filter_changed", {
@@ -88,16 +103,24 @@ export function CompanyDirectoryFilters({
           }}
         >
           <SelectTrigger className="h-11 min-w-52 rounded-[1.1rem] bg-background px-4">
-            <SelectValue placeholder="Todos os setores" />
+            <SelectValue
+              placeholder={
+                sectorFilterUnavailable
+                  ? "Filtro setorial indisponivel"
+                  : "Todos os setores"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Todos os setores</SelectItem>
-              {sectors.map((sector) => (
-                <SelectItem key={sector.sector_slug} value={sector.sector_slug}>
-                  {sector.sector_name} · {sector.company_count}
-                </SelectItem>
-              ))}
+              {!sectorFilterUnavailable
+                ? sectors.map((sector) => (
+                    <SelectItem key={sector.sector_slug} value={sector.sector_slug}>
+                      {sector.sector_name} - {sector.company_count}
+                    </SelectItem>
+                  ))
+                : null}
             </SelectGroup>
           </SelectContent>
         </Select>

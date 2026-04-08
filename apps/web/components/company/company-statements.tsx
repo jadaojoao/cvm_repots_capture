@@ -18,11 +18,11 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
     return (
       <div className="rounded-[1.5rem] border border-dashed border-border bg-background/70 px-6 py-14 text-center">
         <p className="font-heading text-2xl text-foreground">
-          Sem demonstração disponível.
+          Sem demonstracao disponivel.
         </p>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
-          Ajuste o período selecionado ou troque o tipo de demonstração para
-          consultar outra visão disponível.
+          Ajuste o periodo selecionado ou troque o tipo de demonstracao para
+          consultar outra visao disponivel.
         </p>
       </div>
     );
@@ -71,7 +71,7 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
                           isSubtotal ? "font-semibold" : "",
                         )}
                       >
-                        {accountCode} · {String(row.DS_CONTA ?? "Conta")}
+                        {accountCode} - {String(row.DS_CONTA ?? "Conta")}
                       </p>
                       <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                         {String(row.STANDARD_NAME ?? row.DS_CONTA ?? "")}

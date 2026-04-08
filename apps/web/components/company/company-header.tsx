@@ -41,7 +41,7 @@ export function CompanyHeader({
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <Badge className="rounded-full bg-secondary px-3 py-1 text-[0.68rem] uppercase tracking-[0.18em] text-secondary-foreground">
-                PG-03 · Detalhe da empresa
+                PG-03 - Detalhe da empresa
               </Badge>
               <Badge
                 variant="outline"

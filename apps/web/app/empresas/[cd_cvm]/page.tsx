@@ -8,13 +8,16 @@ import { CompanyOverview } from "@/components/company/company-overview";
 import { CompanyStatements } from "@/components/company/company-statements";
 import { CompanyUrlTabs } from "@/components/company/company-url-tabs";
 import { CompanyYearSelector } from "@/components/company/company-year-selector";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import {
+  type CompanyInfo,
   fetchCompanyInfo,
   fetchCompanyKpis,
   fetchCompanyStatement,
   fetchCompanyYears,
+  getUserFacingErrorMessage,
+  isApiClientError,
 } from "@/lib/api";
 import { DETAIL_TABS, STATEMENT_OPTIONS } from "@/lib/constants";
 import {
@@ -32,21 +35,53 @@ type EmpresaDetailPageProps = {
 
 export const dynamic = "force-dynamic";
 
+function DetailPageError({
+  message,
+}: {
+  message: string;
+}) {
+  return (
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-16 sm:px-6">
+      <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+        <AlertTitle>Leitura detalhada indisponivel</AlertTitle>
+        <AlertDescription>{message}</AlertDescription>
+      </Alert>
+      <Link
+        href="/empresas"
+        className={cn(
+          buttonVariants({ variant: "outline", size: "lg" }),
+          "w-fit rounded-full px-5",
+        )}
+      >
+        Voltar para o diretorio
+      </Link>
+    </div>
+  );
+}
+
 export async function generateMetadata({
   params,
 }: EmpresaDetailPageProps): Promise<Metadata> {
   const { cd_cvm } = await params;
-  const company = await fetchCompanyInfo(Number(cd_cvm)).catch(() => null);
+  let company = null;
+
+  try {
+    company = await fetchCompanyInfo(Number(cd_cvm));
+  } catch {
+    return {
+      title: "Leitura de empresa indisponivel",
+    };
+  }
 
   if (!company) {
     return {
-      title: "Empresa não encontrada",
+      title: "Empresa nao encontrada",
     };
   }
 
   return {
     title: company.company_name,
-    description: `Leitura detalhada de ${company.company_name} com KPIs anuais, seleção de anos e demonstrações financeiras da CVM.`,
+    description: `Leitura detalhada de ${company.company_name} com KPIs anuais, selecao de anos e demonstracoes financeiras da CVM.`,
   };
 }
 
@@ -59,12 +94,25 @@ export default async function EmpresaDetailPage({
   const cdCvm = Number(cd_cvm);
   const pathname = `/empresas/${cdCvm}`;
 
-  const company = await fetchCompanyInfo(cdCvm);
+  let company: CompanyInfo | null = null;
+  let availableYears: number[] = [];
+
+  try {
+    [company, availableYears] = await Promise.all([
+      fetchCompanyInfo(cdCvm),
+      fetchCompanyYears(cdCvm),
+    ]);
+  } catch (error) {
+    if (isApiClientError(error) && error.code === "not_found") {
+      notFound();
+    }
+    return <DetailPageError message={getUserFacingErrorMessage(error)} />;
+  }
+
   if (!company) {
     notFound();
   }
 
-  const availableYears = await fetchCompanyYears(cdCvm);
   if (availableYears.length === 0) {
     notFound();
   }
@@ -78,34 +126,20 @@ export default async function EmpresaDetailPage({
 
   let bundle = null;
   let statement = null;
-  let errorMessage: string | null = null;
+  let contentError: string | null = null;
 
-  try {
-    [bundle, statement] = await Promise.all([
-      fetchCompanyKpis(cdCvm, selectedYears),
-      fetchCompanyStatement(cdCvm, selectedYears, currentStatement),
-    ]);
-  } catch (error) {
-    errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Não foi possível carregar a leitura detalhada desta empresa.";
-  }
-
-  if (!bundle || !statement) {
-    return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-16 sm:px-6">
-        <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-sm leading-7 text-destructive">
-          {errorMessage ?? "Não foi possível carregar a leitura detalhada desta empresa."}
-        </Alert>
-        <Link
-          href="/empresas"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-fit rounded-full px-5")}
-        >
-          Voltar para o diretório
-        </Link>
-      </div>
-    );
+  if (currentTab === "visao-geral") {
+    try {
+      bundle = await fetchCompanyKpis(cdCvm, selectedYears);
+    } catch (error) {
+      contentError = getUserFacingErrorMessage(error);
+    }
+  } else {
+    try {
+      statement = await fetchCompanyStatement(cdCvm, selectedYears, currentStatement);
+    } catch (error) {
+      contentError = getUserFacingErrorMessage(error);
+    }
   }
 
   return (
@@ -127,8 +161,8 @@ export default async function EmpresaDetailPage({
               Filtro temporal
             </p>
             <p className="text-sm leading-7 text-muted-foreground">
-              Quando nenhum parâmetro é informado, a página usa os três anos mais
-              recentes disponíveis.
+              Quando nenhum parametro e informado, a pagina usa os tres anos mais
+              recentes disponiveis.
             </p>
           </div>
           <CompanyYearSelector
@@ -147,12 +181,22 @@ export default async function EmpresaDetailPage({
       />
 
       {currentTab === "visao-geral" ? (
-        <CompanyOverview bundle={bundle} />
+        bundle ? (
+          <CompanyOverview bundle={bundle} />
+        ) : (
+          <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+            <AlertTitle>Visao geral indisponivel</AlertTitle>
+            <AlertDescription>
+              {contentError ??
+                "Nao foi possivel carregar os KPIs desta empresa agora."}
+            </AlertDescription>
+          </Alert>
+        )
       ) : (
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-              Tipo de demonstração
+              Tipo de demonstracao
             </p>
             <CompanyUrlTabs
               pathname={pathname}
@@ -162,7 +206,17 @@ export default async function EmpresaDetailPage({
               eventName="company_statement_changed"
             />
           </div>
-          <CompanyStatements matrix={statement} />
+          {statement ? (
+            <CompanyStatements matrix={statement} />
+          ) : (
+            <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+              <AlertTitle>Demonstracao indisponivel</AlertTitle>
+              <AlertDescription>
+                {contentError ??
+                  "Nao foi possivel carregar esta demonstracao agora."}
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       )}
     </div>

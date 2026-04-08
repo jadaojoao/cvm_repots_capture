@@ -44,7 +44,7 @@ export function CompanyUrlTabs({
         });
       }}
     >
-      <TabsList variant="line" className="gap-2 p-0">
+      <TabsList variant="underline" className="gap-2 p-0">
         {options.map((option) => (
           <TabsTrigger
             key={option.value}

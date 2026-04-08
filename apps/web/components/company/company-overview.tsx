@@ -34,10 +34,10 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
       <section className="space-y-5">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            Visão geral
+            Visao geral
           </p>
           <h2 className="font-heading text-2xl text-foreground">
-            Indicadores-chave do período selecionado
+            Indicadores-chave do periodo selecionado
           </h2>
         </div>
 
@@ -63,7 +63,7 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                       variant="outline"
                       className="rounded-full border-border/80 bg-background/70 text-[0.68rem] uppercase tracking-[0.14em] text-muted-foreground"
                     >
-                      {lastYear ?? "—"}
+                      {lastYear ?? "-"}
                     </Badge>
                   </div>
                   <div className="space-y-2">
@@ -100,7 +100,7 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                 {yearColumns.map((year) => (
                   <TableHead key={year}>{year}</TableHead>
                 ))}
-                <TableHead>Δ YoY</TableHead>
+                <TableHead>Delta YoY</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

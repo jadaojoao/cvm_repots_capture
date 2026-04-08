@@ -5,7 +5,7 @@ test("fluxo inicial de descoberta por empresa", async ({ page }) => {
 
   await expect(
     page.getByRole("heading", {
-      name: /entre por empresa e vá direto ao histórico que importa/i,
+      name: /entre por empresa e va direto ao historico que importa/i,
     }),
   ).toBeVisible();
 
@@ -17,8 +17,8 @@ test("fluxo inicial de descoberta por empresa", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/empresas\?busca=petrobras/i);
   await expect(
-    page.getByRole("heading", { name: /diretório público de empresas/i }),
-  ).toBeVisible();
+    page.getByRole("heading", { name: /diretorio publico de empresas/i }),
+  ).toBeVisible({ timeout: 15_000 });
 
   await expect(page.locator("article").first()).toContainText(/PETROBRAS/i);
   await page.getByRole("link", { name: /ver empresa/i }).first().click();

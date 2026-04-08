@@ -61,7 +61,7 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <span className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            Slice público V2
+            Slice publico V2
           </span>
         </div>
       </div>

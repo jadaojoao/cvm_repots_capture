@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "Next.js Web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "apps\\web\\start-web.cmd"],
+      "port": 3000
+    },
+    {
       "name": "Dashboard Streamlit",
       "runtimeExecutable": ".venv\\Scripts\\streamlit.exe",
       "runtimeArgs": ["run", "dashboard/app.py", "--server.headless", "true"],

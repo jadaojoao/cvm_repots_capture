@@ -1,6 +1,6 @@
 export function formatCompactInteger(value: number | null | undefined): string {
   if (value === null || value === undefined) {
-    return "—";
+    return "-";
   }
 
   return new Intl.NumberFormat("pt-BR", {
@@ -11,7 +11,7 @@ export function formatCompactInteger(value: number | null | undefined): string {
 
 export function formatInteger(value: number | null | undefined): string {
   if (value === null || value === undefined) {
-    return "—";
+    return "-";
   }
 
   return new Intl.NumberFormat("pt-BR").format(value);
@@ -19,7 +19,7 @@ export function formatInteger(value: number | null | undefined): string {
 
 export function formatStatementValue(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return "—";
+    return "-";
   }
 
   return new Intl.NumberFormat("pt-BR", {
@@ -32,7 +32,7 @@ export function formatKpiValue(
   formatType: string,
 ): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return "—";
+    return "-";
   }
 
   if (formatType === "pct") {
@@ -47,7 +47,7 @@ export function formatKpiDelta(
   formatType: string,
 ): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return "Sem variação comparável";
+    return "Sem variacao comparavel";
   }
 
   const sign = value >= 0 ? "+" : "";
@@ -60,14 +60,14 @@ export function formatKpiDelta(
 
 export function formatYearsLabel(years: number[]): string {
   if (years.length === 0) {
-    return "Sem anos disponíveis";
+    return "Sem anos disponiveis";
   }
 
   if (years.length <= 4) {
     return years.join(", ");
   }
 
-  return `${years[0]} — ${years[years.length - 1]}`;
+  return `${years[0]} - ${years[years.length - 1]}`;
 }
 
 export function getInitials(value: string): string {

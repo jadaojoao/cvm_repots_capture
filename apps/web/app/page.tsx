@@ -24,10 +24,10 @@ export default async function HomePage() {
           <div className="space-y-8">
             <div className="flex flex-wrap items-center gap-3">
               <Badge className="rounded-full bg-background px-3 py-1 text-[0.68rem] uppercase tracking-[0.24em] text-foreground shadow-sm shadow-black/5">
-                V2 web · slice público
+                V2 web - slice publico
               </Badge>
               <span className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Home → Empresas → Empresa
+                Home - Empresas - Empresa
               </span>
             </div>
 
@@ -43,19 +43,19 @@ export default async function HomePage() {
                 Leitura orientada a descoberta
               </p>
               <h2 className="font-heading text-2xl leading-tight text-foreground">
-                Menos fricção para encontrar a empresa certa.
+                Menos friccao para encontrar a empresa certa.
               </h2>
             </div>
 
             <div className="space-y-4 text-sm leading-7 text-muted-foreground">
               <p>
-                A fase atual evita dashboards genéricos e entra pela tarefa
+                A fase atual evita dashboards genericos e entra pela tarefa
                 principal: descobrir, abrir e analisar uma companhia em poucos
                 passos.
               </p>
               <p>
-                O backend já sustenta busca, diretório paginado, filtros
-                canônicos, detalhe rico, KPIs e demonstrações.
+                O backend ja sustenta busca, diretorio paginado, filtros
+                canonicos, detalhe rico, KPIs e demonstracoes.
               </p>
             </div>
 
@@ -69,13 +69,13 @@ export default async function HomePage() {
               <p className="flex items-center justify-between">
                 <span>Status da API</span>
                 <span className="font-medium text-foreground">
-                  {health?.status === "ok" ? "Pronta" : "Indisponível"}
+                  {health?.status === "ok" ? "Pronta" : "Indisponivel"}
                 </span>
               </p>
             </div>
 
             <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-              Próximas superfícies
+              Proximas superficies
               <ArrowUpRightIcon className="size-3.5" />
             </div>
           </aside>

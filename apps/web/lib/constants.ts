@@ -1,19 +1,19 @@
 export const HOME_QUICK_LINKS = [
   {
     label: "Comparar",
-    description: "Comparação lado a lado entre empresas e contextos setoriais.",
+    description: "Comparacao lado a lado entre empresas e contextos setoriais.",
   },
   {
     label: "Setores",
-    description: "Leitura temática por clusters e cadeias produtivas.",
+    description: "Leitura tematica por clusters e cadeias produtivas.",
   },
   {
     label: "KPIs",
-    description: "Catálogo navegável dos indicadores-chave da plataforma.",
+    description: "Catalogo navegavel dos indicadores-chave da plataforma.",
   },
   {
     label: "Macro",
-    description: "Contexto macroeconômico para leitura dos resultados.",
+    description: "Contexto macroeconomico para leitura dos resultados.",
   },
 ] as const;
 
@@ -21,7 +21,7 @@ export const FEATURED_KPIS = [
   { id: "MG_BRUTA", label: "Margem Bruta", formatType: "pct" },
   { id: "MG_EBITDA", label: "Margem EBITDA", formatType: "pct" },
   { id: "MG_EBIT", label: "Margem EBIT", formatType: "pct" },
-  { id: "MG_LIQ", label: "Margem Líquida", formatType: "pct" },
+  { id: "MG_LIQ", label: "Margem Liquida", formatType: "pct" },
   { id: "ROE", label: "ROE", formatType: "pct" },
   { id: "ROA", label: "ROA", formatType: "pct" },
   { id: "FCO_REC", label: "FCO / Receita", formatType: "pct" },
@@ -29,8 +29,8 @@ export const FEATURED_KPIS = [
 ] as const;
 
 export const DETAIL_TABS = [
-  { value: "visao-geral", label: "Visão Geral" },
-  { value: "demonstracoes", label: "Demonstrações" },
+  { value: "visao-geral", label: "Visao Geral" },
+  { value: "demonstracoes", label: "Demonstracoes" },
 ] as const;
 
 export const STATEMENT_OPTIONS = [
@@ -41,9 +41,9 @@ export const STATEMENT_OPTIONS = [
 ] as const;
 
 export const STATEMENT_LABELS: Record<string, string> = {
-  DRE: "Demonstração de Resultado",
-  BPA: "Balanço Patrimonial Ativo",
-  BPP: "Balanço Patrimonial Passivo",
+  DRE: "Demonstracao de Resultado",
+  BPA: "Balanco Patrimonial Ativo",
+  BPP: "Balanco Patrimonial Passivo",
   DFC: "Fluxo de Caixa",
 };
 

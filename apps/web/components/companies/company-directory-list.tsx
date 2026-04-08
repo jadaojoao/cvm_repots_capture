@@ -19,7 +19,7 @@ export function CompanyDirectoryList({ items }: CompanyDirectoryListProps) {
         </p>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
           Ajuste o termo de busca ou remova o filtro setorial para ampliar o
-          diretório disponível.
+          diretorio disponivel.
         </p>
       </div>
     );
