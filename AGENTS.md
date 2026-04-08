@@ -22,7 +22,7 @@ repositorio.
    - um label `area:*`
 4. Ao iniciar, marque a task como `status:in-progress` e atualize o checklist do
    corpo da issue.
-5. Trabalhe em branch no formato `codex/<issue-number>-<slug>`.
+5. Trabalhe em branch no formato `task/<issue-number>-<slug>`.
 6. Abra PR com `Closes #<issue-number>` no corpo.
 7. Antes de encerrar, atualize checklist, evidencias e docs afetados.
 8. A task fecha com o merge da PR. Epics fecham manualmente.

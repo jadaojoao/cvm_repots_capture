@@ -22,11 +22,11 @@ jobs:
         with:
           script: |
             const branch = context.payload.pull_request.head.ref;
-            const branchMatch = branch.match(/^codex\/(\d+)-[a-z0-9][a-z0-9-]*$/);
+            const branchMatch = branch.match(/^task\/(\d+)-[a-z0-9][a-z0-9-]*$/);
 
             if (!branchMatch) {
               core.setFailed(
-                `Branch invalida: "${branch}". Use codex/<issue-number>-<slug>.`,
+                `Branch invalida: "${branch}". Use task/<issue-number>-<slug>.`,
               );
               return;
             }
