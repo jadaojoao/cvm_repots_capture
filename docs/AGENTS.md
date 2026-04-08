@@ -84,6 +84,18 @@
 
 ## Sessoes Recentes
 
+### Sessao 33 - 2026-04-08 (smoke local da V1 e bootstrap do desktop)
+- `desktop/cvm_pyqt_app.py` passa a inserir a raiz do projeto em `sys.path`,
+  permitindo execucao tanto por `python -m desktop.cvm_pyqt_app` quanto por
+  `python desktop/cvm_pyqt_app.py`
+- `README.md`, `COMO_RODAR.md` e `CLAUDE.md` passam a preferir a execucao por
+  modulo para o app desktop
+- Smoke local revalidado com `runtime_doctor.py`, `smoke_validate.py`,
+  `db_portability_smoke.py --write-check`, desktop em modo offscreen e
+  Streamlit headless com resposta HTTP 200
+- SQLite local confirmado; PostgreSQL real continua pendente por ausencia de
+  `DATABASE_URL`
+
 ### Sessao 32 - 2026-04-08 (protocolo de trabalho paralelo agnostico a IA)
 - Nova familia de labels `risk:*` criada no GitHub: `risk:safe`, `risk:shared`,
   `risk:contract-sensitive`
