@@ -66,7 +66,7 @@ Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub I
 streamlit run dashboard/app.py
 
 # Desktop GUI (PyQt6 — official; handles data refresh)
-python desktop/cvm_pyqt_app.py
+python -m desktop.cvm_pyqt_app
 
 # CLI scraper
 python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated

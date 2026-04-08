@@ -4,7 +4,7 @@ Guia pratico para subir a V1 operacional e o primeiro slice da V2 no ambiente lo
 
 Fluxo principal atual:
 
-`runtime_doctor.py -> setup_db.py -> setup_companies_table.py -> desktop/cvm_pyqt_app.py -> dashboard/app.py -> apps/api -> apps/web`
+`runtime_doctor.py -> setup_db.py -> setup_companies_table.py -> python -m desktop.cvm_pyqt_app -> dashboard/app.py -> apps/api -> apps/web`
 
 ---
 
@@ -85,6 +85,12 @@ python scripts/expand_tickers.py --dry-run
 ## 4. Atualizar dados financeiros
 
 ### Opcao A - App desktop oficial
+
+```powershell
+python -m desktop.cvm_pyqt_app
+```
+
+Compatibilidade:
 
 ```powershell
 python desktop/cvm_pyqt_app.py
@@ -209,7 +215,7 @@ python scripts/final_verification.py --xlsx output/reports/PETROBRAS_financials.
 
 | O que aconteceu | O que fazer |
 |---|---|
-| `ModuleNotFoundError` | Ative a `.venv` e reinstale dependencias. |
+| `ModuleNotFoundError` ao abrir o desktop | Prefira `python -m desktop.cvm_pyqt_app`; o entrypoint por arquivo tambem deve funcionar no estado atual. |
 | `python` nao reconhecido | Instale o Python e coloque no `PATH`. |
 | `runtime_doctor.py` falha com `venv-broken` | Recrie a `.venv` com `python -m venv .venv`. |
 | App desktop abre sem empresas | Rode `setup_db.py`, `setup_companies_table.py` e atualize dados. |

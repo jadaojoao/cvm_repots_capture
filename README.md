@@ -49,7 +49,7 @@ python scripts/setup_companies_table.py
 5. Atualizar dados:
 
 ```bash
-python desktop/cvm_pyqt_app.py
+python -m desktop.cvm_pyqt_app
 ```
 
 6. Alternativas headless:
@@ -75,7 +75,7 @@ cd apps/web && npm run dev
 Interface operacional principal para atualizar a base local. Reaproveita `src/refresh_service.py` e concentra ranking, lotes e saude da base.
 
 ```powershell
-python desktop/cvm_pyqt_app.py
+python -m desktop.cvm_pyqt_app
 ```
 
 ### 2. Dashboard Streamlit
@@ -159,6 +159,7 @@ python scripts/db_portability_smoke.py --database-url postgresql://user:pass@hos
 ## Observacoes
 
 - Prefira `desktop/cvm_pyqt_app.py` como interface operacional principal.
+- Prefira executar o app desktop como modulo: `python -m desktop.cvm_pyqt_app`.
 - Prefira `src/refresh_service.py` e `src/read_service.py` como contratos de nucleo.
 - O frontend da V2 deve consumir a API, nao reimplementar queries do `src/`.
 - O dashboard atual continua sendo fallback read-only durante a transicao.
