@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import io
-import sqlite3
 import traceback
-from collections import defaultdict
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +11,9 @@ from typing import Any
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from desktop.services import IntelligentSelectorService
-from src.scraper import CVMScraper
+from src.contracts import CompanyRefreshResult, RefreshPolicy, RefreshRequest
+from src.refresh_service import HeadlessRefreshService
+from src.settings import build_settings
 
 
 class HealthWorker(QThread):
@@ -100,7 +100,6 @@ class RankingWorker(QThread):
         except Exception:
             tb = traceback.format_exc()
             try:
-                # workers.py lives in desktop/; project root is two levels up
                 root_dir = Path(__file__).resolve().parent.parent
                 log_dir = root_dir / "output" / "logs"
                 log_dir.mkdir(parents=True, exist_ok=True)
@@ -108,16 +107,11 @@ class RankingWorker(QThread):
                 with open(error_log, "a", encoding="utf-8") as fh:
                     fh.write(f"\n[{datetime.now().isoformat()}]\n{tb}\n")
             except Exception:
-                # Do not mask the original worker error due logging failures.
                 pass
             self.failed.emit(tb)
 
 
 class UpdateWorker(QThread):
-    REQUIRED_PACKAGE_STATEMENTS = ("BPA", "BPP", "DRE", "DFC")
-    FAST_LANE_RECENT_YEARS = 2
-    MAX_AUTO_REPORTING_YEAR_LAG = 1
-
     progress_changed = pyqtSignal(int, int, str)
     log_message = pyqtSignal(str)
     status_changed = pyqtSignal(str)
@@ -147,130 +141,37 @@ class UpdateWorker(QThread):
         self._cancel_requested = False
         self._cancel_triggered = False
 
-    def _load_complete_company_years(
-        self,
-        db_path: Path,
-        company_codes: list[int],
-    ) -> dict[int, set[int]]:
-        if self._force_refresh or not self._skip_complete_company_years:
-            return {}
-        if not company_codes or not db_path.exists():
-            return {}
+    def _project_root(self) -> Path:
+        return Path(__file__).resolve().parent.parent
 
-        try:
-            with sqlite3.connect(str(db_path)) as conn:
-                if not self._table_exists(conn, "financial_reports"):
-                    return {}
+    def _build_refresh_request(self, root_dir: Path | None = None) -> RefreshRequest:
+        root = root_dir or self._project_root()
+        settings = build_settings(project_root=root)
+        return RefreshRequest(
+            companies=tuple(self._companies),
+            start_year=self._start_year,
+            end_year=self._end_year,
+            max_workers=self._max_workers,
+            data_dir=str(settings.paths.input_dir),
+            output_dir=str(settings.paths.reports_dir),
+            policy=RefreshPolicy(
+                skip_complete_company_years=self._skip_complete_company_years,
+                enable_fast_lane=self._enable_fast_lane,
+                force_refresh=self._force_refresh,
+            ),
+        )
 
-                placeholders_company = ",".join("?" for _ in company_codes)
-                placeholders_stmt = ",".join("?" for _ in self.REQUIRED_PACKAGE_STATEMENTS)
-                query = f"""
-                    SELECT
-                        "CD_CVM" AS cd_cvm,
-                        "REPORT_YEAR" AS report_year,
-                        COUNT(DISTINCT "STATEMENT_TYPE") AS stmt_count
-                    FROM financial_reports
-                    WHERE "CD_CVM" IN ({placeholders_company})
-                      AND "REPORT_YEAR" BETWEEN ? AND ?
-                      AND "STATEMENT_TYPE" IN ({placeholders_stmt})
-                    GROUP BY "CD_CVM", "REPORT_YEAR"
-                    HAVING COUNT(DISTINCT "STATEMENT_TYPE") >= ?
-                """
-                required_count = len(self.REQUIRED_PACKAGE_STATEMENTS)
-                params: list[Any] = [
-                    *[int(cd) for cd in company_codes],
-                    int(self._start_year),
-                    int(self._end_year),
-                    *self.REQUIRED_PACKAGE_STATEMENTS,
-                    int(required_count),
-                ]
-                rows = conn.execute(query, params).fetchall()
-        except Exception:
-            return {}
-
-        completed_map: dict[int, set[int]] = defaultdict(set)
-        for row in rows:
-            try:
-                cd = int(row[0])
-                year = int(row[1])
-            except Exception:
-                continue
-            completed_map[cd].add(year)
-        return dict(completed_map)
+    def _headless_service(self, root_dir: Path | None = None) -> HeadlessRefreshService:
+        root = root_dir or self._project_root()
+        return HeadlessRefreshService(settings=build_settings(project_root=root))
 
     def _build_company_year_plan(
         self,
         db_path: Path,
     ) -> tuple[list[str], dict[int, list[int]], dict[str, int]]:
-        raw_years_scope = list(range(int(self._start_year), int(self._end_year) + 1))
-        max_auto_year = datetime.now().year - self.MAX_AUTO_REPORTING_YEAR_LAG
-        years_scope = [int(y) for y in raw_years_scope if int(y) <= int(max_auto_year)]
-        if not years_scope:
-            return [], {}, {
-                "requested_company_years": 0,
-                "planned_company_years": 0,
-                "skipped_complete_company_years": 0,
-                "deferred_fast_lane_company_years": 0,
-                "planned_companies": 0,
-                "skipped_companies_all_complete": 0,
-                "dropped_future_years": int(len(raw_years_scope)),
-            }
-
-        unique_company_codes: list[int] = []
-        seen_codes: set[int] = set()
-        for raw in self._companies:
-            try:
-                cd = int(raw)
-            except Exception:
-                continue
-            if cd in seen_codes:
-                continue
-            seen_codes.add(cd)
-            unique_company_codes.append(cd)
-
-        completed_map = self._load_complete_company_years(db_path, unique_company_codes)
-
-        recent_floor_year = datetime.now().year - (self.FAST_LANE_RECENT_YEARS - 1)
-        planned_companies: list[str] = []
-        company_year_overrides: dict[int, list[int]] = {}
-
-        skipped_complete_company_years = 0
-        deferred_fast_lane_company_years = 0
-        skipped_companies_all_complete = 0
-
-        for cd in unique_company_codes:
-            completed_years = completed_map.get(cd, set())
-            years_needed = [int(y) for y in years_scope if int(y) not in completed_years]
-            skipped_complete_company_years += (len(years_scope) - len(years_needed))
-
-            if not years_needed:
-                skipped_companies_all_complete += 1
-                continue
-
-            years_to_run = years_needed
-            if self._enable_fast_lane and not self._force_refresh:
-                recent_years = [int(y) for y in years_needed if int(y) >= int(recent_floor_year)]
-                if recent_years:
-                    deferred_fast_lane_company_years += (len(years_needed) - len(recent_years))
-                    years_to_run = recent_years
-
-            if not years_to_run:
-                skipped_companies_all_complete += 1
-                continue
-
-            planned_companies.append(str(cd))
-            company_year_overrides[int(cd)] = sorted(set(int(y) for y in years_to_run))
-
-        stats = {
-            "requested_company_years": int(len(unique_company_codes) * len(raw_years_scope)),
-            "planned_company_years": int(sum(len(v) for v in company_year_overrides.values())),
-            "skipped_complete_company_years": int(skipped_complete_company_years),
-            "deferred_fast_lane_company_years": int(deferred_fast_lane_company_years),
-            "planned_companies": int(len(planned_companies)),
-            "skipped_companies_all_complete": int(skipped_companies_all_complete),
-            "dropped_future_years": int(len(raw_years_scope) - len(years_scope)),
-        }
-        return planned_companies, company_year_overrides, stats
+        service = self._headless_service()
+        request = self._build_refresh_request()
+        return service.build_company_year_plan(request, db_path_override=db_path)
 
     def request_cancel(self):
         self._cancel_requested = True
@@ -282,83 +183,7 @@ class UpdateWorker(QThread):
         return False
 
     def _on_progress(self, current, total, company_name):
-        # current = empresas concluidas ate aqui (callback disparado no inicio da proxima)
         self.progress_changed.emit(int(current), int(total), str(company_name))
-
-    @staticmethod
-    def _ensure_refresh_status_table(conn: sqlite3.Connection) -> None:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS company_refresh_status (
-                cd_cvm INTEGER PRIMARY KEY,
-                company_name TEXT,
-                source_scope TEXT NOT NULL DEFAULT 'local',
-                last_attempt_at TEXT,
-                last_success_at TEXT,
-                last_status TEXT,
-                last_error TEXT,
-                last_start_year INTEGER,
-                last_end_year INTEGER,
-                last_rows_inserted INTEGER,
-                updated_at TEXT
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE INDEX IF NOT EXISTS idx_crs_status
-            ON company_refresh_status(last_status)
-            """
-        )
-
-    @staticmethod
-    def _count_rows_for_company_years(
-        conn: sqlite3.Connection,
-        cd_cvm: int,
-        start_year: int,
-        end_year: int,
-    ) -> int:
-        cursor = conn.execute(
-            """
-            SELECT COUNT(*) AS total
-            FROM financial_reports
-            WHERE "CD_CVM" = ?
-              AND "REPORT_YEAR" BETWEEN ? AND ?
-            """,
-            (int(cd_cvm), int(start_year), int(end_year)),
-        )
-        row = cursor.fetchone()
-        return int(row[0]) if row else 0
-
-    @staticmethod
-    def _table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
-        row = conn.execute(
-            """
-            SELECT 1
-            FROM sqlite_master
-            WHERE type = 'table' AND name = ?
-            LIMIT 1
-            """,
-            (str(table_name),),
-        ).fetchone()
-        return row is not None
-
-    @staticmethod
-    def _touch_company_updated_at(
-        conn: sqlite3.Connection,
-        cd_cvm: int,
-        company_name: str,
-        updated_at: str,
-    ) -> None:
-        conn.execute(
-            """
-            UPDATE companies
-            SET company_name = COALESCE(NULLIF(?, ''), company_name),
-                updated_at = ?
-            WHERE cd_cvm = ?
-            """,
-            (str(company_name), str(updated_at), int(cd_cvm)),
-        )
 
     @staticmethod
     def _append_worker_error_log(root_dir: Path, company_name: str, payload: dict[str, Any]) -> None:
@@ -374,113 +199,32 @@ class UpdateWorker(QThread):
                 if traceback_text:
                     fh.write(f"{traceback_text}\n")
         except Exception:
-            # Never raise from diagnostics path.
             pass
 
     def _sync_refresh_status(self, db_path: Path, results: dict[str, Any]) -> int:
-        if not results:
-            return 0
-
-        now_iso = datetime.now().replace(microsecond=0).isoformat()
-        updated = 0
-        with sqlite3.connect(str(db_path)) as conn:
-            self._ensure_refresh_status_table(conn)
-            companies_table_exists = self._table_exists(conn, "companies")
-            for result_key, payload in results.items():
-                payload = payload if isinstance(payload, dict) else {}
-                try:
-                    cd_cvm = int(payload.get("cvm_code"))
-                except Exception:
-                    continue
-                company_name = str(payload.get("company_name") or result_key)
-
-                raw_status = str(payload.get("status") or "error").strip().lower()
-                if raw_status == "success":
-                    status = "success"
-                elif raw_status == "no_data":
-                    status = "no_data"
-                else:
-                    status = "error"
-
-                rows_from_payload = payload.get("rows_inserted")
-                try:
-                    rows_in_range = int(rows_from_payload) if rows_from_payload is not None else 0
-                except Exception:
-                    rows_in_range = 0
-
-                if status == "success" and rows_in_range <= 0:
-                    rows_in_range = self._count_rows_for_company_years(
-                        conn=conn,
-                        cd_cvm=cd_cvm,
-                        start_year=self._start_year,
-                        end_year=self._end_year,
-                    )
-
-                last_success_at = now_iso if status == "success" else None
-                error_message = payload.get("error")
-                if status == "success":
-                    error_message = None
-                elif not error_message:
-                    error_message = f"Status={status}"
-
-                conn.execute(
-                    """
-                    INSERT INTO company_refresh_status (
-                        cd_cvm, company_name, source_scope,
-                        last_attempt_at, last_success_at, last_status, last_error,
-                        last_start_year, last_end_year, last_rows_inserted, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(cd_cvm) DO UPDATE SET
-                        company_name = excluded.company_name,
-                        source_scope = excluded.source_scope,
-                        last_attempt_at = excluded.last_attempt_at,
-                        last_success_at = COALESCE(excluded.last_success_at, company_refresh_status.last_success_at),
-                        last_status = excluded.last_status,
-                        last_error = excluded.last_error,
-                        last_start_year = excluded.last_start_year,
-                        last_end_year = excluded.last_end_year,
-                        last_rows_inserted = CASE
-                            WHEN excluded.last_status = 'success'
-                            THEN excluded.last_rows_inserted
-                            ELSE company_refresh_status.last_rows_inserted
-                        END,
-                        updated_at = excluded.updated_at
-                    """,
-                    (
-                        cd_cvm,
-                        str(company_name),
-                        "local",
-                        now_iso,
-                        last_success_at,
-                        status,
-                        error_message,
-                        int(self._start_year),
-                        int(self._end_year),
-                        int(rows_in_range),
-                        now_iso,
-                    ),
-                )
-                if companies_table_exists and status == "success":
-                    self._touch_company_updated_at(
-                        conn=conn,
-                        cd_cvm=cd_cvm,
-                        company_name=str(company_name),
-                        updated_at=now_iso,
-                    )
-                updated += 1
-
-            conn.commit()
-        return updated
+        service = self._headless_service()
+        request = self._build_refresh_request()
+        companies = tuple(
+            CompanyRefreshResult.from_payload(payload if isinstance(payload, dict) else {})
+            for payload in results.values()
+        )
+        return service.sync_refresh_status(
+            request=request,
+            companies=companies,
+            db_path_override=db_path,
+        )
 
     def run(self):
         try:
-            # workers.py lives in desktop/; project root is two levels up
-            root_dir = Path(__file__).resolve().parent.parent
-            data_dir = str(root_dir / "data" / "input")
-            output_dir = str(root_dir / "output" / "reports")
-            db_path = root_dir / "data" / "db" / "cvm_financials.db"
+            root_dir = self._project_root()
+            db_path = build_settings(project_root=root_dir).paths.db_path
+            service = self._headless_service(root_dir)
+            request = self._build_refresh_request(root_dir)
 
-            planned_companies, company_year_overrides, plan_stats = self._build_company_year_plan(db_path)
+            planned_companies, _company_year_overrides, plan_stats = service.build_company_year_plan(
+                request,
+                db_path_override=db_path,
+            )
             self.log_message.emit(
                 "Planejamento de execucao: "
                 f"solicitado={plan_stats['requested_company_years']} empresa-anos, "
@@ -510,72 +254,42 @@ class UpdateWorker(QThread):
                 self.log_message.emit("Fast Lane automatico ativo para anos recentes (janela de 2 anos).")
             self.status_changed.emit("Inicializando motor CVM...")
 
-            scraper = CVMScraper(
-                data_dir=data_dir,
-                output_dir=output_dir,
-                max_workers=self._max_workers,
-            )
-
             log_stream = SignalLogStream(self.log_message.emit)
             self.status_changed.emit("Executando atualizacao...")
 
             with redirect_stdout(log_stream), redirect_stderr(log_stream):
-                results = scraper.run(
-                    companies=planned_companies,
-                    start_year=self._start_year,
-                    end_year=self._end_year,
-                    company_year_overrides=company_year_overrides,
+                result = service.execute(
+                    request=request,
                     progress_callback=self._on_progress,
                     should_cancel=self._should_cancel,
                 )
             log_stream.flush()
-            was_cancelled = self._cancel_triggered
 
-            success_count = 0
-            error_count = 0
-            no_data_count = 0
-            for result_key, payload in (results or {}).items():
-                payload_dict = payload if isinstance(payload, dict) else {}
-                status = str(payload_dict.get("status") or "error").strip().lower()
-                company_name = str(payload_dict.get("company_name") or result_key)
-                if status == "success":
-                    success_count += 1
-                elif status == "no_data":
-                    no_data_count += 1
-                else:
-                    error_count += 1
+            for company_result in result.companies:
+                if company_result.status not in {"success", "no_data"}:
                     self._append_worker_error_log(
                         root_dir=root_dir,
-                        company_name=company_name,
-                        payload=payload_dict,
+                        company_name=company_result.company_name,
+                        payload=company_result.to_dict(),
                     )
 
-            try:
-                synced = self._sync_refresh_status(
-                    db_path=root_dir / "data" / "db" / "cvm_financials.db",
-                    results=results,
-                )
-                if synced > 0:
-                    self.log_message.emit(
-                        f"Sync Dashboard: status atualizado para {synced} empresa(s)."
-                    )
-            except Exception as sync_exc:
+            if result.synced_companies > 0:
                 self.log_message.emit(
-                    f"Aviso: nao foi possivel sincronizar status do Dashboard ({sync_exc})."
+                    f"Sync Dashboard: status atualizado para {result.synced_companies} empresa(s)."
                 )
 
             self.log_message.emit(
-                f"Resumo do lote: success={success_count}, sem_dados={no_data_count}, erro={error_count}."
+                f"Resumo do lote: success={result.success_count}, "
+                f"sem_dados={result.no_data_count}, erro={result.error_count}."
             )
-            if was_cancelled:
+            if result.cancelled:
                 self.cancelled.emit()
                 return
-            self.finished_success.emit(success_count)
+            self.finished_success.emit(result.success_count)
         except Exception:
             tb = traceback.format_exc()
             self._append_worker_error_log(
-                # workers.py lives in desktop/; project root is two levels up
-                root_dir=Path(__file__).resolve().parent.parent,
+                root_dir=self._project_root(),
                 company_name="__worker__",
                 payload={"status": "error", "error": "Unhandled worker failure", "traceback": tb},
             )

@@ -129,11 +129,20 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $smokeScript = Join-Path $repoRoot "scripts\smoke_validate.py"
+$doctorScript = Join-Path $repoRoot "scripts\runtime_doctor.py"
 if ((Test-Path $smokeScript) -and (-not $SkipSmoke)) {
     Write-Step "Rodando smoke validate (modo rapido --skip-compile)"
     & $venvPython $smokeScript --skip-compile
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Aviso: smoke_validate retornou erro. Revise os arquivos de dados esperados." -ForegroundColor Yellow
+    }
+}
+
+if (Test-Path $doctorScript) {
+    Write-Step "Rodando runtime_doctor para validar ambiente basico"
+    & $venvPython $doctorScript --require-canonical
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Aviso: runtime_doctor encontrou problemas. Revise a configuracao antes de rodar o app." -ForegroundColor Yellow
     }
 }
 

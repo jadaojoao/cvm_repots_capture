@@ -9,19 +9,16 @@ scripts CLI e o app PyQt6 podem importar sem instalar o Streamlit.
 """
 from __future__ import annotations
 
-import os
 from functools import lru_cache
-from pathlib import Path
 
 from sqlalchemy import create_engine, Engine
 
-_SQLITE_PATH = Path(__file__).resolve().parent.parent / "data" / "db" / "cvm_financials.db"
-_SQLITE_URL  = f"sqlite:///{_SQLITE_PATH}"
+from src.settings import AppSettings, get_settings
 
 
-@lru_cache(maxsize=1)
-def get_engine() -> Engine:
-    url = _resolve_url()
+def build_engine(settings: AppSettings | None = None) -> Engine:
+    cfg = settings or get_settings()
+    url = _resolve_url(cfg)
     if url.startswith("sqlite"):
         return create_engine(url, connect_args={"check_same_thread": False})
     return create_engine(
@@ -33,8 +30,12 @@ def get_engine() -> Engine:
     )
 
 
-def _resolve_url() -> str:
-    url = os.getenv("DATABASE_URL", "")
-    if url:
-        return url
-    return _SQLITE_URL
+@lru_cache(maxsize=1)
+def get_engine() -> Engine:
+    return build_engine(get_settings())
+
+
+def _resolve_url(settings: AppSettings) -> str:
+    if settings.database_url:
+        return settings.database_url
+    return settings.paths.sqlite_url

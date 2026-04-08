@@ -1,34 +1,39 @@
 # -*- coding: utf-8 -*-
 """
-Restaurar Historico — Detecta e repõe anos faltantes (2022-2024) no banco.
-
-Empresas que perderam dados históricos (ex.: DELETE sem escopo de ano) podem
-ser restauradas re-executando o scraper apenas para os anos ausentes.
+Detecta e restaura anos faltantes no banco usando o planner headless.
 
 Uso:
-    python scripts/restaurar_historico.py                  # dry-run (padrão)
-    python scripts/restaurar_historico.py --run             # executa de fato
-    python scripts/restaurar_historico.py --run --max 20    # limita a 20 empresas
-    python scripts/restaurar_historico.py --anos 2022 2023  # anos específicos
+    python scripts/restaurar_historico.py
+    python scripts/restaurar_historico.py --run
+    python scripts/restaurar_historico.py --run --max 20
+    python scripts/restaurar_historico.py --anos 2022 2023
 """
-import sys
+from __future__ import annotations
+
 import argparse
 import logging
-import math
+import sys
 import time
 from pathlib import Path
+
+from sqlalchemy import text
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-# Garante UTF-8 no Windows
-if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+from src.contracts import RefreshPolicy, RefreshRequest
+from src.db import build_engine
+from src.refresh_service import HeadlessRefreshService
+from src.settings import build_settings
+from src.startup import collect_startup_report, format_startup_report
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s  %(levelname)s  %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
+    format="%(asctime)s  %(levelname)s  %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 log = logging.getLogger(__name__)
 
@@ -37,160 +42,152 @@ DEFAULT_MAX = 50
 DEFAULT_ANOS = [2022, 2023, 2024]
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
-
-def _get_engine():
-    """Retorna engine SQLAlchemy (Supabase se DATABASE_URL, senão SQLite)."""
-    import os
-    from sqlalchemy import create_engine
-
-    db_url = os.environ.get("DATABASE_URL")
-    if db_url:
-        return create_engine(db_url)
-    db_path = ROOT / "data" / "db" / "cvm_financials.db"
-    return create_engine(f"sqlite:///{db_path}")
-
-
-def get_company_year_coverage(engine, target_years: list[int]) -> list[dict]:
-    """Retorna lista de empresas com anos faltantes no range especificado."""
-    from sqlalchemy import text
-
+def load_company_catalog(settings) -> list[tuple[int, str]]:
+    engine = build_engine(settings)
+    query = text(
+        """
+        SELECT DISTINCT
+            fr."CD_CVM" AS cd_cvm,
+            COALESCE(c.company_name, fr."COMPANY_NAME") AS company_name
+        FROM financial_reports fr
+        LEFT JOIN companies c ON c.cd_cvm = fr."CD_CVM"
+        ORDER BY fr."CD_CVM"
+        """
+    )
     with engine.connect() as conn:
-        # Todas as empresas que possuem pelo menos 1 registro
-        rows = conn.execute(
-            text(
-                "SELECT DISTINCT fr.\"CD_CVM\", c.company_name "
-                "FROM financial_reports fr "
-                "LEFT JOIN companies c ON fr.\"CD_CVM\" = c.cd_cvm "
-                "ORDER BY fr.\"CD_CVM\""
-            )
-        ).fetchall()
-
-        if not rows:
-            log.warning("Nenhuma empresa encontrada no banco.")
-            return []
-
-        results = []
-        for cd_cvm, name in rows:
-            cd_cvm = int(cd_cvm)
-            existing = conn.execute(
-                text(
-                    "SELECT DISTINCT \"REPORT_YEAR\" FROM financial_reports "
-                    "WHERE \"CD_CVM\" = :cvm"
-                ),
-                {"cvm": cd_cvm},
-            ).fetchall()
-            existing_years = {int(r[0]) for r in existing if r[0]}
-            missing = sorted(y for y in target_years if y not in existing_years)
-            if missing:
-                results.append({
-                    "cd_cvm": cd_cvm,
-                    "name": name or f"CVM_{cd_cvm}",
-                    "existing": sorted(existing_years),
-                    "missing": missing,
-                })
-
-    return results
+        rows = conn.execute(query).fetchall()
+    return [(int(row[0]), str(row[1] or f"CVM_{row[0]}")) for row in rows]
 
 
-def run_restore(items: list[dict]) -> None:
-    """Executa o scraper para cada empresa/anos faltantes."""
-    from src.scraper import CVMScraper
+def build_restore_items(service: HeadlessRefreshService, settings, anos: list[int]) -> tuple[list[dict], dict[str, int]]:
+    company_catalog = load_company_catalog(settings)
+    if not company_catalog:
+        return [], {
+            "planned_companies": 0,
+            "planned_company_years": 0,
+            "skipped_complete_company_years": 0,
+        }
 
+    request = RefreshRequest(
+        companies=tuple(str(cd_cvm) for cd_cvm, _ in company_catalog),
+        start_year=min(anos),
+        end_year=max(anos),
+        max_workers=2,
+        data_dir=str(settings.paths.input_dir),
+        output_dir=str(settings.paths.reports_dir),
+        policy=RefreshPolicy(
+            skip_complete_company_years=True,
+            enable_fast_lane=False,
+            force_refresh=False,
+        ),
+    )
+    planned_companies, year_overrides, stats = service.build_company_year_plan(request)
+    name_by_code = {cd_cvm: company_name for cd_cvm, company_name in company_catalog}
+
+    items = []
+    for company_code in planned_companies:
+        code = int(company_code)
+        items.append(
+            {
+                "cd_cvm": code,
+                "name": name_by_code.get(code, str(code)),
+                "missing": year_overrides.get(code, []),
+            }
+        )
+    return items, stats
+
+
+def run_restore(service: HeadlessRefreshService, settings, items: list[dict], anos: list[int]) -> None:
     if not items:
         log.info("Nada a restaurar.")
         return
 
-    total_years = sum(len(it["missing"]) for it in items)
-    total_batches = math.ceil(len(items) / BATCH_SIZE)
+    total_batches = (len(items) + BATCH_SIZE - 1) // BATCH_SIZE
+    total_company_years = sum(len(item["missing"]) for item in items)
     log.info(
-        f"Restaurando {len(items)} empresa(s), {total_years} ano(s) "
-        f"em {total_batches} lote(s)"
+        "Restaurando %s empresa(s), %s company-year(s) em %s lote(s)",
+        len(items),
+        total_company_years,
+        total_batches,
     )
 
-    ok, fail = 0, 0
-    for batch_idx in range(0, len(items), BATCH_SIZE):
-        batch = items[batch_idx : batch_idx + BATCH_SIZE]
-        batch_num = batch_idx // BATCH_SIZE + 1
-        log.info(
-            f"Lote {batch_num}/{total_batches}: "
-            f"{[it['name'] for it in batch]}"
+    for batch_index in range(0, len(items), BATCH_SIZE):
+        batch = items[batch_index : batch_index + BATCH_SIZE]
+        batch_number = batch_index // BATCH_SIZE + 1
+        log.info("Lote %s/%s: %s", batch_number, total_batches, [item["name"] for item in batch])
+        request = RefreshRequest(
+            companies=tuple(str(item["cd_cvm"]) for item in batch),
+            start_year=min(anos),
+            end_year=max(anos),
+            max_workers=2,
+            data_dir=str(settings.paths.input_dir),
+            output_dir=str(settings.paths.reports_dir),
+            policy=RefreshPolicy(
+                skip_complete_company_years=True,
+                enable_fast_lane=False,
+                force_refresh=False,
+            ),
         )
-        t0 = time.time()
-        for it in batch:
-            try:
-                scraper = CVMScraper()
-                start = min(it["missing"])
-                end = max(it["missing"])
-                log.info(
-                    f"  -> {it['name']} (CVM {it['cd_cvm']}): "
-                    f"anos {it['missing']}"
-                )
-                scraper.run([str(it["cd_cvm"])], start, end)
-                ok += 1
-            except Exception as exc:
-                log.error(f"  x {it['name']} (CVM {it['cd_cvm']}): {exc}")
-                fail += 1
-
-        elapsed = time.time() - t0
-        log.info(f"Lote {batch_num} concluido em {elapsed:.0f}s")
-
-    log.info(f"Resumo: {ok} ok, {fail} falha(s)")
+        started_at = time.time()
+        result = service.execute(request)
+        log.info(
+            "Resumo do lote %s: success=%s no_data=%s error=%s synced=%s em %.0fs",
+            batch_number,
+            result.success_count,
+            result.no_data_count,
+            result.error_count,
+            result.synced_companies,
+            time.time() - started_at,
+        )
 
 
-# ── CLI ──────────────────────────────────────────────────────────────────────
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Detecta e restaura anos faltantes no banco CVM."
-    )
-    parser.add_argument(
-        "--run", action="store_true",
-        help="Executa a restauracao (padrao: dry-run apenas lista)",
-    )
-    parser.add_argument(
-        "--max", type=int, default=DEFAULT_MAX,
-        help=f"Maximo de empresas a restaurar (padrao: {DEFAULT_MAX})",
-    )
-    parser.add_argument(
-        "--anos", type=int, nargs="+", default=DEFAULT_ANOS,
-        help=f"Anos a verificar (padrao: {DEFAULT_ANOS})",
-    )
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Detecta e restaura anos faltantes no banco CVM")
+    parser.add_argument("--run", action="store_true", help="Executa a restauracao; sem isso fica em dry-run")
+    parser.add_argument("--max", type=int, default=DEFAULT_MAX, help=f"Maximo de empresas (padrao: {DEFAULT_MAX})")
+    parser.add_argument("--anos", type=int, nargs="+", default=DEFAULT_ANOS, help=f"Anos a verificar (padrao: {DEFAULT_ANOS})")
     args = parser.parse_args()
 
-    engine = _get_engine()
-    log.info(f"Verificando cobertura para anos: {args.anos}")
+    settings = build_settings(project_root=ROOT)
+    report = collect_startup_report(
+        settings,
+        require_database=True,
+        required_tables=("financial_reports",),
+        require_canonical_accounts=True,
+    )
+    if report.issues:
+        log.info(format_startup_report(report))
+        if report.errors:
+            raise SystemExit(1)
 
-    items = get_company_year_coverage(engine, args.anos)
-
-    if not items:
-        log.info("Todas as empresas possuem cobertura completa. Nada a fazer.")
-        return
-
-    # Limitar
+    service = HeadlessRefreshService(settings=settings)
+    items, stats = build_restore_items(service, settings, args.anos)
     items = items[: args.max]
 
-    # Exibir resumo
-    total_missing = sum(len(it["missing"]) for it in items)
-    log.info(
-        f"{len(items)} empresa(s) com anos faltantes "
-        f"({total_missing} combinacoes empresa/ano)"
-    )
-    for it in items:
-        existing_str = ",".join(str(y) for y in it["existing"])
-        missing_str = ",".join(str(y) for y in it["missing"])
-        log.info(
-            f"  {it['name']:40s} (CVM {it['cd_cvm']:6d}) "
-            f"  tem=[{existing_str}]  falta=[{missing_str}]"
-        )
-
-    if not args.run:
-        log.info(
-            "[DRY-RUN] Use --run para executar a restauracao."
-        )
+    if not items:
+        log.info("Todas as empresas possuem cobertura completa no range solicitado.")
         return
 
-    run_restore(items)
+    total_missing = sum(len(item["missing"]) for item in items)
+    log.info(
+        "%s empresa(s) com anos faltantes (%s combinacoes company-year)",
+        len(items),
+        total_missing,
+    )
+    log.info(
+        "Planner: planned_companies=%s planned_company_years=%s skipped_complete=%s",
+        stats.get("planned_companies", 0),
+        stats.get("planned_company_years", 0),
+        stats.get("skipped_complete_company_years", 0),
+    )
+    for item in items:
+        log.info("  %-40s (CVM %6s) falta=%s", item["name"], item["cd_cvm"], item["missing"])
+
+    if not args.run:
+        log.info("[DRY-RUN] Use --run para executar a restauracao.")
+        return
+
+    run_restore(service, settings, items, args.anos)
     log.info("Restauracao concluida.")
 
 

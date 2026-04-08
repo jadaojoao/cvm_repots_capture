@@ -17,7 +17,6 @@ Uso:
     python scripts/expand_tickers.py --limit 50      # testa só 50 candidatos
 """
 import sys
-import os
 import io
 import re
 import json
@@ -77,10 +76,7 @@ def _levenshtein_ratio(a: str, b: str) -> float:
 
 # ── Fase 1: Baixar lista B3 ───────────────────────────────────────────────────
 
-_B3_CACHE_PATH = ROOT / "data" / "metadata" / "b3_companies_cache.json"
-
-
-def fetch_b3_companies() -> dict:
+def fetch_b3_companies(settings) -> dict:
     """
     Baixa lista de empresas listadas na B3 via endpoint público.
     Usa cache local (b3_companies_cache.json) para evitar re-download.
@@ -91,11 +87,13 @@ def fetch_b3_companies() -> dict:
     import requests
 
     # Usar cache se existir (menos de 7 dias)
-    if _B3_CACHE_PATH.exists():
-        age_days = (time.time() - _B3_CACHE_PATH.stat().st_mtime) / 86400
+    cache_path = settings.paths.metadata_dir / "b3_companies_cache.json"
+
+    if cache_path.exists():
+        age_days = (time.time() - cache_path.stat().st_mtime) / 86400
         if age_days < 7:
             log.info(f"Carregando cache B3 ({age_days:.1f} dias)...")
-            with open(_B3_CACHE_PATH, encoding="utf-8") as f:
+            with open(cache_path, encoding="utf-8") as f:
                 cached = json.load(f)
             # Converter chaves inteiras (JSON serializa como strings)
             by_cvm = {int(k): v for k, v in cached.get("by_cvm", {}).items()}
@@ -108,7 +106,7 @@ def fetch_b3_companies() -> dict:
 
     log.info("Baixando lista da B3...")
     try:
-        resp = requests.get(url, timeout=60,
+        resp = requests.get(url, timeout=settings.download_timeout,
                             headers={"User-Agent": "Mozilla/5.0 (compatible; CVM-Analytics)"})
         resp.raise_for_status()
         data = resp.json()
@@ -141,11 +139,11 @@ def fetch_b3_companies() -> dict:
 
     # Salvar cache
     try:
-        _B3_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(_B3_CACHE_PATH, "w", encoding="utf-8") as f:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(cache_path, "w", encoding="utf-8") as f:
             json.dump({"by_cvm": {str(k): v for k, v in by_cvm.items()},
                        "by_cnpj": by_cnpj}, f, ensure_ascii=False)
-        log.info(f"  Cache salvo em {_B3_CACHE_PATH.name}")
+        log.info(f"  Cache salvo em {cache_path.name}")
     except Exception:
         pass
 
@@ -154,12 +152,12 @@ def fetch_b3_companies() -> dict:
 
 # ── Fase 2: Carregar dados locais ─────────────────────────────────────────────
 
-def load_companies_without_ticker() -> list[dict]:
+def load_companies_without_ticker(settings) -> list[dict]:
     """Retorna empresas no banco sem ticker mapeado."""
-    from src.db import get_engine
+    from src.db import build_engine
     from sqlalchemy import text
 
-    engine = get_engine()
+    engine = build_engine(settings)
 
     try:
         # Tentar via tabela companies
@@ -345,11 +343,11 @@ def validate_candidates(candidates: list[dict], limit: int | None = None) -> lis
 
 # ── Fase 5: Salvar resultados ─────────────────────────────────────────────────
 
-def save_results(all_candidates: list[dict], validated: list[dict]) -> None:
+def save_results(settings, all_candidates: list[dict], validated: list[dict]) -> None:
     """Salva CSV de candidatos e imprime snippet Python."""
     import pandas as pd
 
-    out_dir = ROOT / "data" / "metadata"
+    out_dir = settings.paths.metadata_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     out_csv = out_dir / "ticker_candidates.csv"
 
@@ -379,6 +377,9 @@ def save_results(all_candidates: list[dict], validated: list[dict]) -> None:
 # ── Orquestrador ──────────────────────────────────────────────────────────────
 
 def main():
+    from src.settings import build_settings
+    from src.startup import collect_startup_report, format_startup_report
+
     parser = argparse.ArgumentParser(
         description="Descobre tickers B3 para empresas sem mapeamento"
     )
@@ -391,18 +392,28 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.75,
                         help="Limiar de similaridade para fuzzy match (padrão: 0.75)")
     args = parser.parse_args()
+    settings = build_settings(project_root=ROOT)
+    startup_report = collect_startup_report(
+        settings,
+        require_database=True,
+        required_tables=("financial_reports",),
+    )
+    if startup_report.issues:
+        log.info(format_startup_report(startup_report))
+        if startup_report.errors:
+            raise SystemExit(1)
 
     t_total = time.time()
 
     # Fase 1: Baixar lista B3
-    b3_map = fetch_b3_companies()
+    b3_map = fetch_b3_companies(settings)
     if not b3_map.get("by_cvm"):
         log.error("Não foi possível baixar dados da B3. Verifique a conexão.")
         return
 
     # Fase 2: Empresas sem ticker
     log.info("Carregando empresas sem ticker...")
-    companies = load_companies_without_ticker()
+    companies = load_companies_without_ticker(settings)
     if not companies:
         log.info("Todas as empresas já têm ticker mapeado!")
         return
@@ -425,7 +436,7 @@ def main():
             c.setdefault("ticker_b3", None)
             c["yf_validado"] = None
         df = pd.DataFrame(all_candidates)
-        out = ROOT / "data" / "metadata" / "ticker_candidates.csv"
+        out = settings.paths.metadata_dir / "ticker_candidates.csv"
         out.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(out, index=False, encoding="utf-8-sig")
         log.info(f"\nSalvo em: {out}")
@@ -437,7 +448,7 @@ def main():
     validated = validate_candidates(all_candidates, args.limit)
 
     # Fase 5: Salvar
-    save_results(all_candidates, validated)
+    save_results(settings, all_candidates, validated)
 
     elapsed = time.time() - t_total
     log.info(f"\nConcluído em {elapsed:.1f}s")

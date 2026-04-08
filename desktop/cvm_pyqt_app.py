@@ -23,9 +23,25 @@ except ImportError as exc:
 from desktop.controller import UpdateController
 from desktop.services import IntelligentSelectorService
 from desktop.ui import APP_STYLESHEET, MainWindow, _build_dark_palette
+from src.settings import build_settings
+from src.startup import collect_startup_report, format_startup_report
 
 
 def main() -> int:
+    root = Path(__file__).resolve().parent.parent
+    settings = build_settings(project_root=root)
+    startup_report = collect_startup_report(
+        settings,
+        require_database=True,
+        required_tables=("financial_reports", "companies"),
+        require_canonical_accounts=True,
+    )
+    if startup_report.errors:
+        print(format_startup_report(startup_report))
+        return 1
+    if startup_report.warnings:
+        print(format_startup_report(startup_report))
+
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
@@ -34,10 +50,8 @@ def main() -> int:
     app.setPalette(_build_dark_palette())
     app.setStyleSheet(APP_STYLESHEET)
 
-    # cvm_pyqt_app.py lives in desktop/; project root is one level up
-    root = Path(__file__).resolve().parent.parent
     window = MainWindow()
-    service = IntelligentSelectorService(project_root=root)
+    service = IntelligentSelectorService(settings=settings)
     controller = UpdateController(window, service)
     window._controller = controller  # keep reference
     window.show()

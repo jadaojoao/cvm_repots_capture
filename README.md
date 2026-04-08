@@ -22,34 +22,53 @@ Projeto para captura, tratamento e consulta de demonstracoes financeiras da CVM,
 pip install -r requirements.txt
 ```
 
-2. Inicializar o banco em uma maquina nova ou apos migracao:
+2. Validar ambiente e diagnostico de bootstrap:
+```bash
+python scripts/runtime_doctor.py --require-canonical
+```
+
+3. Inicializar o banco em uma maquina nova ou apos migracao:
 ```bash
 python scripts/setup_db.py
 python scripts/setup_companies_table.py
 ```
 
-3. Atualizar dados pela interface operacional principal:
+4. Atualizar dados pela interface operacional principal:
 ```bash
 python desktop/cvm_pyqt_app.py
 ```
 
-4. Alternativa para coleta pontual via CLI:
+5. Alternativa para coleta pontual via CLI headless:
 ```bash
-python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated
+python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated --skip_complete
 ```
 
-5. Alternativas para atualizacao em lote:
+6. Alternativas para atualizacao em lote:
 ```bash
 python scripts/batch_completo.py --dry-run
 python scripts/atualizar_todos.py --anos 2024 2025
 ```
 
-6. Subir o dashboard analitico read-only:
+7. Subir o dashboard analitico read-only:
 ```bash
 streamlit run dashboard/app.py
 ```
 
 > Observacao: `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` continuam uteis em fluxos especificos, mas nao sao pre-requisitos do caminho principal PyQt6 -> banco -> dashboard descrito em `CLAUDE.md`.
+
+## Contrato operacional atual
+
+- Configuracao centralizada em `src/settings.py`, baseada em env vars e caminhos canonicos.
+- Diagnostico de startup em `src/startup.py`, consumido por CLI, desktop, dashboard e scripts.
+- Refresh headless em `src/refresh_service.py`, que virou o caminho comum para CLI, workers PyQt e automacoes.
+- Leitura headless em `src/read_service.py`, que virou o contrato consumido pelo dashboard.
+
+Variaveis principais em `.env.example`:
+- `DATABASE_URL` para PostgreSQL
+- `SQLITE_PATH` para SQLite local
+- `CVM_DATA_DIR`, `CVM_OUTPUT_DIR`, `CVM_LOG_DIR`, `CVM_CACHE_DIR`
+- `CVM_COMPANY_LIST_TIMEOUT`, `CVM_DOWNLOAD_TIMEOUT`
+- `UPDATER_SKIP_COMPLETE`, `UPDATER_FAST_LANE`, `UPDATER_FORCE_REFRESH`
 
 ## Scripts de verificacao
 
@@ -66,6 +85,15 @@ Smoke test adicional:
 
 ```bash
 pytest tests/ -q
+```
+
+Diagnostico adicional:
+
+```bash
+python scripts/runtime_doctor.py --require-db --table financial_reports --table companies --require-canonical
+python scripts/db_portability_smoke.py --write-check
+python scripts/canonicalize_data_layout.py
+python scripts/db_portability_smoke.py --database-url postgresql://user:pass@host:5432/db --write-check
 ```
 
 ## Interfaces oficiais
@@ -105,5 +133,8 @@ O motor de captura foi reconstruido para suportar repopulacoes massivas sem trav
 ## Observacoes
 
 - Prefira `desktop/cvm_pyqt_app.py` como interface operacional principal.
+- Prefira `src/refresh_service.py` e `src/read_service.py` como contratos de nucleo ao criar novas interfaces.
+- Use `scripts/db_portability_smoke.py` para validar o backend de banco antes de subir uma API web.
+- Use `scripts/canonicalize_data_layout.py` para auditar ou limpar arquivos fora do layout canonico `data/input/raw|processed`.
 - O dashboard atual possui 3 abas. Referencias antigas a 9 abas nos docs estao desatualizadas.
-- Erros de lote sao gravados em `output/logs/batch_errors.log`.
+- Erros e execucoes de refresh ficam em `output/logs/`, incluindo `refresh_runs.jsonl`.

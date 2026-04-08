@@ -16,13 +16,12 @@ if _PROJECT_ROOT not in sys.path:
 import streamlit as st
 import pandas as pd
 
-from src.query_layer import CVMQueryLayer
+from src.read_service import CVMReadService
 
 
 @st.cache_data(ttl=300)
 def _load_companies(search: str) -> pd.DataFrame:
-    ql = CVMQueryLayer()
-    return ql.get_companies(search)
+    return CVMReadService().search_companies_df(search)
 
 
 def render_sidebar() -> tuple[dict | None, list[int], bool]:
@@ -74,9 +73,9 @@ def render_sidebar() -> tuple[dict | None, list[int], bool]:
     cd_cvm = int(row["cd_cvm"])
 
     # Metadados da empresa selecionada
-    ql = CVMQueryLayer()
-    company_info = ql.get_company_info(cd_cvm)
-    available_years = ql.get_available_years(cd_cvm)
+    read_service = CVMReadService()
+    company_info = read_service.get_company_info_dict(cd_cvm)
+    available_years = read_service.get_available_years(cd_cvm)
 
     if not available_years:
         st.sidebar.warning("Sem dados disponíveis para esta empresa.")
@@ -98,7 +97,7 @@ def render_sidebar() -> tuple[dict | None, list[int], bool]:
 
     # Opções extras
     st.sidebar.divider()
-    available_stmts = ql.get_available_statements(cd_cvm)
+    available_stmts = read_service.get_available_statements(cd_cvm)
     has_optional = any(s in available_stmts for s in ["DVA", "DMPL"])
     include_optional = False
     if has_optional:

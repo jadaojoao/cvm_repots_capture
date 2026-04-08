@@ -65,6 +65,7 @@ from sqlalchemy.exc import OperationalError
 from src.utils import normalize_account_name, generate_line_id_base, validate_line_ids
 from src.standardizer import AccountStandardizer
 from src.database import CVMDatabase
+from src.settings import AppSettings, get_settings
 
 # Ensure project root is in path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,16 +74,29 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 class CVMScraper:
-    BASE_URL = os.environ.get('CVM_BASE_URL', "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC")
-
-    def __init__(self, output_dir="output/reports", data_dir="data/input", report_type="consolidated", max_workers=5):
-        self.output_dir = output_dir
-        self.data_dir = data_dir
-        self.raw_dir = os.path.join(data_dir, "raw")
-        self.processed_dir = os.path.join(data_dir, "processed")
-        self.report_type = report_type
+    def __init__(
+        self,
+        output_dir="output/reports",
+        data_dir="data/input",
+        report_type="consolidated",
+        max_workers=5,
+        settings: AppSettings | None = None,
+    ):
+        self.settings = settings or get_settings()
+        self.output_dir = str(output_dir or self.settings.paths.reports_dir)
+        self.data_dir = str(data_dir or self.settings.paths.input_dir)
+        self.raw_dir = os.path.join(self.data_dir, "raw")
+        self.processed_dir = os.path.join(self.data_dir, "processed")
+        self.report_type = report_type or self.settings.default_report_type
         self.max_workers = max_workers
-        
+        self.base_url = self.settings.cvm_base_url
+        self.company_list_timeout = self.settings.company_list_timeout
+        self.download_timeout = self.settings.download_timeout
+        self.max_excel_lock_retries = self.settings.max_excel_lock_retries
+        self.company_db_max_retries = self.settings.company_db_max_retries
+        self.company_db_retry_backoff_seconds = self.settings.company_db_retry_backoff_seconds
+        self.force_refresh = os.getenv("CVM_FORCE_REFRESH", "0") == "1"
+
         if self.report_type == "consolidated":
             self.suffix = "con"
         else:
@@ -96,7 +110,7 @@ class CVMScraper:
         self.setores_map = {}
         
         # Standardizer
-        canonical_csv_path = os.path.join(current_dir, '..', 'data', 'canonical_accounts.csv')
+        canonical_csv_path = str(self.settings.paths.canonical_accounts_path)
         self.standardizer = None
         if os.path.exists(canonical_csv_path):
             try:
@@ -105,14 +119,14 @@ class CVMScraper:
                 print(f"Aviso: Falha ao carregar padronizador: {e}")
                 
         # Database
-        db_path = os.path.join(current_dir, '..', 'data', 'db', 'cvm_financials.db')
+        db_path = str(self.settings.paths.db_path)
         self.db = CVMDatabase(db_path)
 
     def fetch_company_list(self):
         print("Fetching company list...")
         url = "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv"
         try:
-            response = requests.get(url, timeout=COMPANY_LIST_TIMEOUT)
+            response = requests.get(url, timeout=self.company_list_timeout)
             response.raise_for_status()
             df = pd.read_csv(io.BytesIO(response.content), sep=";", encoding="latin1")
             
@@ -145,15 +159,15 @@ class CVMScraper:
 
     def download_and_extract(self, year, doc_type):
         filename = f"{doc_type.lower()}_cia_aberta_{year}.zip"
-        url = f"{self.BASE_URL}/{doc_type}/DADOS/{filename}"
+        url = f"{self.base_url}/{doc_type}/DADOS/{filename}"
         local_zip_path = os.path.join(self.raw_dir, filename)
         
-        if not FORCE_REFRESH and os.path.exists(local_zip_path):
+        if not self.force_refresh and os.path.exists(local_zip_path):
             print(f"  Using local zip: {filename}")
         else:
             print(f"Downloading {doc_type} for {year}...")
             try:
-                response = requests.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT)
+                response = requests.get(url, stream=True, timeout=self.download_timeout)
                 if response.status_code != 200: return False
                 with open(local_zip_path, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=8192): f.write(chunk)
@@ -381,7 +395,7 @@ class CVMScraper:
             self.setores_map.get(str(cvm)),
         )
         
-        for attempt in range(1, MAX_EXCEL_LOCK_RETRIES + 1):
+        for attempt in range(1, self.max_excel_lock_retries + 1):
             try:
                 with pd.ExcelWriter(path, engine='openpyxl') as writer:
                     for s, df in final.items():
@@ -390,12 +404,12 @@ class CVMScraper:
                         ws['A1'] = f"Type: {self.report_type}"; ws['A2'] = "Values in BRL Thousands"
                 break
             except PermissionError:
-                if attempt >= MAX_EXCEL_LOCK_RETRIES:
+                if attempt >= self.max_excel_lock_retries:
                     raise
                 wait_s = min(2.0, 0.2 * attempt)
                 print(
                     f"Excel file locked for {name} "
-                    f"(attempt {attempt}/{MAX_EXCEL_LOCK_RETRIES}). Retrying in {wait_s:.1f}s..."
+                    f"(attempt {attempt}/{self.max_excel_lock_retries}). Retrying in {wait_s:.1f}s..."
                 )
                 time.sleep(wait_s)
         print(f"Saved to {path}")
@@ -493,7 +507,7 @@ class CVMScraper:
                 continue
 
             attempt = 0
-            while attempt < COMPANY_DB_MAX_RETRIES:
+            while attempt < self.company_db_max_retries:
                 attempt += 1
                 payload["attempts"] = int(attempt)
                 try:
@@ -508,14 +522,14 @@ class CVMScraper:
                     payload["status"] = "error"
                     payload["error"] = f"{exc.__class__.__name__}: {sql_text}"
                     payload["traceback"] = traceback.format_exc()
-                    if attempt >= COMPANY_DB_MAX_RETRIES:
+                    if attempt >= self.company_db_max_retries:
                         print(
                             f"OperationalError for {name} after {attempt} attempt(s): {sql_text}"
                         )
                         break
-                    sleep_s = COMPANY_DB_RETRY_BACKOFF_SECONDS * attempt
+                    sleep_s = self.company_db_retry_backoff_seconds * attempt
                     print(
-                        f"OperationalError for {name} on attempt {attempt}/{COMPANY_DB_MAX_RETRIES}. "
+                        f"OperationalError for {name} on attempt {attempt}/{self.company_db_max_retries}. "
                         f"Retrying in {sleep_s:.1f}s... {sql_text}"
                     )
                     time.sleep(sleep_s)

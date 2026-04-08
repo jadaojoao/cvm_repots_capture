@@ -26,6 +26,7 @@ except ImportError:
     _YF_AVAILABLE = False
 
 from src.ticker_map import TICKER_MAP
+from src.settings import AppSettings, build_settings
 
 
 @dataclass
@@ -108,15 +109,16 @@ class IntelligentSelectorService:
     PRIORITY_LIST_LIMIT = 15
     NO_DATA_COOLDOWN_DAYS = 7
 
-    def __init__(self, project_root: Path):
-        self.project_root = project_root
-        self.db_path = project_root / "data" / "db" / "cvm_financials.db"
-        self.cache_path = project_root / "data" / "cache" / "yfinance_cache.json"
-        self.reports_dir = project_root / "output" / "reports"
-        self.base_health_cache_path = project_root / "data" / "cache" / "base_health_snapshot.json"
-        self.active_universe_cache_path = project_root / "data" / "cache" / "active_universe_cache.json"
-        self.processed_presence_cache_path = project_root / "data" / "cache" / "processed_presence_index.json"
-        self.processed_dir = project_root / "data" / "input" / "processed"
+    def __init__(self, project_root: Path | None = None, settings: AppSettings | None = None):
+        self.settings = settings or build_settings(project_root=project_root)
+        self.project_root = self.settings.paths.project_root
+        self.db_path = self.settings.paths.db_path
+        self.cache_path = self.settings.paths.yfinance_cache_path
+        self.reports_dir = self.settings.paths.reports_dir
+        self.base_health_cache_path = self.settings.paths.base_health_snapshot_path
+        self.active_universe_cache_path = self.settings.paths.active_universe_cache_path
+        self.processed_presence_cache_path = self.settings.paths.processed_presence_index_path
+        self.processed_dir = self.settings.paths.processed_dir
 
     def _load_market_cache(self) -> dict[str, Any]:
         if not self.cache_path.exists():
