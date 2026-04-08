@@ -51,6 +51,11 @@
 ### Governanca de Trabalho
 - `GitHub Issues` passa a ser a fonte oficial do backlog e do status do trabalho
 - `AGENTS.md` na raiz define o contrato operacional `issue -> branch -> PR -> merge`
+- Trabalho paralelo agora e regido por `owner atual`, `write-set esperado` e
+  classificacao `risk:*` declarados em cada task
+- `risk:shared` e `risk:contract-sensitive` exigem PR em draft na abertura
+- Interfaces publicas ficam `additive-only` por default durante execucao
+  simultanea
 - `docs/STUDENT_PACK_PLAN.md` deixa de espelhar task-by-task e passa a apontar para milestone + epics + filtros de issues
 - `docs/AGENTS.md` permanece apenas como estado atual e historico de sessoes
 
@@ -78,6 +83,17 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 32 - 2026-04-08 (protocolo de trabalho paralelo agnostico a IA)
+- Nova familia de labels `risk:*` criada no GitHub: `risk:safe`, `risk:shared`,
+  `risk:contract-sensitive`
+- Template de task passa a exigir `Owner atual`, `Write-set esperado` e
+  `Classificacao de risco`
+- PR template passa a registrar risco, write-set e politica de compatibilidade
+- Guardrail de PR passa a validar labels `status:*`, `priority:*`, `area:*`,
+  `risk:*` e a presenca de metadados de ownership/write-set na issue
+- PRs de tasks `risk:shared` e `risk:contract-sensitive` precisam abrir em draft
+- O protocolo passa a ser por task e write-set, nao por identidade da IA
 
 ### Sessao 31 - 2026-04-08 (governanca issue-first no GitHub)
 - `AGENTS.md` criado na raiz como contrato operacional para agentes e contribuidores

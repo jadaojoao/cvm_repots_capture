@@ -20,6 +20,7 @@ repositorio.
    - um label `status:*`
    - um label `priority:*`
    - um label `area:*`
+   - um label `risk:*`
 4. Ao iniciar, marque a task como `status:in-progress` e atualize o checklist do
    corpo da issue.
 5. Trabalhe em branch no formato `task/<issue-number>-<slug>`.
@@ -56,6 +57,39 @@ repositorio.
   issue atual.
 - Se um issue estiver defasado, atualize o corpo para refletir apenas o trabalho
   restante ou feche como `superseded`, apontando para o substituto.
+
+## Protocolo de trabalho paralelo
+
+- O protocolo vale por `task issue`, nao pela identidade da IA ou da pessoa.
+- Toda task precisa declarar no corpo da issue:
+  - `Owner atual`
+  - `Write-set esperado`
+  - `Classificacao de risco`
+- Classificacoes aceitas:
+  - `safe`: write-set isolado; pode seguir sem coordenacao especial
+  - `shared`: toca arquivos compartilhados; a PR deve abrir em draft
+  - `contract-sensitive`: toca contratos publicos; exige PR em draft e revisao
+    explicita de compatibilidade
+- Se outra IA ou pessoa assumir a task, atualize primeiro o `Owner atual` da
+  issue e so depois continue implementando.
+- Se duas tasks tiverem write-set relevante em comum, uma delas deve:
+  - esperar;
+  - reduzir escopo;
+  - ou ser marcada como dependente.
+- Registre a dependencia ou a disputa de write-set na propria issue antes de
+  continuar.
+- Arquivos compartilhados padrao:
+  - `README.md`
+  - `COMO_RODAR.md`
+  - `docs/V2_API_CONTRACT.md`
+  - `docs/STUDENT_PACK_PLAN.md`
+  - `docs/AGENTS.md`
+  - `.github/**` quando a mudanca afetar workflow comum
+- Durante trabalho paralelo, a regra default para interfaces publicas e
+  `additive-only`.
+- Mudanca breaking em API/contrato so pode acontecer em task propria,
+  classificada como `risk:contract-sensitive`, com coordenacao explicita e merge
+  serializado.
 
 ## Onde registrar o que
 

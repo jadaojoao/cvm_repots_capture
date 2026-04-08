@@ -15,12 +15,13 @@ Hybrid Python project: a CLI scraper that extracts DFP/ITR financial reports fro
 Before changing any versioned file:
 
 1. Find or create an open `task issue` in GitHub.
-2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, and one `area:*` label.
-3. Update the issue when work starts and keep the checklist/evidence current.
-4. Work in a branch named `task/<issue-number>-<slug>`.
-5. Open a PR with `Closes #<issue-number>` in the body.
-6. Update the issue and relevant docs before considering the task complete.
-7. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, one `area:*`, and one `risk:*` label.
+3. Ensure the issue body declares `Owner atual`, `Write-set esperado`, and `Classificacao de risco`.
+4. Update the issue when work starts and keep the checklist/evidence current.
+5. Work in a branch named `task/<issue-number>-<slug>`.
+6. Open a PR with `Closes #<issue-number>` in the body.
+7. Update the issue and relevant docs before considering the task complete.
+8. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
 
 ## Publish and Merge Policy
 
@@ -36,6 +37,25 @@ Before changing any versioned file:
 - After merge, confirm the linked task closes and the remote branch is removed when possible.
 
 Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub Issues.
+
+## Parallel Work Protocol
+
+- Treat the `task issue` as the ownership boundary, not the agent identity.
+- If another IA or human takes over the same task, update `Owner atual` in the
+  issue before continuing work.
+- Respect the declared `Write-set esperado`. If another open task needs the same
+  write-set, coordinate through the issues or reduce scope before editing.
+- Record dependencies or write-set collisions in the task issue before moving
+  forward.
+- Risk classes:
+  - `risk:safe`: isolated write-set
+  - `risk:shared`: touches shared files; PR must open in draft
+  - `risk:contract-sensitive`: touches public API/schema/docs; PR must open in
+    draft and document compatibility
+- Shared public interfaces remain `additive-only` by default during parallel
+  work.
+- Breaking contract changes require a dedicated `risk:contract-sensitive` task,
+  explicit coordination in the issue/PR, and serialized merge timing.
 
 ## Commands
 

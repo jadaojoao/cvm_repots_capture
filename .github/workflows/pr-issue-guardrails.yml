@@ -21,6 +21,40 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            function extractSection(body, heading) {
+              const lines = (body || "").split(/\r?\n/);
+              let capturing = false;
+              const collected = [];
+
+              for (const line of lines) {
+                if (line.trim() === `## ${heading}`) {
+                  capturing = true;
+                  continue;
+                }
+
+                if (capturing && /^##\s+/.test(line)) {
+                  break;
+                }
+
+                if (capturing) {
+                  collected.push(line);
+                }
+              }
+
+              return collected.join("\n").trim();
+            }
+
+            function requireExactlyOnePrefix(labels, prefix, description) {
+              const matches = labels.filter((label) => label.startsWith(prefix));
+              if (matches.length !== 1) {
+                core.setFailed(
+                  `A issue precisa ter exatamente um label ${description}. Encontrados: ${matches.join(", ") || "nenhum"}.`,
+                );
+                return false;
+              }
+              return true;
+            }
+
             const branch = context.payload.pull_request.head.ref;
             const branchMatch = branch.match(/^task\/(\d+)-[a-z0-9][a-z0-9-]*$/);
 
@@ -67,4 +101,79 @@ jobs:
               core.setFailed(
                 `A issue #${issueNumber} precisa ter o label "kind:task". Epics nao devem ser fechados por PR.`,
               );
+              return;
+            }
+
+            if (!requireExactlyOnePrefix(labels, "status:", "`status:*`")) {
+              return;
+            }
+
+            if (!requireExactlyOnePrefix(labels, "priority:", "`priority:*`")) {
+              return;
+            }
+
+            if (!requireExactlyOnePrefix(labels, "area:", "`area:*`")) {
+              return;
+            }
+
+            if (!requireExactlyOnePrefix(labels, "risk:", "`risk:*`")) {
+              return;
+            }
+
+            const owner = extractSection(issue.body || "", "Owner atual");
+            const writeSet = extractSection(issue.body || "", "Write-set esperado");
+            const risk = extractSection(issue.body || "", "Classificacao de risco").toLowerCase();
+
+            if (!owner || /^a definir$/i.test(owner)) {
+              core.setFailed(
+                `A issue #${issueNumber} precisa declarar um "Owner atual" explicito antes da PR.`,
+              );
+              return;
+            }
+
+            if (!writeSet) {
+              core.setFailed(
+                `A issue #${issueNumber} precisa declarar um "Write-set esperado" antes da PR.`,
+              );
+              return;
+            }
+
+            const acceptedRiskValues = ["safe", "shared", "contract-sensitive"];
+            if (!acceptedRiskValues.includes(risk)) {
+              core.setFailed(
+                `A issue #${issueNumber} precisa declarar "Classificacao de risco" como safe, shared ou contract-sensitive.`,
+              );
+              return;
+            }
+
+            const expectedRiskLabel = `risk:${risk}`;
+            if (!labels.includes(expectedRiskLabel)) {
+              core.setFailed(
+                `A issue #${issueNumber} declara risco "${risk}", mas nao possui o label "${expectedRiskLabel}".`,
+              );
+              return;
+            }
+
+            if (
+              context.payload.action === "opened" &&
+              (risk === "shared" || risk === "contract-sensitive") &&
+              !context.payload.pull_request.draft
+            ) {
+              core.setFailed(
+                `PRs de tasks ${expectedRiskLabel} devem abrir em draft para coordenacao segura.`,
+              );
+              return;
+            }
+
+            if (risk === "contract-sensitive") {
+              const compatibility = extractSection(body, "Compatibilidade");
+              const hasPolicy =
+                compatibility.includes("additive-only") ||
+                compatibility.includes("breaking-approved");
+
+              if (!hasPolicy) {
+                core.setFailed(
+                  `PRs de tasks ${expectedRiskLabel} precisam documentar a politica de compatibilidade em "## Compatibilidade".`,
+                );
+              }
             }

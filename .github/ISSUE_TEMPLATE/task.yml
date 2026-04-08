@@ -9,13 +9,55 @@ body:
     attributes:
       value: |
         Toda alteracao em arquivos versionados deve estar vinculada a uma task.
-        Depois de criar esta issue, aplique tambem labels `priority:*` e `area:*`.
+        Depois de criar esta issue, aplique tambem labels `priority:*`,
+        `area:*` e `risk:*`.
   - type: input
     id: parent_epic
     attributes:
       label: Epic pai
       description: Informe o numero da issue epic relacionada, se existir.
       placeholder: "#5"
+    validations:
+      required: false
+  - type: input
+    id: current_owner
+    attributes:
+      label: Owner atual
+      description: Quem esta responsavel pela task neste momento.
+      placeholder: Codex (thread atual), Claude, humano, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: write_set
+    attributes:
+      label: Write-set esperado
+      description: Liste as pastas e arquivos versionados que esta task pretende tocar.
+      placeholder: |
+        - apps/api/**
+        - src/**
+        - docs/V2_API_CONTRACT.md
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Classificacao de risco
+      description: Depois de criar a issue, aplique o label `risk:*` correspondente.
+      options:
+        - safe
+        - shared
+        - contract-sensitive
+    validations:
+      required: true
+  - type: textarea
+    id: coordination
+    attributes:
+      label: Dependencias ou write-sets concorrentes
+      description: Use para registrar se esta task depende de outra ou divide write-set com outra frente.
+      placeholder: |
+        Nenhuma no momento.
+        ou
+        - Depende da task #23 antes de tocar docs/V2_API_CONTRACT.md
     validations:
       required: false
   - type: textarea
@@ -67,6 +109,7 @@ body:
       description: Edite esta lista no corpo da issue conforme o trabalho avancar.
       value: |
         - [ ] Escopo confirmado
+        - [ ] Owner, write-set e risco revisados
         - [ ] Implementacao concluida
         - [ ] Validacao executada
         - [ ] Issue/docs atualizados
