@@ -1,0 +1,39 @@
+export type TrackEventName =
+  | "home_search_submitted"
+  | "home_suggestion_selected"
+  | "companies_filter_changed"
+  | "companies_pagination_clicked"
+  | "company_detail_viewed"
+  | "company_years_changed"
+  | "company_statement_changed";
+
+type TrackPayload = Record<string, string | number | boolean | null | undefined>;
+
+declare global {
+  interface Window {
+    __CVM_ANALYTICS_EVENTS__?: Array<{
+      event: TrackEventName;
+      payload: TrackPayload;
+      timestamp: string;
+    }>;
+  }
+}
+
+export function track(event: TrackEventName, payload: TrackPayload = {}): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const entry = {
+    event,
+    payload,
+    timestamp: new Date().toISOString(),
+  };
+
+  window.__CVM_ANALYTICS_EVENTS__ ??= [];
+  window.__CVM_ANALYTICS_EVENTS__.push(entry);
+
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[track]", entry);
+  }
+}

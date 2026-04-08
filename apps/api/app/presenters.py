@@ -6,6 +6,8 @@ from typing import Any
 from pydantic import BaseModel
 
 from src.contracts import (
+    CompanyDirectoryPage,
+    CompanyFiltersDTO,
     CompanyInfoDTO,
     CompanySearchResult,
     HealthSnapshot,
@@ -47,6 +49,8 @@ class CompanySearchResultPayload(BaseModel):
     ticker_b3: str | None = None
     setor_analitico: str | None = None
     setor_cvm: str | None = None
+    sector_name: str
+    sector_slug: str
     anos_disponiveis: list[int]
     total_rows: int
 
@@ -58,8 +62,40 @@ class CompanyInfoPayload(BaseModel):
     cnpj: str | None = None
     setor_cvm: str | None = None
     setor_analitico: str | None = None
+    sector_name: str
+    sector_slug: str
     company_type: str | None = None
     ticker_b3: str | None = None
+
+
+class CompanyDirectoryPaginationPayload(BaseModel):
+    page: int
+    page_size: int
+    total_items: int
+    total_pages: int
+    has_next: bool
+    has_previous: bool
+
+
+class CompanyDirectoryAppliedFiltersPayload(BaseModel):
+    search: str
+    sector: str | None = None
+
+
+class CompanyDirectoryPagePayload(BaseModel):
+    items: list[CompanySearchResultPayload]
+    pagination: CompanyDirectoryPaginationPayload
+    applied_filters: CompanyDirectoryAppliedFiltersPayload
+
+
+class CompanySectorFilterPayload(BaseModel):
+    sector_name: str
+    sector_slug: str
+    company_count: int
+
+
+class CompanyFiltersPayload(BaseModel):
+    sectors: list[CompanySectorFilterPayload]
 
 
 class TabularDataPayload(BaseModel):
@@ -162,6 +198,16 @@ def present_issue(issue: StartupIssue) -> StartupIssuePayload:
 
 def present_company_search(rows: list[CompanySearchResult]) -> list[CompanySearchResultPayload]:
     return [CompanySearchResultPayload(**row.to_dict()) for row in rows]
+
+
+def present_company_directory_page(dto: CompanyDirectoryPage) -> CompanyDirectoryPagePayload:
+    payload = dto.to_dict()
+    payload["items"] = [item.model_dump() for item in present_company_search(list(dto.items))]
+    return CompanyDirectoryPagePayload(**payload)
+
+
+def present_company_filters(dto: CompanyFiltersDTO) -> CompanyFiltersPayload:
+    return CompanyFiltersPayload(**dto.to_dict())
 
 
 def present_company_info(dto: CompanyInfoDTO) -> CompanyInfoPayload:

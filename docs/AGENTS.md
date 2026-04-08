@@ -29,17 +29,23 @@
 ### V2 Backend
 - `apps/api` existe como a Fase 1 da V2
 - API `FastAPI` read-only, thin wrapper sobre `src/read_service.py`
-- Endpoints iniciais: `health`, `companies`, `company detail`, `years`, `statements`, `kpis`, `refresh-status`, `base-health`
-- `apps/web` ainda nao foi implementado; entra na fase seguinte
+- Endpoints iniciais: `health`, `companies`, `companies/filters`, `company detail`, `years`, `statements`, `kpis`, `refresh-status`, `base-health`
+
+### V2 Web
+- `apps/web` existe como o primeiro slice web da V2
+- Stack local: `Next.js 16` + `App Router` + `TypeScript` + `Tailwind` + `shadcn`
+- Rotas entregues nesta fase: `/`, `/empresas`, `/empresas/[cd_cvm]`
+- O frontend consome somente a API V2; nao acessa `src/` nem o banco diretamente
+- Estado principal da UX desta fase: `Home -> Empresas -> Empresa`
 
 ### Testes
-- **141 pytest passing** (`pytest tests/ -q` + `pytest apps/api/tests -q`, last confirmed)
 - `pytest tests/ -q` continua sendo a validacao mais confiavel da V1
 - `pytest apps/api/tests -q` cobre o contrato HTTP da Fase 1 da V2
+- `apps/web` valida com `npm run lint`, `npm run typecheck`, `npm run build` e `npm run test:e2e`
 
 ### Issues Abertas
 - Validacao contra PostgreSQL real ainda depende de `DATABASE_URL` valido
-- `apps/web` ainda nao foi iniciado
+- Deploy de preview da V2 ainda nao foi iniciado
 - Streamlit Cloud deploy pendente
 - P10 (bancos financeiros: Itau, Bradesco) nao iniciado
 
@@ -69,6 +75,14 @@
 - `.github/workflows/ci.yml` criado para rodar V1 + API
 - `docs/V2_PHASE1_BACKEND.md` e `docs/V2_API_CONTRACT.md` criados
 - `docs/WEBAPP_TRANSFORMATION_PLAN.md` refinado para `backend-first`
+
+### Sessao 29 - 2026-04-08 (Fase 2 V2 web slice 1)
+- `apps/web` criado em `Next.js 16` com `App Router`, `TypeScript`, `Tailwind` e `shadcn`
+- Rotas entregues: `/`, `/empresas`, `/empresas/[cd_cvm]`
+- Home recebeu busca principal com autocomplete via route handler interno
+- Hub de empresas recebeu busca, filtro de setor e paginacao orientados por URL
+- Detalhe da empresa recebeu `Visao Geral` e `Demonstracoes` (`DRE`, `BPA`, `BPP`, `DFC`)
+- CI passou a incluir `lint`, `typecheck` e `build` do `apps/web`
 
 ### Sessao 27 - 2026-04-07 (roadmap da transformacao web + aprendizado)
 - `docs/WEBAPP_TRANSFORMATION_PLAN.md` criado para registrar a execucao da V1 para a V2

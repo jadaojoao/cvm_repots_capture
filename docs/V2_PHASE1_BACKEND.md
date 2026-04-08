@@ -76,7 +76,7 @@ Rodar lado a lado com a V1:
 ## Criterios de aceite da fase
 
 - API local sobe em SQLite e responde `/health`
-- contratos HTTP cobrem busca, detalhe, anos, demonstracoes, KPIs, refresh status e health snapshot
+- contratos HTTP cobrem diretorio paginado de empresas, filtros canonicos, detalhe, anos, demonstracoes, KPIs, refresh status e health snapshot
 - Swagger/OpenAPI fica utilizavel
 - testes da API passam com `TestClient`
 - suite principal da V1 continua verde

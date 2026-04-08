@@ -144,6 +144,8 @@ class CompanySearchResult:
     ticker_b3: str | None
     setor_analitico: str | None
     setor_cvm: str | None
+    sector_name: str
+    sector_slug: str
     anos_disponiveis: tuple[int, ...]
     total_rows: int
 
@@ -161,11 +163,67 @@ class CompanyInfoDTO:
     cnpj: str | None
     setor_cvm: str | None
     setor_analitico: str | None
+    sector_name: str
+    sector_slug: str
     company_type: str | None
     ticker_b3: str | None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class CompanyDirectoryPagination:
+    page: int
+    page_size: int
+    total_items: int
+    total_pages: int
+    has_next: bool
+    has_previous: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class CompanyDirectoryAppliedFilters:
+    search: str
+    sector: str | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class CompanyDirectoryPage:
+    items: tuple[CompanySearchResult, ...]
+    pagination: CompanyDirectoryPagination
+    applied_filters: CompanyDirectoryAppliedFilters
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "items": [item.to_dict() for item in self.items],
+            "pagination": self.pagination.to_dict(),
+            "applied_filters": self.applied_filters.to_dict(),
+        }
+
+
+@dataclass(frozen=True)
+class CompanySectorFilterOption:
+    sector_name: str
+    sector_slug: str
+    company_count: int
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class CompanyFiltersDTO:
+    sectors: tuple[CompanySectorFilterOption, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"sectors": [row.to_dict() for row in self.sectors]}
 
 
 @dataclass(frozen=True)

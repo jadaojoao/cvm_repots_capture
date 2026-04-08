@@ -42,7 +42,8 @@ Motivo:
 
 Aplicacao `FastAPI`, read-only, com os endpoints:
 - `GET /health`
-- `GET /companies?search=&limit=`
+- `GET /companies?search=&sector=&page=&page_size=`
+- `GET /companies/filters`
 - `GET /companies/{cd_cvm}`
 - `GET /companies/{cd_cvm}/years`
 - `GET /companies/{cd_cvm}/statements?years=&stmt=`
@@ -83,8 +84,8 @@ Saida esperada:
 
 Meta de entrega:
 - criar `apps/web` em `Next.js`;
-- entregar duas rotas iniciais: `/` e `/companies/[cd_cvm]`;
-- consumir exclusivamente a API da Fase 1.
+- entregar o primeiro slice local com `/`, `/empresas` e `/empresas/[cd_cvm]`;
+- consumir exclusivamente a API da V2.
 
 Meta de aprendizado:
 - aprender a consumir contratos HTTP estaveis sem furar a fronteira do dominio;
@@ -94,7 +95,7 @@ Meta de aprendizado:
 Saida esperada:
 - uma navegacao web minima funcional;
 - paridade inicial de busca + detalhe rico de empresa;
-- base pronta para deploy de preview.
+- base pronta para `PG-04 /comparar` sem reabrir foundation.
 
 ### Fase 3 - Primeiro deploy gerenciado
 
@@ -135,7 +136,7 @@ Saida esperada:
 ## 5. Proximos passos concretos
 
 1. Fechar a Fase 1 com validacao PostgreSQL real.
-2. Criar `apps/web` consumindo apenas a API da Fase 1.
+2. Consolidar o primeiro slice `Home -> Empresas -> Empresa` em `apps/web`.
 3. Testar o slice local completo antes de qualquer deploy remoto.
 4. Publicar o primeiro slice em deploy gerenciado, sem introduzir `Nginx` cedo demais.
 5. Integrar observabilidade e qualidade antes de expandir escopo funcional.

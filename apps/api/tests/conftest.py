@@ -18,6 +18,8 @@ def _write_active_universe_cache(settings: AppSettings) -> None:
         "rows": [
             {"cd_cvm": 9512, "company_name": "PETROBRAS"},
             {"cd_cvm": 4170, "company_name": "VALE"},
+            {"cd_cvm": 11223, "company_name": "SABESP"},
+            {"cd_cvm": 77889, "company_name": "SEM DADOS"},
         ],
     }
     settings.paths.active_universe_cache_path.write_text(
@@ -73,6 +75,10 @@ def _seed_database(settings: AppSettings) -> None:
         ("VALE", 4170, "BPP", 2024, "2024", "vale-bpp", "2", "Passivo Total", "Passivo Total", 0, 500.0),
         ("VALE", 4170, "DRE", 2024, "2024", "vale-dre", "3.01", "Receita Liquida", "Receita", 0, 800.0),
         ("VALE", 4170, "DFC", 2024, "2024", "vale-dfc", "6.01", "Fluxo Operacional", "FCO", 0, 180.0),
+        ("SABESP", 11223, "BPA", 2024, "2024", "sabesp-bpa", "1", "Ativo Total", "Ativo Total", 0, 650.0),
+        ("SABESP", 11223, "BPP", 2024, "2024", "sabesp-bpp", "2", "Passivo Total", "Passivo Total", 0, 320.0),
+        ("SABESP", 11223, "DRE", 2024, "2024", "sabesp-dre", "3.01", "Receita Liquida", "Receita", 0, 420.0),
+        ("SABESP", 11223, "DFC", 2024, "2024", "sabesp-dfc", "6.01", "Fluxo Operacional", "FCO", 0, 90.0),
     ]
 
     with sqlite3.connect(str(db_path)) as conn:
@@ -136,6 +142,8 @@ def _seed_database(settings: AppSettings) -> None:
             [
                 (9512, "PETROBRAS", "Petrobras", "33.000.167/0001-01", "Energia", "Energia", "comercial", "PETR4", 1, "2026-04-08T09:00:00"),
                 (4170, "VALE", "Vale", "33.592.510/0001-54", "Mineracao", "Materiais Basicos", "comercial", "VALE3", 1, "2026-04-08T09:00:00"),
+                (11223, "SABESP", "Sabesp", "43.776.517/0001-80", "Saneamento", None, "comercial", "SBSP3", 1, "2026-04-08T09:00:00"),
+                (77889, "SEM DADOS", "Sem Dados", "00.000.000/0001-00", "Financeiro", "Financeiro", "comercial", "SEMD3", 1, "2026-04-08T09:00:00"),
             ],
         )
         conn.executemany(

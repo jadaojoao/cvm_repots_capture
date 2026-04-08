@@ -31,29 +31,77 @@ Resposta exemplo:
 }
 ```
 
-### `GET /companies?search=&limit=`
+### `GET /companies?search=&sector=&page=&page_size=`
 
 Parametros:
 - `search`: opcional, filtro por nome, ticker ou codigo CVM
-- `limit`: opcional, default `20`, maximo `100`
+- `sector`: opcional, slug canonico do setor
+- `page`: opcional, default `1`, minimo `1`
+- `page_size`: opcional, default `20`, maximo `100`
 
 DTO de saida:
-- `src.contracts.CompanySearchResult`
+- `src.contracts.CompanyDirectoryPage`
 
 Resposta exemplo:
 
 ```json
-[
-  {
-    "cd_cvm": 9512,
-    "company_name": "PETROBRAS",
-    "ticker_b3": "PETR4",
-    "setor_analitico": "Energia",
-    "setor_cvm": "Energia",
-    "anos_disponiveis": [2023, 2024],
-    "total_rows": 30
+{
+  "items": [
+    {
+      "cd_cvm": 9512,
+      "company_name": "PETROBRAS",
+      "ticker_b3": "PETR4",
+      "setor_analitico": "Energia",
+      "setor_cvm": "Energia",
+      "sector_name": "Energia",
+      "sector_slug": "energia",
+      "anos_disponiveis": [2023, 2024],
+      "total_rows": 30
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_items": 1,
+    "total_pages": 1,
+    "has_next": false,
+    "has_previous": false
+  },
+  "applied_filters": {
+    "search": "petro",
+    "sector": null
   }
-]
+}
+```
+
+Regras do endpoint:
+- retorna apenas empresas que possuem dados em `financial_reports`
+- ordena por `company_name ASC`
+- `sector` usa slug canonico estavel, nao label livre
+- `anos_disponiveis` e montado de forma portavel na camada de leitura
+
+### `GET /companies/filters`
+
+DTO de saida:
+- `src.contracts.CompanyFiltersDTO`
+
+Resposta exemplo:
+
+```json
+{
+  "sectors": [
+    {
+      "sector_name": "Energia",
+      "sector_slug": "energia",
+      "company_count": 12
+    },
+    {
+      "sector_name": "Saneamento",
+      "sector_slug": "saneamento",
+      "company_count": 4
+    }
+  ]
+}
 ```
 
 ### `GET /companies/{cd_cvm}`
@@ -71,6 +119,8 @@ Resposta exemplo:
   "cnpj": "33.000.167/0001-01",
   "setor_cvm": "Energia",
   "setor_analitico": "Energia",
+  "sector_name": "Energia",
+  "sector_slug": "energia",
   "company_type": "comercial",
   "ticker_b3": "PETR4"
 }

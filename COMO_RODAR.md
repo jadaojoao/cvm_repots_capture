@@ -1,102 +1,62 @@
 # Como Rodar - CVM Analytics
 
-Este guia explica como usar o sistema de coleta e consulta de dados financeiros da CVM, passo a passo.
-Nao e necessario saber programar para seguir as instrucoes.
+Guia pratico para subir a V1 operacional e o primeiro slice da V2 no ambiente local.
 
-Fluxo principal atual: `runtime_doctor.py` -> `setup_db.py` -> `setup_companies_table.py` -> `desktop/cvm_pyqt_app.py` -> `dashboard/app.py` -> `apps/api`.
+Fluxo principal atual:
 
----
-
-## Antes de comecar
-
-- **Python 3.11 ou superior**
-  ```powershell
-  python --version
-  ```
-- **Pasta do projeto**
-  Entre na pasta `cvm_repots_capture` antes de rodar qualquer comando.
+`runtime_doctor.py -> setup_db.py -> setup_companies_table.py -> desktop/cvm_pyqt_app.py -> dashboard/app.py -> apps/api -> apps/web`
 
 ---
 
-## Passo 1 - Abrir o terminal na pasta do projeto
+## 1. Preparar o ambiente
 
-1. Abra o Explorador de Arquivos e navegue ate a pasta `cvm_repots_capture`.
-2. Clique na barra de endereco, digite `powershell` ou `cmd` e aperte Enter.
+Entre na pasta do projeto:
 
-Alternativa:
 ```powershell
 cd C:\caminho\para\cvm_repots_capture
 ```
 
----
+Crie e ative a `.venv` se necessario:
 
-## Passo 2 - Criar e ativar o ambiente virtual
-
-Se ainda nao existir:
 ```powershell
 python -m venv .venv
-```
-
-**No CMD:**
-```bat
-.venv\Scripts\activate.bat
-```
-
-**No PowerShell:**
-```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Se aparecer erro de permissao no PowerShell:
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
+Instale as dependencias Python:
 
----
-
-## Passo 3 - Instalar as bibliotecas
-
-Com o ambiente virtual ativo:
 ```powershell
 pip install -r requirements.txt
-```
-
-Se voce tambem vai usar a API da V2:
-```powershell
 pip install -r apps/api/requirements-dev.txt
 ```
 
+Se for usar a web:
+
+```powershell
+cd apps/web
+npm install
+cd ..\..
+```
+
 ---
 
-## Passo 4 - Rodar o diagnostico de runtime
+## 2. Diagnosticar o runtime
 
-Antes de inicializar ou subir a aplicacao, rode:
+Bootstrap minimo:
 
 ```powershell
 python scripts/runtime_doctor.py --require-canonical
 ```
 
-Se quiser validar banco + tabelas obrigatorias:
+Diagnostico completo:
 
 ```powershell
 python scripts/runtime_doctor.py --require-db --table financial_reports --table companies --require-canonical
-```
-
-Esse script verifica:
-- interpretador Python atual,
-- `.venv` quebrada,
-- arquivo `canonical_accounts.csv`,
-- banco configurado e tabelas obrigatorias,
-- diretorios legados que podem causar ambiguidade operacional.
-
-Para validar layout de dados e banco antes da web:
-
-```powershell
 python scripts/canonicalize_data_layout.py
 python scripts/db_portability_smoke.py --write-check
 ```
 
-Se voce quiser validar um PostgreSQL especifico sem exportar a variavel antes:
+Validacao de PostgreSQL sem exportar variavel:
 
 ```powershell
 python scripts/runtime_doctor.py --database-url postgresql://user:pass@host:5432/db --require-db --table financial_reports --table companies
@@ -105,108 +65,75 @@ python scripts/db_portability_smoke.py --database-url postgresql://user:pass@hos
 
 ---
 
-## Passo 5 - Configurar o banco de dados
+## 3. Inicializar o banco
 
-Se e a primeira vez usando o projeto, ou se voce mudou de maquina, rode estes dois scripts antes de abrir o app:
+Em maquina nova ou depois de migracao:
 
 ```powershell
 python scripts/setup_db.py
 python scripts/setup_companies_table.py
 ```
 
-Esses scripts:
-- criam indices e tabelas de apoio,
-- preenchem a tabela `companies`,
-- preparam o banco para o app desktop, dashboard e API.
-
 Opcional:
+
 ```powershell
 python scripts/expand_tickers.py --dry-run
 ```
 
 ---
 
-## Passo 6 - Atualizar os dados financeiros
+## 4. Atualizar dados financeiros
 
-### Opcao A - Pelo aplicativo desktop (recomendado)
-
-Este e o caminho principal do projeto.
+### Opcao A - App desktop oficial
 
 ```powershell
 python desktop/cvm_pyqt_app.py
 ```
 
-No app:
-1. escolha os anos desejados,
-2. revise a lista/ranking de empresas,
-3. clique para iniciar a atualizacao.
-
-O app mostra progresso, erros e cobertura da base.
-
-### Opcao B - Pelo terminal, para uma empresa especifica
+### Opcao B - CLI pontual
 
 ```powershell
 python main.py --companies PETROBRAS --start_year 2021 --end_year 2025 --type consolidated --skip_complete
 ```
 
-Voce tambem pode usar o codigo CVM numerico no lugar do nome.
-Esse caminho usa o mesmo servico headless do updater desktop.
+### Opcao C - Lote headless
 
-### Opcao C - Atualizacao em lote
-
-Preview:
 ```powershell
 python scripts/batch_completo.py --dry-run
-```
-
-Lote amplo:
-```powershell
-python scripts/batch_completo.py --max-companies 450 --start-year 2022 --end-year 2025
-```
-
-Ou:
-```powershell
 python scripts/atualizar_todos.py --anos 2024 2025
 ```
 
-Os logs principais ficam em `output/logs/`.
-As execucoes headless tambem ficam registradas em `output/logs/refresh_runs.jsonl`.
+Os logs ficam em `output/logs/`.
 
 ---
 
-## Passo 7 - Abrir o dashboard analitico
-
-Depois que houver dados no banco:
+## 5. Abrir o dashboard Streamlit
 
 ```powershell
 streamlit run dashboard/app.py
 ```
 
-O dashboard atual e **somente leitura**. Ele serve para:
-- buscar empresa por nome, ticker ou codigo CVM,
-- selecionar anos,
-- visualizar 3 abas: `Visao Geral`, `Demonstracoes` e `Download`.
-
-Atualizacao de dados pertence ao app PyQt6 ou aos scripts.
-O dashboard consome o contrato de leitura centralizado em `src/read_service.py`.
+Uso:
+- buscar empresa por nome, ticker ou codigo CVM
+- selecionar anos
+- consultar `Visao Geral`, `Demonstracoes` e `Download`
 
 ---
 
-## Passo 8 - Subir a API da Fase 1 da V2
-
-A API web desta fase e somente leitura e reaproveita o mesmo contrato headless da V1.
+## 6. Subir a API da V2
 
 ```powershell
 uvicorn apps.api.app.main:app --reload
 ```
 
 Abrir:
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
+- Swagger: `http://127.0.0.1:8000/docs`
+- OpenAPI: `http://127.0.0.1:8000/openapi.json`
 
 Endpoints principais:
 - `GET /health`
 - `GET /companies`
+- `GET /companies/filters`
 - `GET /companies/{cd_cvm}`
 - `GET /companies/{cd_cvm}/years`
 - `GET /companies/{cd_cvm}/statements`
@@ -214,26 +141,61 @@ Endpoints principais:
 - `GET /refresh-status`
 - `GET /base-health`
 
-Exemplo rapido:
+Exemplos:
+
 ```powershell
-Invoke-RestMethod http://127.0.0.1:8000/companies?search=petro
+Invoke-RestMethod "http://127.0.0.1:8000/companies?search=petro&page=1&page_size=20"
+Invoke-RestMethod http://127.0.0.1:8000/companies/filters
 ```
 
 ---
 
-## Passo 9 - Validar
+## 7. Subir o web app da V2
 
-Suite principal:
+Em outro terminal:
+
 ```powershell
-pytest tests/ -q
+cd apps/web
+Copy-Item .env.example .env.local
+npm run dev
 ```
 
-Suite da API:
+Abrir:
+- app web: `http://127.0.0.1:3000`
+
+Rotas desta fase:
+- `/`
+- `/empresas`
+- `/empresas/[cd_cvm]`
+
+Observacoes:
+- `API_BASE_URL` fica em `apps/web/.env.local`
+- o frontend consome apenas a API V2
+- `apps/web/app/api/company-search/route.ts` faz o proxy interno do autocomplete
+
+---
+
+## 8. Validar tudo
+
+Suite principal:
+
 ```powershell
+pytest tests/ -q
 pytest apps/api/tests -q
 ```
 
+Web:
+
+```powershell
+cd apps/web
+npm run lint
+npm run typecheck
+npm run build
+npm run test:e2e
+```
+
 Validacoes de workbook/exportacao:
+
 ```powershell
 python scripts/verify_consolidation.py --xlsx output/reports/PETROBRAS_financials.xlsx
 python scripts/verify_line_id_base.py --xlsx output/reports/PETROBRAS_financials.xlsx
@@ -241,22 +203,17 @@ python scripts/quick_verify.py --xlsx output/reports/PETROBRAS_financials.xlsx
 python scripts/final_verification.py --xlsx output/reports/PETROBRAS_financials.xlsx
 ```
 
-Observacao:
-- `scripts/gerar_base_analitica.py`, `scripts/calc_financial_kpis.py` e `scripts/smoke_validate.py` existem, mas nao sao passos obrigatorios do fluxo principal atual.
-- `src/settings.py` e `.env.example` definem o contrato central de configuracao por ambiente.
-- `scripts/restaurar_historico.py` usa o planner headless para detectar company-years faltantes antes de uma restauracao.
-- `apps/api/app/main.py` e o entrypoint da API read-only da V2.
-
 ---
 
 ## Problemas comuns
 
 | O que aconteceu | O que fazer |
 |---|---|
-| `ModuleNotFoundError` | O ambiente virtual nao esta ativo. |
-| `python` nao reconhecido | Python nao esta instalado ou nao esta no PATH. |
-| `runtime_doctor.py` falha com `venv-broken` | Recrie a `.venv` com `python -m venv .venv` e reinstale `requirements.txt`. |
-| App abre mas nao mostra empresas | Rode `setup_db.py` e `setup_companies_table.py`, depois atualize dados. |
-| Dashboard vazio | Verifique se a empresa/anos escolhidos ja foram processados e se `financial_reports` tem linhas. |
-| API responde `503` | Valide `runtime_doctor.py`, tabelas obrigatorias e a conexao de banco. |
+| `ModuleNotFoundError` | Ative a `.venv` e reinstale dependencias. |
+| `python` nao reconhecido | Instale o Python e coloque no `PATH`. |
+| `runtime_doctor.py` falha com `venv-broken` | Recrie a `.venv` com `python -m venv .venv`. |
+| App desktop abre sem empresas | Rode `setup_db.py`, `setup_companies_table.py` e atualize dados. |
+| Dashboard vazio | Verifique se a empresa/anos escolhidos ja foram processados. |
+| API responde `503` | Valide o banco, tabelas obrigatorias e o `runtime_doctor.py`. |
+| Web app sem dados | Verifique `API_BASE_URL` e se `uvicorn apps.api.app.main:app --reload` esta rodando. |
 | Erro de permissao no PowerShell | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-src/query_layer.py — API de leitura do banco CVM.
+src/query_layer.py - API de leitura do banco CVM.
 
-Centraliza toda lógica de SELECT para que dashboard, scripts e testes
-não precisem escrever SQL raw. Depende apenas de sqlalchemy + pandas.
+Centraliza toda logica de SELECT para que dashboard, scripts e testes
+nao precisem escrever SQL raw. Depende apenas de sqlalchemy + pandas.
 
 Schema relevante:
   financial_reports: id, COMPANY_NAME, CD_CVM, COMPANY_TYPE, STATEMENT_TYPE,
@@ -22,141 +22,231 @@ from sqlalchemy import Engine, text
 
 from src.db import get_engine
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Contas-chave mapeadas por CD_CONTA
-# ──────────────────────────────────────────────────────────────────────────────
 _KPI_ACCOUNTS = {
-    "Receita":       "3.01",
-    "Res_Bruto":     "3.03",
-    "EBIT":          "3.05",
-    "Lucro_Liq":     "3.11",
-    "PL":            "2.03",
-    "Ativo_Total":   "1",
+    "Receita": "3.01",
+    "Res_Bruto": "3.03",
+    "EBIT": "3.05",
+    "Lucro_Liq": "3.11",
+    "PL": "2.03",
+    "Ativo_Total": "1",
     "Passivo_Total": "2",
-    "PC":            "2.01",   # Passivo Circulante
-    "PNC":           "2.02",   # Passivo Não Circulante
-    "AC":            "1.01",   # Ativo Circulante
-    "Caixa":         "1.01.01",
-    "FCO":           "6.01",
-    "FCI":           "6.02",
-    "FCF":           "6.03",
+    "PC": "2.01",
+    "PNC": "2.02",
+    "AC": "1.01",
+    "Caixa": "1.01.01",
+    "FCO": "6.01",
+    "FCI": "6.02",
+    "FCF": "6.03",
 }
 
-# Ordem cronológica dos períodos dentro de um ano
-_PERIOD_ORDER_MAP = {
-    "1Q": 1, "2Q": 2, "3Q": 3, "4Q": 4,
-}
+_CANONICAL_SECTOR_SQL = """
+COALESCE(
+    NULLIF(TRIM(c.setor_analitico), ''),
+    NULLIF(TRIM(c.setor_cvm), ''),
+    'Nao classificado'
+)
+"""
 
 
 def _period_sort_key(label: str) -> tuple[int, int]:
-    """Retorna (ano, trimestre) para ordenação de PERIOD_LABEL."""
     m = re.match(r"(\d{4})", label)
     year = int(m.group(1)) if m else 0
-    q_m = re.match(r"(\d)Q(\d{2})", label)
-    if q_m:
-        return (2000 + int(q_m.group(2)), int(q_m.group(1)))
-    return (year, 99)  # anual = seta para o fim do ano
+    q_match = re.match(r"(\d)Q(\d{2})", label)
+    if q_match:
+        return (2000 + int(q_match.group(2)), int(q_match.group(1)))
+    return (year, 99)
 
 
 class CVMQueryLayer:
-    """Camada de leitura reutilizável do banco CVM.
-
-    Uso:
-        ql = CVMQueryLayer()                     # usa get_engine() padrão
-        ql = CVMQueryLayer(engine=my_engine)     # engine customizado
-    """
+    """Camada de leitura reutilizavel do banco CVM."""
 
     def __init__(self, engine: Optional[Engine] = None):
         self.engine = engine or get_engine()
 
-    # ──────────────────────────────────────────────────────────────────────
-    # Listagem de empresas
-    # ──────────────────────────────────────────────────────────────────────
-
     def get_companies(self, search: str = "") -> pd.DataFrame:
-        """Retorna DataFrame de empresas com anos disponíveis.
+        rows_df, _ = self.get_companies_directory_page(
+            search=search,
+            sector_name=None,
+            page=1,
+            page_size=None,
+        )
+        if rows_df.empty:
+            rows_df["anos_disponiveis"] = []
+            return rows_df.reset_index(drop=True)
 
-        Parâmetros
-        ----------
-        search : str
-            Filtro livre (nome, ticker ou cd_cvm). Vazio = todas.
+        years_map = self.get_company_years_map(rows_df["cd_cvm"].tolist())
+        rows_df = rows_df.copy()
+        rows_df["anos_disponiveis"] = rows_df["cd_cvm"].map(
+            lambda cd_cvm: ",".join(str(year) for year in years_map.get(int(cd_cvm), ()))
+        )
+        return rows_df.reset_index(drop=True)
 
-        Retorna
-        -------
-        pd.DataFrame com colunas:
-            cd_cvm, company_name, ticker_b3, setor_analitico, setor_cvm,
-            anos_disponiveis, total_rows
-        """
-        sql = text("""
+    def get_companies_directory_page(
+        self,
+        *,
+        search: str = "",
+        sector_name: str | None = None,
+        page: int = 1,
+        page_size: int | None = 20,
+    ) -> tuple[pd.DataFrame, int]:
+        where_sql, params = self._company_directory_filters(search=search, sector_name=sector_name)
+
+        count_sql = text(
+            f"""
+            SELECT COUNT(*) AS total_items
+            FROM (
+                SELECT c.cd_cvm
+                FROM companies c
+                JOIN financial_reports fr ON fr.CD_CVM = c.cd_cvm
+                WHERE {where_sql}
+                GROUP BY c.cd_cvm, c.company_name, c.ticker_b3, c.setor_analitico, c.setor_cvm
+            ) company_rows
+            """
+        )
+        total_items = int(pd.read_sql(count_sql, self.engine, params=params).iloc[0]["total_items"])
+
+        paging_sql = ""
+        paged_params = dict(params)
+        if page_size is not None:
+            paging_sql = " LIMIT :limit OFFSET :offset"
+            paged_params["limit"] = int(page_size)
+            paged_params["offset"] = max(0, (int(page) - 1) * int(page_size))
+
+        rows_sql = text(
+            f"""
             SELECT
                 c.cd_cvm,
                 c.company_name,
                 COALESCE(c.ticker_b3, '') AS ticker_b3,
-                COALESCE(c.setor_analitico, c.setor_cvm, 'Não classificado') AS setor_analitico,
-                COALESCE(c.setor_cvm, '') AS setor_cvm,
-                GROUP_CONCAT(DISTINCT fr.REPORT_YEAR ORDER BY fr.REPORT_YEAR) AS anos_disponiveis,
+                c.setor_analitico,
+                c.setor_cvm,
+                {_CANONICAL_SECTOR_SQL} AS sector_name,
                 COUNT(*) AS total_rows
             FROM companies c
             JOIN financial_reports fr ON fr.CD_CVM = c.cd_cvm
-            GROUP BY c.cd_cvm
-            ORDER BY c.company_name
-        """)
-        df = pd.read_sql(sql, self.engine)
+            WHERE {where_sql}
+            GROUP BY c.cd_cvm, c.company_name, c.ticker_b3, c.setor_analitico, c.setor_cvm
+            ORDER BY c.company_name ASC
+            {paging_sql}
+            """
+        )
+        rows_df = pd.read_sql(rows_sql, self.engine, params=paged_params)
+        return rows_df.reset_index(drop=True), total_items
 
-        if search:
-            s = search.strip().lower()
-            mask = (
-                df["company_name"].str.lower().str.contains(s, na=False)
-                | df["ticker_b3"].str.lower().str.contains(s, na=False)
-                | df["cd_cvm"].astype(str).str.contains(s, na=False)
+    def get_available_company_sectors(self) -> pd.DataFrame:
+        sql = text(
+            f"""
+            SELECT
+                {_CANONICAL_SECTOR_SQL} AS sector_name,
+                COUNT(DISTINCT c.cd_cvm) AS company_count
+            FROM companies c
+            JOIN financial_reports fr ON fr.CD_CVM = c.cd_cvm
+            GROUP BY {_CANONICAL_SECTOR_SQL}
+            ORDER BY sector_name ASC
+            """
+        )
+        return pd.read_sql(sql, self.engine).reset_index(drop=True)
+
+    def get_company_years_map(self, cd_cvms: list[int]) -> dict[int, tuple[int, ...]]:
+        if not cd_cvms:
+            return {}
+
+        unique_ids = tuple(sorted({int(cd_cvm) for cd_cvm in cd_cvms}))
+        placeholders = ", ".join(f":cd{i}" for i in range(len(unique_ids)))
+        params = {f"cd{i}": cd_cvm for i, cd_cvm in enumerate(unique_ids)}
+        sql = text(
+            f"""
+            SELECT CD_CVM, REPORT_YEAR
+            FROM financial_reports
+            WHERE CD_CVM IN ({placeholders})
+            GROUP BY CD_CVM, REPORT_YEAR
+            ORDER BY CD_CVM, REPORT_YEAR
+            """
+        )
+        df = pd.read_sql(sql, self.engine, params=params)
+        years_map: dict[int, list[int]] = {int(cd_cvm): [] for cd_cvm in unique_ids}
+        for _, row in df.iterrows():
+            years_map.setdefault(int(row["CD_CVM"]), []).append(int(row["REPORT_YEAR"]))
+        return {cd_cvm: tuple(years) for cd_cvm, years in years_map.items()}
+
+    def _company_directory_filters(
+        self,
+        *,
+        search: str,
+        sector_name: str | None,
+    ) -> tuple[str, dict]:
+        where_parts = ["1 = 1"]
+        params: dict[str, object] = {}
+
+        normalized_search = search.strip().lower()
+        if normalized_search:
+            params["search"] = f"%{normalized_search}%"
+            where_parts.append(
+                """
+                (
+                    LOWER(c.company_name) LIKE :search
+                    OR LOWER(COALESCE(c.ticker_b3, '')) LIKE :search
+                    OR CAST(c.cd_cvm AS TEXT) LIKE :search
+                )
+                """
             )
-            df = df[mask]
 
-        return df.reset_index(drop=True)
+        if sector_name:
+            params["sector_name"] = str(sector_name)
+            where_parts.append(f"{_CANONICAL_SECTOR_SQL} = :sector_name")
 
-    # ──────────────────────────────────────────────────────────────────────
-    # Info de uma empresa
-    # ──────────────────────────────────────────────────────────────────────
+        return " AND ".join(where_parts), params
 
     def get_company_info(self, cd_cvm: int) -> dict:
-        """Retorna metadados de uma empresa como dict."""
-        sql = text("""
-            SELECT cd_cvm, company_name, nome_comercial, cnpj,
-                   setor_cvm, setor_analitico, company_type, ticker_b3
+        sql = text(
+            """
+            SELECT
+                cd_cvm,
+                company_name,
+                nome_comercial,
+                cnpj,
+                setor_cvm,
+                setor_analitico,
+                COALESCE(
+                    NULLIF(TRIM(setor_analitico), ''),
+                    NULLIF(TRIM(setor_cvm), ''),
+                    'Nao classificado'
+                ) AS sector_name,
+                company_type,
+                ticker_b3
             FROM companies
             WHERE cd_cvm = :cd_cvm
             LIMIT 1
-        """)
+            """
+        )
         row = pd.read_sql(sql, self.engine, params={"cd_cvm": int(cd_cvm)})
         if row.empty:
             return {}
         return row.iloc[0].to_dict()
 
     def get_available_years(self, cd_cvm: int) -> list[int]:
-        """Retorna lista de anos disponíveis para uma empresa, ordenada."""
-        sql = text("""
+        sql = text(
+            """
             SELECT DISTINCT REPORT_YEAR
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
             ORDER BY REPORT_YEAR
-        """)
+            """
+        )
         df = pd.read_sql(sql, self.engine, params={"cd_cvm": int(cd_cvm)})
-        return [int(y) for y in df["REPORT_YEAR"].tolist()]
+        return [int(year) for year in df["REPORT_YEAR"].tolist()]
 
     def get_available_statements(self, cd_cvm: int) -> list[str]:
-        """Retorna quais tipos de demonstração existem para a empresa."""
-        sql = text("""
+        sql = text(
+            """
             SELECT DISTINCT STATEMENT_TYPE
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
             ORDER BY STATEMENT_TYPE
-        """)
+            """
+        )
         df = pd.read_sql(sql, self.engine, params={"cd_cvm": int(cd_cvm)})
         return df["STATEMENT_TYPE"].tolist()
-
-    # ──────────────────────────────────────────────────────────────────────
-    # Demonstrações financeiras
-    # ──────────────────────────────────────────────────────────────────────
 
     def get_statement(
         self,
@@ -165,25 +255,18 @@ class CVMQueryLayer:
         stmt_type: str,
         exclude_conflicts: bool = True,
     ) -> pd.DataFrame:
-        """Retorna demonstração no formato WIDE (CD_CONTA × períodos).
-
-        Colunas fixas: CD_CONTA, DS_CONTA, STANDARD_NAME, LINE_ID_BASE
-        Colunas de período: 2022, 1Q23, 2Q23, 3Q23, 2023, ...  (ordenadas)
-
-        QA_CONFLICT = 1 pode ser incluído via exclude_conflicts=False.
-        """
         if not years:
             return pd.DataFrame()
 
-        years_int = [int(y) for y in years]
+        years_int = [int(year) for year in years]
         placeholders = ", ".join(f":y{i}" for i in range(len(years_int)))
-        params: dict = {f"y{i}": y for i, y in enumerate(years_int)}
+        params: dict = {f"y{i}": year for i, year in enumerate(years_int)}
         params["cd_cvm"] = int(cd_cvm)
         params["stmt"] = stmt_type
 
         conflict_clause = "AND QA_CONFLICT = 0" if exclude_conflicts else ""
-
-        sql = text(f"""
+        sql = text(
+            f"""
             SELECT CD_CONTA, DS_CONTA, STANDARD_NAME, LINE_ID_BASE,
                    PERIOD_LABEL, VL_CONTA
             FROM financial_reports
@@ -191,18 +274,14 @@ class CVMQueryLayer:
               AND STATEMENT_TYPE = :stmt
               AND REPORT_YEAR IN ({placeholders})
               {conflict_clause}
-        """)
+            """
+        )
 
         df = pd.read_sql(sql, self.engine, params=params)
         if df.empty:
             return df
 
-        # Preencher NaN em STANDARD_NAME antes do pivot — pivot_table descarta
-        # linhas com NaN no index por padrão, o que eliminava sub-contas sem
-        # nome padrão (ex: DFC 6.02.xx, 6.03.xx).
         df["STANDARD_NAME"] = df["STANDARD_NAME"].fillna("")
-
-        # Pivot: linhas = contas, colunas = períodos
         pivot = df.pivot_table(
             index=["CD_CONTA", "DS_CONTA", "STANDARD_NAME", "LINE_ID_BASE"],
             columns="PERIOD_LABEL",
@@ -211,46 +290,33 @@ class CVMQueryLayer:
         ).reset_index()
         pivot.columns.name = None
 
-        # Ordenar colunas de período cronologicamente
         id_cols = ["CD_CONTA", "DS_CONTA", "STANDARD_NAME", "LINE_ID_BASE"]
-        period_cols = [c for c in pivot.columns if c not in id_cols]
+        period_cols = [column for column in pivot.columns if column not in id_cols]
         period_cols_sorted = sorted(period_cols, key=_period_sort_key)
-
         result = pivot[id_cols + period_cols_sorted]
 
-        # Remover linhas onde TODOS os períodos são zero ou nulos
         if period_cols_sorted:
-            num_data = result[period_cols_sorted].fillna(0)
-            all_zero_mask = (num_data == 0).all(axis=1)
+            numeric_data = result[period_cols_sorted].fillna(0)
+            all_zero_mask = (numeric_data == 0).all(axis=1)
             result = result[~all_zero_mask].reset_index(drop=True)
 
         return result
 
-    # ──────────────────────────────────────────────────────────────────────
-    # Contas-chave para KPIs
-    # ──────────────────────────────────────────────────────────────────────
-
     def get_kpi_accounts(self, cd_cvm: int, years: list[int]) -> pd.DataFrame:
-        """Extrai contas-chave para o KPI engine.
-
-        Retorna DataFrame wide:
-            index = REPORT_YEAR (somente períodos anuais — ex: "2022")
-            colunas = {Receita, Res_Bruto, EBIT, Lucro_Liq, PL, Ativo_Total,
-                       Passivo_Total, PC, PNC, AC, Caixa, FCO, FCI, FCF}
-        """
         if not years:
             return pd.DataFrame()
 
-        years_int = [int(y) for y in years]
+        years_int = [int(year) for year in years]
         cd_contas = list(_KPI_ACCOUNTS.values())
         placeholders_y = ", ".join(f":y{i}" for i in range(len(years_int)))
         placeholders_c = ", ".join(f":c{i}" for i in range(len(cd_contas)))
 
-        params: dict = {f"y{i}": y for i, y in enumerate(years_int)}
-        params.update({f"c{i}": c for i, c in enumerate(cd_contas)})
+        params: dict = {f"y{i}": year for i, year in enumerate(years_int)}
+        params.update({f"c{i}": conta for i, conta in enumerate(cd_contas)})
         params["cd_cvm"] = int(cd_cvm)
 
-        sql = text(f"""
+        sql = text(
+            f"""
             SELECT REPORT_YEAR, PERIOD_LABEL, CD_CONTA, SUM(VL_CONTA) AS VL_CONTA
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
@@ -258,48 +324,41 @@ class CVMQueryLayer:
               AND CD_CONTA IN ({placeholders_c})
               AND QA_CONFLICT = 0
             GROUP BY REPORT_YEAR, PERIOD_LABEL, CD_CONTA
-        """)
+            """
+        )
 
         df = pd.read_sql(sql, self.engine, params=params)
         if df.empty:
             return pd.DataFrame()
 
-        # Filtrar apenas períodos anuais (ex: "2022", "2023")
         df = df[df["PERIOD_LABEL"] == df["REPORT_YEAR"].astype(str)].copy()
-
-        # Pivot: linhas = REPORT_YEAR, colunas = CD_CONTA
         pivot = df.pivot_table(
-            index="REPORT_YEAR", columns="CD_CONTA", values="VL_CONTA", aggfunc="first"
+            index="REPORT_YEAR",
+            columns="CD_CONTA",
+            values="VL_CONTA",
+            aggfunc="first",
         ).reset_index()
         pivot.columns.name = None
 
-        # Renomear colunas de CD_CONTA → nome legível
-        inv_map = {v: k for k, v in _KPI_ACCOUNTS.items()}
+        inv_map = {value: key for key, value in _KPI_ACCOUNTS.items()}
         pivot = pivot.rename(columns=inv_map)
-        pivot = pivot.sort_values("REPORT_YEAR").reset_index(drop=True)
-
-        return pivot
+        return pivot.sort_values("REPORT_YEAR").reset_index(drop=True)
 
     def get_kpi_accounts_all_periods(self, cd_cvm: int, years: list[int]) -> pd.DataFrame:
-        """Extrai contas-chave para KPIs — TODOS os períodos (anuais + trimestrais).
-
-        Retorna DataFrame wide:
-            index = PERIOD_LABEL (ex: "1Q22", "2Q22", "3Q22", "2022", ...)
-            colunas = REPORT_YEAR + {Receita, Res_Bruto, EBIT, Lucro_Liq, PL, ...}
-        """
         if not years:
             return pd.DataFrame()
 
-        years_int = [int(y) for y in years]
+        years_int = [int(year) for year in years]
         cd_contas = list(_KPI_ACCOUNTS.values())
         placeholders_y = ", ".join(f":y{i}" for i in range(len(years_int)))
         placeholders_c = ", ".join(f":c{i}" for i in range(len(cd_contas)))
 
-        params: dict = {f"y{i}": y for i, y in enumerate(years_int)}
-        params.update({f"c{i}": c for i, c in enumerate(cd_contas)})
+        params: dict = {f"y{i}": year for i, year in enumerate(years_int)}
+        params.update({f"c{i}": conta for i, conta in enumerate(cd_contas)})
         params["cd_cvm"] = int(cd_cvm)
 
-        sql = text(f"""
+        sql = text(
+            f"""
             SELECT REPORT_YEAR, PERIOD_LABEL, CD_CONTA, SUM(VL_CONTA) AS VL_CONTA
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
@@ -307,13 +366,13 @@ class CVMQueryLayer:
               AND CD_CONTA IN ({placeholders_c})
               AND QA_CONFLICT = 0
             GROUP BY REPORT_YEAR, PERIOD_LABEL, CD_CONTA
-        """)
+            """
+        )
 
         df = pd.read_sql(sql, self.engine, params=params)
         if df.empty:
             return pd.DataFrame()
 
-        # Pivot: linhas = (REPORT_YEAR, PERIOD_LABEL), colunas = CD_CONTA
         pivot = df.pivot_table(
             index=["REPORT_YEAR", "PERIOD_LABEL"],
             columns="CD_CONTA",
@@ -322,30 +381,22 @@ class CVMQueryLayer:
         ).reset_index()
         pivot.columns.name = None
 
-        # Renomear colunas de CD_CONTA → nome legível
-        inv_map = {v: k for k, v in _KPI_ACCOUNTS.items()}
+        inv_map = {value: key for key, value in _KPI_ACCOUNTS.items()}
         pivot = pivot.rename(columns=inv_map)
-
-        # Ordenar cronologicamente
         pivot["_sort"] = pivot["PERIOD_LABEL"].apply(_period_sort_key)
-        pivot = pivot.sort_values("_sort").drop(columns="_sort").reset_index(drop=True)
-
-        return pivot
+        return pivot.sort_values("_sort").drop(columns="_sort").reset_index(drop=True)
 
     def get_da_all_periods(self, cd_cvm: int, years: list[int]) -> pd.DataFrame:
-        """Extrai D&A da DFC — TODOS os períodos (anuais + trimestrais).
-
-        Retorna DataFrame com colunas: REPORT_YEAR, PERIOD_LABEL, da_value.
-        """
         if not years:
             return pd.DataFrame()
 
-        years_int = [int(y) for y in years]
+        years_int = [int(year) for year in years]
         placeholders = ", ".join(f":y{i}" for i in range(len(years_int)))
-        params: dict = {f"y{i}": y for i, y in enumerate(years_int)}
+        params: dict = {f"y{i}": year for i, year in enumerate(years_int)}
         params["cd_cvm"] = int(cd_cvm)
 
-        sql = text(f"""
+        sql = text(
+            f"""
             SELECT REPORT_YEAR, PERIOD_LABEL, SUM(ABS(VL_CONTA)) AS da_value
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
@@ -355,32 +406,22 @@ class CVMQueryLayer:
               AND LOWER(DS_CONTA) LIKE '%depreci%'
               AND QA_CONFLICT = 0
             GROUP BY REPORT_YEAR, PERIOD_LABEL
-        """)
+            """
+        )
 
         return pd.read_sql(sql, self.engine, params=params)
 
     def get_da_from_dfc(self, cd_cvm: int, years: list[int]) -> pd.Series:
-        """Extrai D&A da DFC (método indireto) por ano.
-
-        Busca subcontas de 6.01.01.xx que contenham "deprecia" ou "amortiza"
-        (case-insensitive). Agrega por REPORT_YEAR (somente período anual).
-
-        Retorna pd.Series(index=REPORT_YEAR, values=D&A como valor positivo).
-        """
         if not years:
             return pd.Series(dtype=float)
 
-        years_int = [int(y) for y in years]
+        years_int = [int(year) for year in years]
         placeholders = ", ".join(f":y{i}" for i in range(len(years_int)))
-        params: dict = {f"y{i}": y for i, y in enumerate(years_int)}
+        params: dict = {f"y{i}": year for i, year in enumerate(years_int)}
         params["cd_cvm"] = int(cd_cvm)
 
-        # IMPORTANTE: Filtramos por "depreci" para pegar "Depreciação e amortização"
-        # mas EXCLUÍMOS amortizações puramente financeiras (captação, debêntures,
-        # gastos na emissão, etc.) que contaminariam o EBITDA.
-        # O match por "depreci" cobre ~95% dos casos (429 empresas em 2024)
-        # pois a maioria reporta como "Depreciação e amortização" numa única linha.
-        sql = text(f"""
+        sql = text(
+            f"""
             SELECT REPORT_YEAR, PERIOD_LABEL, SUM(ABS(VL_CONTA)) AS da_value
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
@@ -390,12 +431,12 @@ class CVMQueryLayer:
               AND LOWER(DS_CONTA) LIKE '%depreci%'
               AND QA_CONFLICT = 0
             GROUP BY REPORT_YEAR, PERIOD_LABEL
-        """)
+            """
+        )
 
         df = pd.read_sql(sql, self.engine, params=params)
         if df.empty:
             return pd.Series(dtype=float)
 
-        # Apenas períodos anuais
         df = df[df["PERIOD_LABEL"] == df["REPORT_YEAR"].astype(str)]
         return df.set_index("REPORT_YEAR")["da_value"]

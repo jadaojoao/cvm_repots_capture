@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,3 +29,29 @@ jobs:
 
       - name: Run V2 API test suite
         run: pytest apps/api/tests -q
+
+  test-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Run web lint
+        run: npm run lint
+
+      - name: Run web typecheck
+        run: npm run typecheck
+
+      - name: Run web build
+        run: npm run build

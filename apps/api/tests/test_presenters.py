@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from apps.api.app.presenters import (
+    present_company_directory_page,
+    present_company_filters,
     present_company_info,
     present_company_search,
     present_health_snapshot,
@@ -9,7 +11,12 @@ from apps.api.app.presenters import (
     present_statement,
 )
 from src.contracts import (
+    CompanyDirectoryAppliedFilters,
+    CompanyDirectoryPage,
+    CompanyDirectoryPagination,
+    CompanyFiltersDTO,
     CompanyInfoDTO,
+    CompanySectorFilterOption,
     CompanySearchResult,
     HealthPriority,
     HealthSnapshot,
@@ -26,13 +33,15 @@ def test_presenters_serialize_dtos_without_raw_pandas_objects():
         [
             CompanySearchResult(
                 cd_cvm=9512,
-                company_name="PETROBRAS",
-                ticker_b3="PETR4",
-                setor_analitico="Energia",
-                setor_cvm="Energia",
-                anos_disponiveis=(2023, 2024),
-                total_rows=30,
-            )
+            company_name="PETROBRAS",
+            ticker_b3="PETR4",
+            setor_analitico="Energia",
+            setor_cvm="Energia",
+            sector_name="Energia",
+            sector_slug="energia",
+            anos_disponiveis=(2023, 2024),
+            total_rows=30,
+        )
         ]
     )[0]
     assert company_search.anos_disponiveis == [2023, 2024]
@@ -45,11 +54,56 @@ def test_presenters_serialize_dtos_without_raw_pandas_objects():
             cnpj="33.000.167/0001-01",
             setor_cvm="Energia",
             setor_analitico="Energia",
+            sector_name="Energia",
+            sector_slug="energia",
             company_type="comercial",
             ticker_b3="PETR4",
         )
     )
     assert company_info.company_name == "PETROBRAS"
+    assert company_info.sector_slug == "energia"
+
+    page = present_company_directory_page(
+        CompanyDirectoryPage(
+            items=(
+                CompanySearchResult(
+                    cd_cvm=9512,
+                    company_name="PETROBRAS",
+                    ticker_b3="PETR4",
+                    setor_analitico="Energia",
+                    setor_cvm="Energia",
+                    sector_name="Energia",
+                    sector_slug="energia",
+                    anos_disponiveis=(2023, 2024),
+                    total_rows=30,
+                ),
+            ),
+            pagination=CompanyDirectoryPagination(
+                page=1,
+                page_size=20,
+                total_items=1,
+                total_pages=1,
+                has_next=False,
+                has_previous=False,
+            ),
+            applied_filters=CompanyDirectoryAppliedFilters(search="", sector=None),
+        )
+    )
+    assert page.pagination.total_items == 1
+    assert page.items[0].sector_name == "Energia"
+
+    filters_payload = present_company_filters(
+        CompanyFiltersDTO(
+            sectors=(
+                CompanySectorFilterOption(
+                    sector_name="Energia",
+                    sector_slug="energia",
+                    company_count=1,
+                ),
+            )
+        )
+    )
+    assert filters_payload.sectors[0].sector_slug == "energia"
 
     statement = present_statement(
         StatementMatrix(

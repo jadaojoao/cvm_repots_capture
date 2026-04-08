@@ -8,17 +8,18 @@ from apps.api.app.dependencies import (
     ensure_api_ready,
     get_read_service,
     get_settings,
-    limit_dependency,
     statement_dependency,
     years_dependency,
 )
 from apps.api.app.presenters import (
+    CompanyDirectoryPagePayload,
+    CompanyFiltersPayload,
     CompanyInfoPayload,
-    CompanySearchResultPayload,
     KPIBundlePayload,
     StatementMatrixPayload,
+    present_company_directory_page,
+    present_company_filters,
     present_company_info,
-    present_company_search,
     present_kpis,
     present_statement,
 )
@@ -29,17 +30,38 @@ router = APIRouter(tags=["companies"])
 
 @router.get(
     "/companies",
-    response_model=list[CompanySearchResultPayload],
-    summary="Busca empresas disponiveis na base.",
+    response_model=CompanyDirectoryPagePayload,
+    summary="Retorna o diretorio paginado de empresas com dados.",
 )
 def list_companies(
     request: Request,
     search: str = Query(default="", description="Filtro livre por nome, ticker ou codigo CVM."),
-    limit: int = Depends(limit_dependency),
+    sector: str | None = Query(default=None, description="Slug canonico do setor."),
+    page: int = Query(default=1, ge=1, description="Pagina atual."),
+    page_size: int = Query(default=20, ge=1, le=100, description="Tamanho da pagina."),
     service: CVMReadService = Depends(get_read_service),
-) -> list[CompanySearchResultPayload]:
+) -> CompanyDirectoryPagePayload:
     ensure_api_ready(get_settings(request))
-    return present_company_search(service.search_companies(search=search)[:limit])
+    page_dto = service.list_companies(
+        search=search,
+        sector_slug=sector,
+        page=page,
+        page_size=page_size,
+    )
+    return present_company_directory_page(page_dto)
+
+
+@router.get(
+    "/companies/filters",
+    response_model=CompanyFiltersPayload,
+    summary="Lista as opcoes canonicas de filtro do hub de empresas.",
+)
+def get_company_filters(
+    request: Request,
+    service: CVMReadService = Depends(get_read_service),
+) -> CompanyFiltersPayload:
+    ensure_api_ready(get_settings(request))
+    return present_company_filters(service.get_company_filters())
 
 
 @router.get(
