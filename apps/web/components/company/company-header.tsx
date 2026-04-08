@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { ChevronRightIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import {
+  InfoChip,
+  SurfaceCard,
+} from "@/components/shared/design-system-recipes";
 import { Button } from "@/components/ui/button";
 import type { CompanyInfo } from "@/lib/api";
 
@@ -36,19 +39,12 @@ export function CompanyHeader({
         </ol>
       </nav>
 
-      <div className="flex flex-col gap-6 rounded-[1.75rem] border border-border/70 bg-background/90 px-6 py-6 shadow-[0_24px_70px_-45px_rgba(16,30,24,0.35)] sm:px-7">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <SurfaceCard tone="default" padding="lg">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge className="rounded-full bg-secondary px-3 py-1 text-[0.68rem] uppercase tracking-[0.18em] text-secondary-foreground">
-                PG-03 - Detalhe da empresa
-              </Badge>
-              <Badge
-                variant="outline"
-                className="rounded-full border-border/80 bg-background/75 text-[0.7rem] uppercase tracking-[0.16em] text-muted-foreground"
-              >
-                CVM {company.cd_cvm}
-              </Badge>
+              <InfoChip tone="brand">PG-03 - Detalhe da empresa</InfoChip>
+              <InfoChip>CVM {company.cd_cvm}</InfoChip>
             </div>
 
             <div className="space-y-3">
@@ -64,15 +60,25 @@ export function CompanyHeader({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline" size="lg" className="rounded-full px-5" disabled>
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-full px-5"
+              disabled
+            >
               Ver setor em breve
             </Button>
-            <Button variant="outline" size="lg" className="rounded-full px-5" disabled>
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-full px-5"
+              disabled
+            >
               Comparar em breve
             </Button>
           </div>
         </div>
-      </div>
+      </SurfaceCard>
     </div>
   );
 }

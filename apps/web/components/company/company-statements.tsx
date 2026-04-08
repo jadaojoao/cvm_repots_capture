@@ -1,3 +1,6 @@
+import {
+  SurfaceCard,
+} from "@/components/shared/design-system-recipes";
 import type { StatementMatrix, TabularDataRow } from "@/lib/api";
 import { isStatementSubtotal } from "@/lib/constants";
 import { formatStatementValue } from "@/lib/formatters";
@@ -16,31 +19,31 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-[1.5rem] border border-dashed border-border bg-background/70 px-6 py-14 text-center">
+      <SurfaceCard tone="muted" padding="hero" className="items-center text-center">
         <p className="font-heading text-2xl text-foreground">
           Sem demonstracao disponivel.
         </p>
-        <p className="mt-3 text-sm leading-7 text-muted-foreground">
+        <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
           Ajuste o periodo selecionado ou troque o tipo de demonstracao para
           consultar outra visao disponivel.
         </p>
-      </div>
+      </SurfaceCard>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-background/90 shadow-[0_24px_70px_-45px_rgba(16,30,24,0.35)]">
+    <SurfaceCard tone="default" padding="none" className="overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead className="bg-muted/35">
             <tr className="[&_th]:border-b [&_th]:border-border/60">
-              <th className="sticky left-0 z-10 bg-muted/35 px-4 py-3 text-left font-medium text-foreground">
+              <th className="sticky left-0 z-10 bg-muted/35 px-5 py-3 text-left font-medium text-foreground">
                 Conta
               </th>
               {periodColumns.map((column) => (
                 <th
                   key={column}
-                  className="px-4 py-3 text-right font-medium text-foreground"
+                  className="px-5 py-3 text-right font-medium text-foreground"
                 >
                   {column}
                 </th>
@@ -63,7 +66,7 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
                     isSubtotal ? "bg-muted/35" : "hover:bg-muted/20",
                   )}
                 >
-                  <td className="sticky left-0 z-10 min-w-80 bg-inherit px-4 py-3 align-top">
+                  <td className="sticky left-0 z-10 min-w-84 bg-inherit px-5 py-3 align-top">
                     <div className="space-y-1">
                       <p
                         className={cn(
@@ -89,7 +92,7 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
                       <td
                         key={`${row.LINE_ID_BASE}-${column}`}
                         className={cn(
-                          "px-4 py-3 text-right text-foreground/90",
+                          "px-5 py-3 text-right text-foreground/90",
                           numericValue !== null && numericValue < 0
                             ? "text-destructive"
                             : "",
@@ -106,6 +109,6 @@ export function CompanyStatements({ matrix }: CompanyStatementsProps) {
           </tbody>
         </table>
       </div>
-    </div>
+    </SurfaceCard>
   );
 }

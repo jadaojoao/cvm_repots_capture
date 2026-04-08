@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 
@@ -128,14 +128,9 @@ export function FinancialTable({
 }: FinancialTableProps = {}) {
   const indices = initialIndices;
   const [selectedIndex, setSelectedIndex] = useState<string | null>("1");
-  const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const handleIndexSelect = (indexId: string) => {
     setSelectedIndex(indexId);
@@ -161,7 +156,7 @@ export function FinancialTable({
   };
 
   const getPerformanceColor = (value: number) => {
-    if (!mounted) {
+    if (!resolvedTheme) {
       const isPositive = value >= 0;
       return {
         color: isPositive ? "#22c55e" : "#f87171",
@@ -468,4 +463,3 @@ export function FinancialTable({
     </div>
   );
 }
-

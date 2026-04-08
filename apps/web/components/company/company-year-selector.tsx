@@ -55,7 +55,7 @@ export function CompanyYearSelector({
           <Button
             key={year}
             type="button"
-            variant={active ? "default" : "outline"}
+            variant={active ? "secondary" : "outline"}
             size="sm"
             className="rounded-full px-4"
             onClick={() => toggleYear(year)}

@@ -5,7 +5,11 @@ import { ArrowRightIcon, SearchIcon } from "lucide-react";
 import { useDeferredValue, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
+import {
+  InfoChip,
+  SurfaceCard,
+  surfaceVariants,
+} from "@/components/shared/design-system-recipes";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CompanyDirectoryItem } from "@/lib/api";
@@ -118,13 +122,16 @@ export function CompanySearchHero({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-background/90 px-6 py-8 shadow-[0_24px_70px_-38px_rgba(13,33,24,0.35)] backdrop-blur-xl sm:px-8 sm:py-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(183,110,44,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(25,78,55,0.12),_transparent_30%)]" />
-      <div className="relative space-y-6">
+    <SurfaceCard
+      tone="hero"
+      padding="hero"
+      className="relative overflow-visible"
+    >
+      <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_top_left,_rgba(183,110,44,0.14),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(25,78,55,0.1),_transparent_32%)]" />
+
+      <div className="relative space-y-7">
         <div className="space-y-4">
-          <Badge className="rounded-full bg-secondary px-3 py-1 text-[0.68rem] uppercase tracking-[0.2em] text-secondary-foreground">
-            Descoberta orientada a analise
-          </Badge>
+          <InfoChip tone="secondary">Descoberta orientada a analise</InfoChip>
           <div className="space-y-4">
             <h1 className="max-w-4xl font-heading text-4xl leading-[1.02] tracking-[-0.05em] text-foreground sm:text-5xl lg:text-6xl">
               Entre por empresa e va direto ao historico que importa.
@@ -143,8 +150,8 @@ export function CompanySearchHero({
           onSubmit={handleSubmit}
         >
           <div className="relative">
-            <div className="flex flex-col gap-3 rounded-[1.75rem] border border-border/70 bg-background/95 p-3 shadow-sm shadow-black/5 sm:flex-row sm:items-center">
-              <div className="flex flex-1 items-center gap-3 rounded-[1.35rem] bg-muted/55 px-4 py-3">
+            <div className="flex flex-col gap-3 rounded-[1.5rem] border border-border/70 bg-background/92 p-3 shadow-[0_18px_45px_-40px_rgba(16,30,24,0.22)] sm:flex-row sm:items-center">
+              <div className="flex flex-1 items-center gap-3 rounded-[1.2rem] border border-border/60 bg-muted/55 px-4 py-3">
                 <SearchIcon className="size-4.5 text-muted-foreground" />
                 <Input
                   name="busca"
@@ -161,9 +168,9 @@ export function CompanySearchHero({
                   type="submit"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "rounded-[1.2rem] bg-primary px-5 text-primary-foreground hover:bg-primary/90",
+                    "rounded-full px-5",
                   )}
-                  disabled={isPending || !apiAvailable}
+                  disabled={isPending}
                 >
                   Buscar empresa
                   <ArrowRightIcon data-icon="inline-end" />
@@ -172,7 +179,7 @@ export function CompanySearchHero({
                   href="/empresas"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "lg" }),
-                    "rounded-[1.2rem] px-5",
+                    "rounded-full px-5",
                   )}
                 >
                   Ir para empresas
@@ -180,24 +187,32 @@ export function CompanySearchHero({
               </div>
             </div>
 
-            {apiAvailable && (loadingSuggestions || suggestions.length > 0 || suggestionError) ? (
-              <div className="absolute inset-x-0 top-[calc(100%+0.75rem)] z-20 overflow-hidden rounded-[1.5rem] border border-border/70 bg-background/98 shadow-[0_20px_50px_-35px_rgba(16,30,24,0.35)]">
+            {apiAvailable &&
+            (loadingSuggestions || suggestions.length > 0 || suggestionError) ? (
+              <div
+                className={cn(
+                  surfaceVariants({ tone: "default", padding: "none" }),
+                  "absolute inset-x-0 top-[calc(100%+0.75rem)] z-20 overflow-hidden",
+                )}
+              >
                 {loadingSuggestions ? (
                   <p className="px-5 py-4 text-sm text-muted-foreground">
                     Buscando sugestoes...
                   </p>
                 ) : suggestionError ? (
-                  <p className="px-5 py-4 text-sm text-destructive">{suggestionError}</p>
+                  <p className="px-5 py-4 text-sm text-destructive">
+                    {suggestionError}
+                  </p>
                 ) : (
                   <ul className="divide-y divide-border/50">
                     {suggestions.map((item) => (
                       <li key={item.cd_cvm}>
                         <button
                           type="button"
-                          className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-muted/50"
+                          className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-muted/45"
                           onClick={() => handleSuggestionSelection(item)}
                         >
-                          <div className="space-y-1">
+                          <div className="space-y-1.5">
                             <p className="font-medium text-foreground">
                               {item.company_name}
                             </p>
@@ -206,7 +221,9 @@ export function CompanySearchHero({
                             </p>
                           </div>
                           <div className="space-y-1 text-right">
-                            <p className="text-sm text-foreground">{item.sector_name}</p>
+                            <p className="text-sm text-foreground">
+                              {item.sector_name}
+                            </p>
                             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                               {formatYearsLabel(item.anos_disponiveis)}
                             </p>
@@ -222,16 +239,12 @@ export function CompanySearchHero({
         </form>
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1.5">
-            {apiAvailable ? "API pronta para busca" : "API indisponivel no momento"}
-          </span>
+          <InfoChip>{apiAvailable ? "API pronta para busca" : "API indisponivel"}</InfoChip>
           {totalCompanies !== null ? (
-            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1.5">
-              {formatCompactInteger(totalCompanies)} empresas com dados
-            </span>
+            <InfoChip>{formatCompactInteger(totalCompanies)} empresas com dados</InfoChip>
           ) : null}
         </div>
       </div>
-    </div>
+    </SurfaceCard>
   );
 }

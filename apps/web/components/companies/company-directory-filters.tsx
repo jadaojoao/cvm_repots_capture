@@ -4,6 +4,7 @@ import { SearchIcon } from "lucide-react";
 import { startTransition, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { SurfaceCard } from "@/components/shared/design-system-recipes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -70,65 +71,67 @@ export function CompanyDirectoryFilters({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-[1.5rem] border border-border/70 bg-background/90 p-4 shadow-sm shadow-black/5 lg:flex-row lg:items-center"
-    >
-      <div className="flex flex-1 items-center gap-3 rounded-[1.1rem] bg-muted/55 px-3 py-2.5">
-        <SearchIcon className="size-4 text-muted-foreground" />
-        <Input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Buscar por nome, ticker ou codigo CVM"
-          className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
-        />
-      </div>
+    <SurfaceCard tone="subtle" padding="md">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-3 lg:flex-row lg:items-center"
+      >
+        <div className="flex flex-1 items-center gap-3 rounded-[1.15rem] border border-border/65 bg-muted/55 px-4 py-3">
+          <SearchIcon className="size-4 text-muted-foreground" />
+          <Input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por nome, ticker ou codigo CVM"
+            className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+          />
+        </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row lg:w-auto">
-        <Select
-          value={selectValue}
-          disabled={sectorFilterUnavailable}
-          onValueChange={(value) => {
-            const nextSector = value === "all" ? null : value;
-            track("companies_filter_changed", {
-              search,
-              sector: nextSector,
-              source: "sector",
-            });
-            pushFilters({
-              setor: nextSector,
-              pagina: null,
-            });
-          }}
-        >
-          <SelectTrigger className="h-11 min-w-52 rounded-[1.1rem] bg-background px-4">
-            <SelectValue
-              placeholder={
-                sectorFilterUnavailable
-                  ? "Filtro setorial indisponivel"
-                  : "Todos os setores"
-              }
-            />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">Todos os setores</SelectItem>
-              {!sectorFilterUnavailable
-                ? sectors.map((sector) => (
-                    <SelectItem key={sector.sector_slug} value={sector.sector_slug}>
-                      {sector.sector_name} - {sector.company_count}
-                    </SelectItem>
-                  ))
-                : null}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col gap-3 sm:flex-row lg:w-auto">
+          <Select
+            value={selectValue}
+            disabled={sectorFilterUnavailable}
+            onValueChange={(value) => {
+              const nextSector = value === "all" ? null : value;
+              track("companies_filter_changed", {
+                search,
+                sector: nextSector,
+                source: "sector",
+              });
+              pushFilters({
+                setor: nextSector,
+                pagina: null,
+              });
+            }}
+          >
+            <SelectTrigger className="h-11 min-w-56 rounded-[1.15rem] bg-background px-4">
+              <SelectValue
+                placeholder={
+                  sectorFilterUnavailable
+                    ? "Filtro setorial indisponivel"
+                    : "Todos os setores"
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Todos os setores</SelectItem>
+                {!sectorFilterUnavailable
+                  ? sectors.map((sector) => (
+                      <SelectItem key={sector.sector_slug} value={sector.sector_slug}>
+                        {sector.sector_name} - {sector.company_count}
+                      </SelectItem>
+                    ))
+                  : null}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
-        <Button type="submit" size="lg" className="h-11 rounded-[1.1rem] px-5">
-          Aplicar filtros
-        </Button>
-      </div>
-    </form>
+          <Button type="submit" size="lg" className="h-11 rounded-full px-5">
+            Aplicar filtros
+          </Button>
+        </div>
+      </form>
+    </SurfaceCard>
   );
 }

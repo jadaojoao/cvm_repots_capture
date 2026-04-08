@@ -1,74 +1,65 @@
-# Design System Build Progress
-> Concluído. Página `/design-system` totalmente funcional.
+# Design System Progress
 
-## Stack
-- Next.js 16.2.2, React 19, Tailwind v4, @base-ui/react 1.3.0
-- shadcn CLI: `npx shadcn@latest add "[url]"`
-- Main project: `apps/web/` — run all npm commands from this dir
-- Design system page: `app/design-system/page.tsx`
+## Status
 
-## Status Global
-- [x] globals.css — chart colors (light + dark) com chroma real (OkLch, ~72° spacing)
-- [x] npm packages — todas dependências instaladas
-- [x] Providers — ThemeProvider (next-themes) + TooltipProvider (radix)
-- [x] layout.tsx — suppressHydrationWarning no `<html>`
-- [x] Componentes instalados e corrigidos (path imports, TypeScript)
-- [x] Página `/design-system` com 24 seções, sidebar nav, zero TS errors
-- [x] Footer sitemap — link "Design System" em Recursos
+O catalogo `/design-system` esta estabilizado como ferramenta interna de
+referencia para a V2 web. Ele documenta tokens, primitives e recipes usados nas
+rotas de produto, sem entrar na navegacao principal.
 
-## Seções (24 total)
+## Correcoes aplicadas neste ciclo
 
-### Foundation
-- [x] UI Colors — 8 tokens com swatches
-- [x] Chart Palette — 5 hues OkLch com barra de visualização
-- [x] Spacing — escala space-1 → space-24
-- [x] Typography — Space Grotesk + Manrope + IBM Plex Mono
-- [x] Border Radius — none → full, base=md
+- Metadata dedicada para `/design-system`
+- Limpeza de encoding em catalogo, layout e componentes compartilhados
+- Remocao de aliases invalidos em `app/globals.css`
+- Consolidacao dos recipes compartilhados em `components/shared/design-system-recipes.tsx`
+- Adocao visual nas rotas `/`, `/empresas` e `/empresas/[cd_cvm]`
+- Padronizacao dos estados de loading, error e not-found
 
-### Data Viz
-- [x] Charts — reaviz Bar Chart (IncidentSummaryCard) + Area Chart
-- [x] Tables — Financial Markets + Leads + Server Management (isaiahbjork)
+## Recipes aprovados
 
-### Navigation
-- [x] Tabs — coss.com (underline variant)
-- [x] Toolbar — coss.com
-- [x] Animated Dropdown — Shatlyk1011
-- [x] Mobile Navigation — easemize InteractiveMenu
+- `PageShell`
+- `SurfaceCard`
+- `InfoChip`
+- `SectionHeading`
 
-### Forms
-- [x] Field — coss.com com label + error state
-- [x] Inputs — coss.com Input
-- [x] Textarea — coss.com
-- [x] Checkbox Group — coss.com
-- [x] Calendar — coss.com (react-day-picker)
+Esses recipes sustentam as superficies de produto atuais e devem ser
+preferidos antes de criar novas combinacoes de `bg`, `border`, `shadow`,
+`radius` ou spacing diretamente na pagina.
 
-### Feedback
-- [x] Accordion — coss.com (Base UI)
-- [x] Tooltip — larsen66 (radix, TooltipProvider em Providers)
+## Checklist por superficie
 
-### Actions
-- [x] Buttons — todos variants + sizes + estados
-- [x] Icons — Material Symbols Outlined wght 200, grid 5 tamanhos
-- [x] Delete Button — moumensoliman (animação confirm/cancel)
+### Base
 
-### Utilities
-- [x] Toggle Theme — larsen66
-- [x] Switch with Description — shadcnspace
+- [x] Tokens oficiais em `app/globals.css`
+- [x] Metadata especifica para `/design-system`
+- [x] Catalogo com copy limpa e papel interno explicito
+- [x] Footer com link secundario para o Design System
+- [x] Header sem destaque excessivo para areas ainda indisponiveis
 
-### Marketing
-- [x] Feature Carousel — larsen66
+### Produto
 
-## Fixes Aplicados
-- `company-url-tabs.tsx`: `variant="line"` → `variant="underline"`
-- `coss-accordion.tsx`: `./utils` → `@/lib/utils`
-- `delete-button.tsx`: `./button` → `@/components/ui/button`
-- `modern-mobile-menu.tsx`: ref callbacks com return → void
-- `financial-markets-table.tsx`: `type: "spring" as const`
-- `leads-data-table.tsx`: `type: "spring" as const`
-- `area-chart-medium.tsx`: cast `as unknown as ChartDataTypes[]` + `as any`
-- `ui/textarea.tsx`: `ComponentPropsWithoutRef` → `ComponentProps`
-- `ui/checkbox-group.tsx`: local `cn` → `@/lib/utils` import
-- `horizontal-bar-chart.tsx`: `import type { JSX } from 'react'`
-- `contemt-tooltip.tsx`: `<TooltipTrigger asChild>` (nested button fix)
-- `providers.tsx`: adicionado `TooltipProvider`
-- `app/layout.tsx`: `suppressHydrationWarning` no `<html>`
+- [x] Home alinhada ao sistema
+- [x] Diretorio `/empresas` alinhado ao sistema
+- [x] Detalhe `/empresas/[cd_cvm]` alinhado ao sistema
+- [x] Error boundary, loading e not-found alinhados ao sistema
+
+### Verificacao
+
+- [x] `npm run lint`
+- [x] `npm run typecheck`
+- [x] `npm run build`
+- [x] `npm run test:unit`
+- [x] `npm run test:e2e`
+- [x] Revisao visual final com Playwright
+
+Observacao:
+
+- `npm run lint` ainda emite warnings nao bloqueantes em componentes de showcase
+  antigos, sem impacto no slice de produto atual.
+
+## Pendencias fora de escopo
+
+- Auditoria completa de dark mode nas superficies de produto
+- Expansao do sistema para rotas ainda nao publicadas
+- Introducao de novos primitives antes de necessidade real
+- Refatoracoes estruturais da API ou do backend Python

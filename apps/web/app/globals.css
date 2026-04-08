@@ -46,31 +46,29 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --component-active-color-default: var(----component-active-color-default);
-  --component-line-inactive-color: var(----component-line-inactive-color);
-  --component-active-bg: var(----component-active-bg);
-  --component-shadow: var(----component-shadow);
-  --component-bg: var(----component-bg);
-  --component-inactive-color: var(----component-inactive-color);
-  --color-color-chart-5: var(----color-chart-5);
-  --color-color-chart-4: var(----color-chart-4);
-  --color-color-chart-3: var(----color-chart-3);
-  --color-color-chart-2: var(----color-chart-2);
+  --component-active-color-default: var(--component-active-color-default);
+  --component-line-inactive-color: var(--component-line-inactive-color);
+  --component-active-bg: var(--component-active-bg);
+  --component-shadow: var(--component-shadow);
+  --component-bg: var(--component-bg);
+  --component-inactive-color: var(--component-inactive-color);
+
   @keyframes iconBounce {
-  0%, 100% {
-    transform: translateY(0);
+    0%,
+    100% {
+      transform: translateY(0);
     }
-  20% {
-    transform: translateY(-0.3em);
+    20% {
+      transform: translateY(-0.3em);
     }
-  40% {
-    transform: translateY(0);
+    40% {
+      transform: translateY(0);
     }
-  60% {
-    transform: translateY(-0.1em);
+    60% {
+      transform: translateY(-0.1em);
     }
-  80% {
-    transform: translateY(0);
+    80% {
+      transform: translateY(0);
     }
   }
 }
@@ -94,11 +92,11 @@
   --border: oklch(0.88 0.01 90.56);
   --input: oklch(0.88 0.01 90.56);
   --ring: oklch(0.59 0.065 161.56);
-  --chart-1: oklch(0.62 0.13 161.56);  /* teal  — primária */
-  --chart-2: oklch(0.65 0.14 29.00);   /* amber — contraste complementar */
-  --chart-3: oklch(0.60 0.12 258.00);  /* blue-violet */
-  --chart-4: oklch(0.70 0.11 79.00);   /* lime */
-  --chart-5: oklch(0.62 0.13 320.00);  /* rose */
+  --chart-1: oklch(0.62 0.13 161.56); /* teal - primaria */
+  --chart-2: oklch(0.65 0.14 29); /* amber - contraste complementar */
+  --chart-3: oklch(0.6 0.12 258); /* blue-violet */
+  --chart-4: oklch(0.7 0.11 79); /* lime */
+  --chart-5: oklch(0.62 0.13 320); /* rose */
   --radius: 0.875rem;
   --sidebar: oklch(0.985 0.006 94.78);
   --sidebar-foreground: oklch(0.23 0.021 93.58);
@@ -135,11 +133,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.72 0.15 161.56);  /* teal  */
-  --chart-2: oklch(0.75 0.16 29.00);   /* amber */
-  --chart-3: oklch(0.70 0.13 258.00);  /* blue-violet */
-  --chart-4: oklch(0.78 0.12 79.00);   /* lime */
-  --chart-5: oklch(0.73 0.14 320.00);  /* rose */
+  --chart-1: oklch(0.72 0.15 161.56); /* teal */
+  --chart-2: oklch(0.75 0.16 29); /* amber */
+  --chart-3: oklch(0.7 0.13 258); /* blue-violet */
+  --chart-4: oklch(0.78 0.12 79); /* lime */
+  --chart-5: oklch(0.73 0.14 320); /* rose */
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -160,15 +158,19 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
+
   ::selection {
     @apply bg-primary/18 text-foreground;
   }
+
   a,
   button {
     @apply transition-colors;

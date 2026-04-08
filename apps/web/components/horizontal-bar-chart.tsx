@@ -100,11 +100,7 @@ const metrics: MetricItem[] = [
   },
 ];
 
-interface IncidentSummaryCardProps {
-  // Props can be added here for customization
-}
-
-function IncidentSummaryCard({}: IncidentSummaryCardProps): JSX.Element {
+function IncidentSummaryCard(): JSX.Element {
   return (
     <div className="flex flex-col pt-4 pb-4 bg-white dark:bg-black rounded-3xl shadow-[11px_21px_3px_rgba(0,0,0,0.06),14px_27px_7px_rgba(0,0,0,0.10),19px_38px_14px_rgba(0,0,0,0.13),27px_54px_27px_rgba(0,0,0,0.16),39px_78px_50px_rgba(0,0,0,0.20),55px_110px_86px_rgba(0,0,0,0.26)] w-[375px] h-[560px] overflow-hidden transition-colors duration-300">
       <h3 className="text-3xl text-left p-7 pt-6 pb-8 font-bold text-neutral-800 dark:text-white">

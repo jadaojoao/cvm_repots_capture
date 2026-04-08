@@ -8,6 +8,11 @@ import { CompanyOverview } from "@/components/company/company-overview";
 import { CompanyStatements } from "@/components/company/company-statements";
 import { CompanyUrlTabs } from "@/components/company/company-url-tabs";
 import { CompanyYearSelector } from "@/components/company/company-year-selector";
+import {
+  PageShell,
+  SectionHeading,
+  SurfaceCard,
+} from "@/components/shared/design-system-recipes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -41,21 +46,29 @@ function DetailPageError({
   message: string;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-16 sm:px-6">
-      <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
-        <AlertTitle>Leitura detalhada indisponivel</AlertTitle>
-        <AlertDescription>{message}</AlertDescription>
-      </Alert>
-      <Link
-        href="/empresas"
-        className={cn(
-          buttonVariants({ variant: "outline", size: "lg" }),
-          "w-fit rounded-full px-5",
-        )}
-      >
-        Voltar para o diretorio
-      </Link>
-    </div>
+    <PageShell density="relaxed" className="max-w-4xl">
+      <SurfaceCard tone="hero" padding="hero" className="space-y-6">
+        <SectionHeading
+          eyebrow="PG-03 - Detalhe da empresa"
+          title="Leitura detalhada indisponivel"
+          titleAs="h1"
+          description="A superficie de detalhe nao conseguiu carregar os dados desta companhia agora."
+        />
+        <Alert className="rounded-[1.75rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+          <AlertTitle>Falha controlada da leitura detalhada</AlertTitle>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+        <Link
+          href="/empresas"
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "w-fit rounded-full px-5",
+          )}
+        >
+          Voltar para o diretorio
+        </Link>
+      </SurfaceCard>
+    </PageShell>
   );
 }
 
@@ -143,7 +156,7 @@ export default async function EmpresaDetailPage({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
+    <PageShell density="default">
       <CompanyDetailTracker
         cdCvm={company.cd_cvm}
         companyName={company.company_name}
@@ -154,7 +167,7 @@ export default async function EmpresaDetailPage({
 
       <CompanyHeader company={company} selectedYears={selectedYears} />
 
-      <section className="flex flex-col gap-4 rounded-[1.5rem] border border-border/70 bg-background/90 px-5 py-5 shadow-sm shadow-black/5">
+      <SurfaceCard tone="subtle" padding="md" className="space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
@@ -171,7 +184,7 @@ export default async function EmpresaDetailPage({
             selectedYears={selectedYears}
           />
         </div>
-      </section>
+      </SurfaceCard>
 
       <CompanyUrlTabs
         pathname={pathname}
@@ -184,7 +197,7 @@ export default async function EmpresaDetailPage({
         bundle ? (
           <CompanyOverview bundle={bundle} />
         ) : (
-          <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+          <Alert className="rounded-[1.75rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
             <AlertTitle>Visao geral indisponivel</AlertTitle>
             <AlertDescription>
               {contentError ??
@@ -194,10 +207,14 @@ export default async function EmpresaDetailPage({
         )
       ) : (
         <div className="space-y-6">
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-              Tipo de demonstracao
-            </p>
+          <SurfaceCard tone="subtle" padding="md" className="space-y-4">
+            <SectionHeading
+              eyebrow="Tipo de demonstracao"
+              title="Escolha a visao contabil disponivel"
+              titleAs="h3"
+              description="A tabela abaixo respeita os anos selecionados e troca apenas a demonstracao ativa."
+              descriptionClassName="text-sm leading-7"
+            />
             <CompanyUrlTabs
               pathname={pathname}
               currentValue={currentStatement}
@@ -205,11 +222,11 @@ export default async function EmpresaDetailPage({
               options={Array.from(STATEMENT_OPTIONS)}
               eventName="company_statement_changed"
             />
-          </div>
+          </SurfaceCard>
           {statement ? (
             <CompanyStatements matrix={statement} />
           ) : (
-            <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+            <Alert className="rounded-[1.75rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
               <AlertTitle>Demonstracao indisponivel</AlertTitle>
               <AlertDescription>
                 {contentError ??
@@ -219,6 +236,6 @@ export default async function EmpresaDetailPage({
           )}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

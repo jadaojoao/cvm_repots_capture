@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { InfoChip } from "@/components/shared/design-system-recipes";
 import type { HealthResponse } from "@/lib/api";
 import { formatCompactInteger } from "@/lib/formatters";
 
@@ -8,29 +8,27 @@ type TrustStripProps = {
 };
 
 export function TrustStrip({ health, totalCompanies }: TrustStripProps) {
-  const statusLabel = health?.status === "ok" ? "API online" : "API indisponível";
+  const statusLabel = health?.status === "ok" ? "API online" : "API indisponivel";
   const dialectLabel = health?.database_dialect
     ? health.database_dialect.toUpperCase()
     : "N/A";
 
   return (
-    <div className="border-y border-border/60 bg-background/70">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 text-sm text-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between lg:px-10">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge className="rounded-full bg-primary px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.2em] text-primary-foreground">
-            Fonte CVM
-          </Badge>
-          <span>{statusLabel}</span>
-          <span>Banco: {dialectLabel}</span>
-          <span>
+    <div className="border-y border-border/60 bg-background/72 backdrop-blur-sm">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 text-sm text-muted-foreground sm:px-6 lg:px-10 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <InfoChip tone="brand">Fonte CVM</InfoChip>
+          <InfoChip>{statusLabel}</InfoChip>
+          <InfoChip>Banco {dialectLabel}</InfoChip>
+          <InfoChip>
             {totalCompanies !== null
               ? `${formatCompactInteger(totalCompanies)} empresas com dados`
-              : "Diretório público em leitura"}
-          </span>
+              : "Diretorio publico em leitura"}
+          </InfoChip>
         </div>
-        <p className="max-w-xl text-sm leading-6">
-          Fluxo inicial focado em descoberta por empresa, leitura histórica e
-          navegação rasa antes das áreas de comparação e contexto setorial.
+        <p className="max-w-2xl text-sm leading-7">
+          Fluxo inicial focado em descoberta por empresa, leitura historica e
+          navegacao rasa antes das areas de comparacao e contexto setorial.
         </p>
       </div>
     </div>

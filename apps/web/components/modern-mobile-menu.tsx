@@ -34,20 +34,15 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor })
   }, [items]);
 
   const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-      if (activeIndex >= finalItems.length) {
-          setActiveIndex(0);
-      }
-  }, [finalItems, activeIndex]);
+  const activeItemIndex = activeIndex < finalItems.length ? activeIndex : 0;
 
   const textRefs = useRef<(HTMLElement | null)[]>([]);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     const setLineWidth = () => {
-      const activeItemElement = itemRefs.current[activeIndex];
-      const activeTextElement = textRefs.current[activeIndex];
+      const activeItemElement = itemRefs.current[activeItemIndex];
+      const activeTextElement = textRefs.current[activeItemIndex];
 
       if (activeItemElement && activeTextElement) {
         const textWidth = activeTextElement.offsetWidth;
@@ -61,7 +56,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor })
     return () => {
       window.removeEventListener('resize', setLineWidth);
     };
-  }, [activeIndex, finalItems]);
+  }, [activeItemIndex, finalItems]);
 
   const handleItemClick = (index: number) => {
     setActiveIndex(index);
@@ -79,7 +74,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ items, accentColor })
       style={navStyle}
     >
       {finalItems.map((item, index) => {
-        const isActive = index === activeIndex;
+        const isActive = index === activeItemIndex;
         const isTextActive = isActive;
 
 

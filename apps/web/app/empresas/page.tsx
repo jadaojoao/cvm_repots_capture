@@ -4,6 +4,12 @@ import type { Metadata } from "next";
 import { CompanyDirectoryFilters } from "@/components/companies/company-directory-filters";
 import { CompanyDirectoryList } from "@/components/companies/company-directory-list";
 import { DirectoryPagination } from "@/components/companies/directory-pagination";
+import {
+  InfoChip,
+  PageShell,
+  SectionHeading,
+  SurfaceCard,
+} from "@/components/shared/design-system-recipes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { formatCompactInteger } from "@/lib/formatters";
@@ -56,59 +62,59 @@ export default async function EmpresasPage({
 
   if (!directory) {
     return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-16 sm:px-6">
-        <Alert className="rounded-[1.5rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
-          <AlertTitle>Diretorio temporariamente indisponivel</AlertTitle>
-          <AlertDescription>
-            {directoryError ??
-              "Nao foi possivel carregar o diretorio de empresas agora. Tente novamente em instantes."}
-          </AlertDescription>
-        </Alert>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href={retryHref}
-            className={cn(buttonVariants({ size: "lg" }), "rounded-full px-5")}
-          >
-            Tentar novamente
-          </Link>
-          <Link
-            href="/"
-            className={cn(
-              buttonVariants({ variant: "outline", size: "lg" }),
-              "rounded-full px-5",
-            )}
-          >
-            Voltar para a home
-          </Link>
-        </div>
-      </div>
+      <PageShell density="relaxed" className="max-w-4xl">
+        <SurfaceCard tone="hero" padding="hero" className="space-y-6">
+          <SectionHeading
+            eyebrow="PG-02 - Hub de empresas"
+            title="Diretorio temporariamente indisponivel"
+            titleAs="h1"
+            description="A listagem de empresas nao respondeu agora. O fluxo de busca e navegacao pode ser retomado assim que a API voltar a responder."
+          />
+          <Alert className="rounded-[1.75rem] border border-destructive/25 bg-destructive/6 px-5 py-5 text-left">
+            <AlertTitle>Falha controlada da listagem</AlertTitle>
+            <AlertDescription>
+              {directoryError ??
+                "Nao foi possivel carregar o diretorio de empresas agora. Tente novamente em instantes."}
+            </AlertDescription>
+          </Alert>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={retryHref}
+              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-5")}
+            >
+              Tentar novamente
+            </Link>
+            <Link
+              href="/"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "rounded-full px-5",
+              )}
+            >
+              Voltar para a home
+            </Link>
+          </div>
+        </SurfaceCard>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:px-10">
-      <div className="space-y-4">
-        <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
-          PG-02 - Hub de empresas
-        </p>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
-            <h1 className="font-heading text-4xl tracking-[-0.05em] text-foreground sm:text-5xl">
-              Diretorio publico de empresas
-            </h1>
-            <p className="max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-              Use busca, setor canonico e paginacao para cair na companhia certa
-              sem depender de navegacao lateral ou filtros client-side opacos.
-            </p>
-          </div>
-          <p className="text-sm text-muted-foreground">
+    <PageShell density="default">
+      <SectionHeading
+        eyebrow="PG-02 - Hub de empresas"
+        title="Diretorio publico de empresas"
+        titleAs="h1"
+        description="Use busca, setor canonico e paginacao para cair na companhia certa sem depender de navegacao lateral ou filtros client-side opacos."
+        meta={
+          <InfoChip tone="muted">
             {formatCompactInteger(directory.pagination.total_items)} resultados
-          </p>
-        </div>
-      </div>
+          </InfoChip>
+        }
+      />
 
       {filtersError ? (
-        <Alert className="rounded-[1.25rem] border border-border/70 bg-background/85 px-5 py-4">
+        <Alert className="rounded-[1.75rem] border border-border/70 bg-background/85 px-5 py-4">
           <AlertTitle>Filtro setorial indisponivel</AlertTitle>
           <AlertDescription>
             {filtersError} A busca livre e a paginacao continuam disponiveis.
@@ -133,6 +139,6 @@ export default async function EmpresasPage({
         currentSearch={currentSearch}
         currentSector={Boolean(filtersError) ? null : currentSector}
       />
-    </div>
+    </PageShell>
   );
 }

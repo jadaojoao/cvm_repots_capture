@@ -16,7 +16,6 @@ import {
   GradientStop,
   GridlineSeries,
   Gridline,
-  ChartDataTypes,
 } from 'reaviz';
 
 // Type definitions
@@ -28,6 +27,16 @@ interface ChartDataPoint {
 interface ChartSeries {
   key: string;
   data: ChartDataPoint[];
+}
+
+interface ValidatedChartDataPoint {
+  key: Date;
+  data: number;
+}
+
+interface ValidatedChartSeries {
+  key: string;
+  data: ValidatedChartDataPoint[];
 }
 
 interface LegendItem {
@@ -146,14 +155,14 @@ const initialChartData: ChartSeries[] = [
   },
 ];
 
-const validateChartData = (data: ChartSeries[]): ChartDataTypes[] => {
+const validateChartData = (data: ChartSeries[]): ValidatedChartSeries[] => {
   return data.map(series => ({
     ...series,
     data: series.data.map(item => ({
       ...item,
       data: (typeof item.data !== 'number' || isNaN(item.data)) ? 0 : item.data,
     })),
-  })) as unknown as ChartDataTypes[];
+  }));
 };
 
 const validatedChartData = validateChartData(initialChartData);
@@ -275,7 +284,7 @@ const AdvancedIncidentReportCard: React.FC = () => {
           <AreaChart
             height={280} // Explicit height for the chart
             id="multi-series-interpolation-smooth"
-            data={validatedChartData as any}
+            data={validatedChartData}
             xAxis={
               <LinearXAxis
                 type="time"

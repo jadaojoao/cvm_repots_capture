@@ -11,7 +11,7 @@ const SITEMAP = [
     ],
   },
   {
-    heading: "Análise",
+    heading: "Analise",
     links: [
       { label: "KPIs", href: null },
       { label: "Macro", href: null },
@@ -22,7 +22,7 @@ const SITEMAP = [
     heading: "Recursos",
     links: [
       { label: "Metodologia", href: null },
-      { label: "Glossário", href: null },
+      { label: "Glossario", href: null },
       { label: "Fontes", href: null },
       { label: "Design System", href: "/design-system" },
     ],
@@ -41,18 +41,16 @@ export function SiteFooter() {
     <footer className="border-t border-border/60 bg-background/80">
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_auto]">
-          {/* Brand */}
           <div className="max-w-sm">
             <p className="font-heading text-lg text-foreground">
-              Leitura pública, rápida e rastreável dos dados financeiros da CVM.
+              Leitura publica, rapida e rastreavel dos dados financeiros da CVM.
             </p>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
               V2 web como camada read-only sobre a API estabilizada. Fluxos de
-              refresh, comparação e domínios setoriais entram nas próximas fases.
+              refresh, comparacao e dominios setoriais entram nas proximas fases.
             </p>
           </div>
 
-          {/* Sitemap */}
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {SITEMAP.map((section) => (
               <div key={section.heading} className="flex flex-col gap-3">
@@ -86,7 +84,7 @@ export function SiteFooter() {
 
         <div className="mt-10 border-t border-border/40 pt-6">
           <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground/60">
-            Fonte pública: dados.cvm.gov.br · Operação read-only nesta fase
+            Fonte publica: dados.cvm.gov.br - Operacao read-only nesta fase
           </p>
         </div>
       </div>

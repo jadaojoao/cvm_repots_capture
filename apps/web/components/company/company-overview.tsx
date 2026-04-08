@@ -7,6 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  SectionHeading,
+  SurfaceCard,
+} from "@/components/shared/design-system-recipes";
 import type { KPIBundle, TabularDataRow } from "@/lib/api";
 import { FEATURED_KPIS } from "@/lib/constants";
 import { formatKpiDelta, formatKpiValue } from "@/lib/formatters";
@@ -25,21 +29,17 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
     .filter(isYearColumn)
     .sort((left, right) => Number(left) - Number(right));
   const lastYear = yearColumns.at(-1);
-  const kpiMap = new Map(
-    annualRows.map((row) => [String(row.KPI_ID), row]),
-  );
+  const kpiMap = new Map(annualRows.map((row) => [String(row.KPI_ID), row]));
 
   return (
     <div className="space-y-8">
       <section className="space-y-5">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            Visao geral
-          </p>
-          <h2 className="font-heading text-2xl text-foreground">
-            Indicadores-chave do periodo selecionado
-          </h2>
-        </div>
+        <SectionHeading
+          eyebrow="Visao geral"
+          title="Indicadores-chave do periodo selecionado"
+          titleAs="h2"
+          descriptionClassName="text-base"
+        />
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {FEATURED_KPIS.map((kpi) => {
@@ -52,12 +52,9 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                 : Number(row.DELTA_YOY);
 
             return (
-              <article
-                key={kpi.id}
-                className="overflow-hidden rounded-[1.4rem] border border-border/70 bg-background/90 p-5 shadow-sm shadow-black/5"
-              >
+              <SurfaceCard key={kpi.id} tone="subtle" padding="md">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <p className="text-sm text-muted-foreground">{kpi.label}</p>
                     <Badge
                       variant="outline"
@@ -75,27 +72,24 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                     </p>
                   </div>
                 </div>
-              </article>
+              </SurfaceCard>
             );
           })}
         </div>
       </section>
 
       <section className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
-            Matriz anual de KPIs
-          </p>
-          <h3 className="font-heading text-2xl text-foreground">
-            Leitura compacta por indicador
-          </h3>
-        </div>
+        <SectionHeading
+          eyebrow="Matriz anual de KPIs"
+          title="Leitura compacta por indicador"
+          titleAs="h3"
+        />
 
-        <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-background/90">
+        <SurfaceCard tone="default" padding="none" className="overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/35">
               <TableRow>
-                <TableHead className="px-4">Indicador</TableHead>
+                <TableHead className="px-5">Indicador</TableHead>
                 <TableHead>Categoria</TableHead>
                 {yearColumns.map((year) => (
                   <TableHead key={year}>{year}</TableHead>
@@ -110,7 +104,7 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                   const formatType = String(row.FORMAT_TYPE ?? "ratio");
                   return (
                     <TableRow key={String(row.KPI_ID)}>
-                      <TableCell className="px-4 font-medium text-foreground">
+                      <TableCell className="px-5 font-medium text-foreground">
                         {String(row.KPI_NOME)}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
@@ -139,7 +133,7 @@ export function CompanyOverview({ bundle }: CompanyOverviewProps) {
                 })}
             </TableBody>
           </Table>
-        </div>
+        </SurfaceCard>
       </section>
     </div>
   );

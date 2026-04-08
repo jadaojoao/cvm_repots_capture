@@ -109,7 +109,7 @@ export function DirectoryPagination({
         <PaginationItem>
           <PaginationNext
             href="#"
-            text="Próxima"
+            text="Proxima"
             aria-disabled={!hasNext}
             className={!hasNext ? "pointer-events-none opacity-40" : ""}
             onClick={(event) => {

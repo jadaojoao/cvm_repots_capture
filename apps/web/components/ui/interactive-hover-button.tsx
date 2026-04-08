@@ -10,12 +10,13 @@
  */
 import React, { useState } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { clsx } from 'clsx'
+import { AnimatePresence, motion, type HTMLMotionProps } from 'framer-motion'
+import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-function cn(...inputs: any[]) { return twMerge(clsx(inputs)) }
+function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)) }
 
-interface InteractiveHoverButtonProps {
+interface InteractiveHoverButtonProps
+  extends Omit<HTMLMotionProps<'button'>, 'children'> {
   text?: string
   loadingText?: string
   successText?: string

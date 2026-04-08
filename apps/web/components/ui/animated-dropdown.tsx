@@ -13,9 +13,9 @@ import React from 'react'
 import { useState, useRef, FC, ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { clsx } from 'clsx'
+import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-function cn(...inputs: any[]) { return twMerge(clsx(inputs)) }
+function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)) }
 
 const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: string; size?: string }>(
   ({ className, variant, size, ...props }, ref) => (
