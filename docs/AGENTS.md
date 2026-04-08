@@ -33,10 +33,14 @@
 
 ### V2 Web
 - `apps/web` existe como o primeiro slice web da V2
-- Stack local: `Next.js 16` + `App Router` + `TypeScript` + `Tailwind` + `shadcn`
-- Rotas entregues nesta fase: `/`, `/empresas`, `/empresas/[cd_cvm]`
+- Stack: `Next.js 16.2.2` + `App Router` + `TypeScript` + `Tailwind v4` + `@base-ui/react 1.3.0`
+- Sistema de icones: `Material Symbols Outlined` weight 200 (Google Fonts)
+- Biblioteca de componentes: 21st.dev via shadcn CLI (coss.com, reaviz, isaiahbjork, larsen66, moumensoliman)
+- Providers globais: `ThemeProvider` (next-themes) + `TooltipProvider` (radix) em `components/providers.tsx`
+- Rotas de produto: `/`, `/empresas`, `/empresas/[cd_cvm]`
+- Rota de tooling: `/design-system` — showcase de tokens e componentes (24 secoes)
+- Cores chart: OkLch com ~72° de espacamento, chroma real em light e dark mode
 - O frontend consome somente a API V2; nao acessa `src/` nem o banco diretamente
-- Estado principal da UX desta fase: `Home -> Empresas -> Empresa`
 
 ### Testes
 - `pytest tests/ -q` continua sendo a validacao mais confiavel da V1
@@ -67,6 +71,17 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 30 - 2026-04-08 (design system + biblioteca de componentes V2 web)
+- `/design-system` criada como showcase de tokens e componentes (24 secoes, sidebar nav)
+- 20+ componentes instalados via 21st.dev shadcn CLI: coss.com (tabs, toolbar, field, textarea, checkbox, accordion, calendar), reaviz (charts), isaiahbjork (3 tabelas), larsen66 (tooltip, toggle-theme, feature-carousel), moumensoliman (delete-button), shadcnspace (switch), easemize (mobile-menu), Shatlyk1011 (animated-dropdown)
+- `@base-ui/react` confirmado como headless primitive; Radix coexiste sem conflito
+- `components/providers.tsx` criado: `ThemeProvider` (next-themes) + `TooltipProvider` (radix)
+- `suppressHydrationWarning` adicionado ao `<html>` para compatibilidade com next-themes SSR
+- Tokens de cor dos charts atualizados para OkLch com hues espacados ~72° e chroma real em dark mode
+- Footer sitemap reestruturado com 4 colunas e link "Design System" em Recursos
+- 8 erros TypeScript corrigidos nos componentes de terceiros instalados
+- Zero erros TypeScript; zero runtime errors no `/design-system`
 
 ### Sessao 28 - 2026-04-08 (Fase 1 V2 backend-first)
 - `apps/api` criado como API `FastAPI` read-only em cima de `src/read_service.py`
