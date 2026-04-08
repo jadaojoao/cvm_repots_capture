@@ -1,0 +1,82 @@
+name: Task
+description: Unidade executavel de trabalho vinculada a um epic ou objetivo.
+title: "[Task] "
+labels:
+  - kind:task
+  - status:ready
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Toda alteracao em arquivos versionados deve estar vinculada a uma task.
+        Depois de criar esta issue, aplique tambem labels `priority:*` e `area:*`.
+  - type: input
+    id: parent_epic
+    attributes:
+      label: Epic pai
+      description: Informe o numero da issue epic relacionada, se existir.
+      placeholder: "#5"
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: Problema atual e motivacao da task.
+      placeholder: Explique o contexto que torna esta task necessaria.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceite
+      description: O que precisa ser verdade para considerar a task concluida.
+      placeholder: Liste criterios verificaveis.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area principal
+      description: Aplique o label `area:*` correspondente depois de criar a issue.
+      options:
+        - web
+        - api
+        - core
+        - data
+        - infra
+        - docs
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      description: Aplique o label `priority:*` correspondente depois de criar a issue.
+      options:
+        - p0
+        - p1
+        - p2
+        - p3
+    validations:
+      required: true
+  - type: textarea
+    id: execution_checklist
+    attributes:
+      label: Checklist de execucao
+      description: Edite esta lista no corpo da issue conforme o trabalho avancar.
+      value: |
+        - [ ] Escopo confirmado
+        - [ ] Implementacao concluida
+        - [ ] Validacao executada
+        - [ ] Issue/docs atualizados
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validacao esperada
+      description: Comandos, checagens ou evidencias que devem ser executados.
+      placeholder: Tests, builds, checks, screenshots, links ou outros artefatos.
+    validations:
+      required: true

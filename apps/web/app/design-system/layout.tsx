@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,8 +7,12 @@ export const metadata: Metadata = {
     "Catalogo interno de tokens, componentes e recipes visuais que orientam a UI do CVM Analytics.",
 };
 
+type DesignSystemLayoutProps = {
+  children: ReactNode;
+};
+
 export default function DesignSystemLayout({
   children,
-}: LayoutProps<"/design-system">) {
+}: DesignSystemLayoutProps) {
   return <>{children}</>;
 }

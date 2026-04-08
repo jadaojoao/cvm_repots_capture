@@ -7,7 +7,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Hybrid Python project: a CLI scraper that extracts DFP/ITR financial reports from Brazil's CVM regulator and persists them to SQLite/PostgreSQL, plus a Streamlit analytics dashboard and a PyQt6 desktop app for 449+ public companies.
 
 > For business rules, pipeline details, and troubleshooting see `docs/CONTEXT.md`.
+> For the issue-first workflow required in this repo see `AGENTS.md`.
 > For current state and session history see `docs/AGENTS.md`.
+
+## Required Workflow
+
+Before changing any versioned file:
+
+1. Find or create an open `task issue` in GitHub.
+2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, and one `area:*` label.
+3. Update the issue when work starts and keep the checklist/evidence current.
+4. Work in a branch named `codex/<issue-number>-<slug>`.
+5. Open a PR with `Closes #<issue-number>` in the body.
+6. Update the issue and relevant docs before considering the task complete.
+7. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+
+## Publish and Merge Policy
+
+- Do not leave completed work only in the local worktree.
+- Commit when you reach a coherent, validated checkpoint.
+- Push when the checkpoint should be preserved remotely or reflected in the PR.
+- Open or update a draft PR as soon as the branch is reviewable.
+- When acceptance criteria are satisfied and relevant checks pass:
+  - update the issue;
+  - mark the PR ready if needed;
+  - merge into `master`.
+- Prefer squash merge for short-lived Codex branches.
+- After merge, confirm the linked task closes and the remote branch is removed when possible.
+
+Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub Issues.
 
 ## Commands
 
@@ -177,10 +205,10 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 - One task per subagent for focused execution
 
 ### 3. Self-Improvement Loop
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
+- After ANY correction from the user: record the lesson in the relevant issue comment, ADR, or durable doc
 - Write rules for yourself that prevent the same mistake
 - Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+- Review recent issues and docs before repeating work
 
 ### 4. Verification Before Done
 - Never mark a task complete without proving it works
@@ -200,14 +228,13 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 - Zero context switching required from the user
 - Go fix failing CI tests without being told how
 
-## Task Management
+## Issue Management
 
-1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+1. **Issue First**: no executable work starts without a `task issue`
+2. **Branch From Issue**: use `codex/<issue-number>-<slug>`
+3. **Track Progress in Issue**: keep status, checklist, and evidence current
+4. **Close via PR**: use `Closes #<issue-number>` in the PR body
+5. **Keep Docs Durable**: ADRs and durable docs stay in `docs/`; operational state stays in GitHub Issues
 
 ## Core Principles
 

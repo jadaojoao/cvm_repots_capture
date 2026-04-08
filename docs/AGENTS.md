@@ -1,8 +1,9 @@
 # AGENTS.md - Estado Atual e Historico de Sessoes
 
 > **Para agentes de IA.** Estado atual no topo; historico abaixo.
-> Antes de modificar o codigo, leia este arquivo e `docs/CONTEXT.md`.
+> Antes de modificar o codigo, leia `AGENTS.md`, este arquivo e `docs/CONTEXT.md`.
 > Apos concluir, atualize a secao "Estado Atual" e adicione uma entrada de sessao quando fizer sentido.
+> Backlog oficial: `GitHub Issues`. Este arquivo nao e uma lista viva de tarefas.
 
 ---
 
@@ -47,7 +48,13 @@
 - `pytest apps/api/tests -q` cobre o contrato HTTP da Fase 1 da V2
 - `apps/web` valida com `npm run lint`, `npm run typecheck`, `npm run build` e `npm run test:e2e`
 
-### Issues Abertas
+### Governanca de Trabalho
+- `GitHub Issues` passa a ser a fonte oficial do backlog e do status do trabalho
+- `AGENTS.md` na raiz define o contrato operacional `issue -> branch -> PR -> merge`
+- `docs/STUDENT_PACK_PLAN.md` deixa de espelhar task-by-task e passa a apontar para milestone + epics + filtros de issues
+- `docs/AGENTS.md` permanece apenas como estado atual e historico de sessoes
+
+### Pendencias Tecnicas Atuais
 - Validacao contra PostgreSQL real ainda depende de `DATABASE_URL` valido
 - Deploy de preview da V2 ainda nao foi iniciado
 - Streamlit Cloud deploy pendente
@@ -71,6 +78,16 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 31 - 2026-04-08 (governanca issue-first no GitHub)
+- `AGENTS.md` criado na raiz como contrato operacional para agentes e contribuidores
+- `.github/ISSUE_TEMPLATE/` criado com forms de `epic` e `task`; blank issues desabilitadas
+- `.github/PULL_REQUEST_TEMPLATE.md` criado com referencia obrigatoria a issue
+- `.github/workflows/pr-issue-guardrails.yml` criado para validar branch `codex/<issue-number>-<slug>`, `Closes #<issue>` e label `kind:task`
+- `CLAUDE.md` atualizado para abandonar `tasks/todo.md` e seguir fluxo issue-first
+- `docs/STUDENT_PACK_PLAN.md` atualizado para apontar para milestone/epics/tasks do GitHub em vez de espelhar backlog diario
+- Labels operacionais criadas no GitHub: `kind:*`, `status:*`, `priority:*`, `area:*`
+- Triage inicial aplicada aos issues `#2` a `#14`, com `#12` fechado como concluido por evidencia ja entregue
 
 ### Sessao 30 - 2026-04-08 (design system + biblioteca de componentes V2 web)
 - `/design-system` criada como showcase de tokens e componentes (24 secoes, sidebar nav)

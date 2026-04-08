@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Manrope, Space_Grotesk } from "next/font/google";
 
@@ -31,7 +32,11 @@ export const metadata: Metadata = {
     "Plataforma publica de analise financeira com dados da CVM para descoberta rapida, leitura historica e navegacao por empresas.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+type RootLayoutProps = {
+  children: ReactNode;
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="pt-BR"

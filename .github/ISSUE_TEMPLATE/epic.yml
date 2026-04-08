@@ -1,0 +1,71 @@
+name: Epic
+description: Issue agregadora para objetivos maiores e suas tasks filhas.
+title: "[Epic] "
+labels:
+  - kind:epic
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use epics para agrupar trabalho, nao para receber PRs diretamente.
+        O backlog oficial do repositorio vive em GitHub Issues.
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo
+      description: Resultado de negocio ou tecnico esperado.
+      placeholder: Descreva o objetivo principal do epic.
+    validations:
+      required: true
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definicao de pronto
+      description: Condicoes objetivas para fechar o epic.
+      placeholder: Liste criterios verificaveis para considerar o epic concluido.
+    validations:
+      required: true
+  - type: textarea
+    id: child_tasks
+    attributes:
+      label: Tasks filhas
+      description: Liste as task issues relacionadas.
+      placeholder: |
+        - [ ] #123
+        - [ ] #124
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area principal
+      description: Aplique o label `area:*` correspondente depois de criar a issue.
+      options:
+        - web
+        - api
+        - core
+        - data
+        - infra
+        - docs
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      description: Aplique o label `priority:*` correspondente depois de criar a issue.
+      options:
+        - p0
+        - p1
+        - p2
+        - p3
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia esperada
+      description: O que precisa existir quando o epic for encerrado.
+      placeholder: Links, docs, releases, ambientes ou validacoes esperadas.
+    validations:
+      required: true

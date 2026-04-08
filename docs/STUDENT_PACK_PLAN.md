@@ -148,26 +148,20 @@ Decisao esperada ao final de 2026-06-04:
 
 ## 7. Backlog no GitHub
 
-Milestone alvo: `Student Pack 60 dias` com data alvo em 2026-06-04.
+O backlog operacional oficial agora vive em `GitHub Issues`.
 
-Milestone criado:
-- [Student Pack 60 dias](https://github.com/jadaojoao/cvm_repots_capture/milestone/1)
+Use sempre:
+- milestone atual: [Student Pack 60 dias](https://github.com/jadaojoao/cvm_repots_capture/milestone/1)
+- epics abertas: [filtro de epics](https://github.com/jadaojoao/cvm_repots_capture/issues?q=is%3Aissue+is%3Aopen+milestone%3A%22Student+Pack+60+dias%22+label%3Akind%3Aepic)
+- tasks abertas: [filtro de tasks](https://github.com/jadaojoao/cvm_repots_capture/issues?q=is%3Aissue+is%3Aopen+milestone%3A%22Student+Pack+60+dias%22+label%3Akind%3Atask)
 
-Epicos criados:
+Epics atuais:
 1. [#2 - Student Pack Activation](https://github.com/jadaojoao/cvm_repots_capture/issues/2)
 2. [#3 - Current Stack Stabilization](https://github.com/jadaojoao/cvm_repots_capture/issues/3)
 3. [#4 - Observability and Quality](https://github.com/jadaojoao/cvm_repots_capture/issues/4)
 4. [#5 - V2 Discovery](https://github.com/jadaojoao/cvm_repots_capture/issues/5)
 
-Tasks criadas:
-- [#6 - Registrar e ativar beneficios priorizados do Student Pack](https://github.com/jadaojoao/cvm_repots_capture/issues/6)
-- [#7 - Concluir trilha inicial de Frontend Masters e registrar aprendizados](https://github.com/jadaojoao/cvm_repots_capture/issues/7)
-- [#8 - Integrar Codecov ao CI atual](https://github.com/jadaojoao/cvm_repots_capture/issues/8)
-- [#9 - Escolher ambiente cloud de aprendizado para a V2](https://github.com/jadaojoao/cvm_repots_capture/issues/9)
-- [#10 - Validar fluxo local completo e documentar fronteira da V1](https://github.com/jadaojoao/cvm_repots_capture/issues/10)
-- [#11 - Escrever ADR de criterios de escolha da V2](https://github.com/jadaojoao/cvm_repots_capture/issues/11)
-- [#12 - Definir stack da V2 e contrato inicial da API](https://github.com/jadaojoao/cvm_repots_capture/issues/12)
-- [#13 - Integrar Sentry no primeiro runtime remoto](https://github.com/jadaojoao/cvm_repots_capture/issues/13)
-- [#14 - Entregar primeira fatia da V2 em ambiente de teste](https://github.com/jadaojoao/cvm_repots_capture/issues/14)
-
-Este documento deve ser sincronizado com as issues do GitHub sempre que uma tarefa for criada, reordenada, ativada ou concluida.
+Regras de operacao:
+- toda mudanca em arquivo versionado deve estar vinculada a uma `task issue`
+- backlog diario, status e concluido vivem nas issues, nao neste documento
+- este arquivo resume direcao e links, mas nao espelha a lista viva de tasks
