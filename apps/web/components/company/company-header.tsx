@@ -5,6 +5,7 @@ import {
   InfoChip,
   SurfaceCard,
 } from "@/components/shared/design-system-recipes";
+import { ExcelDownloadButton } from "@/components/shared/excel-download-button";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { CompanyInfo } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -69,6 +70,19 @@ export function CompanyHeader({
           </div>
 
           <div className="flex flex-wrap gap-3">
+            <ExcelDownloadButton
+              endpoint={`/api/companies/${company.cd_cvm}/excel`}
+              fallbackFilename={`${company.ticker_b3 ?? `cvm${company.cd_cvm}`}.xlsx`}
+              buttonLabel="Baixar Excel"
+              pendingLabel="Preparando Excel..."
+              trackingEvent="company_excel_download_clicked"
+              failureTrackingEvent="company_excel_download_failed"
+              trackingPayload={{
+                cd_cvm: company.cd_cvm,
+                company_name: company.company_name,
+              }}
+              className="rounded-full px-5"
+            />
             <Button
               variant="outline"
               size="lg"

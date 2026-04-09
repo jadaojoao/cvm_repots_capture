@@ -30,3 +30,17 @@ test("fluxo inicial de descoberta por empresa", async ({ page }) => {
   await expect(page).toHaveURL(/\/empresas\/\d+/);
   await expect(page.locator("h1").first()).toContainText(/PETROBRAS/i);
 });
+
+test("detalhe da empresa dispara download do Excel", async ({ page }) => {
+  await page.goto("/empresas/9512");
+
+  await expect(page.locator("h1").first()).toContainText(/PETROBRAS/i, {
+    timeout: 30_000,
+  });
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: /baixar excel/i }).click();
+
+  const download = await downloadPromise;
+  expect(await download.suggestedFilename()).toMatch(/^PETR4(?:\.SA)?_\d{8}\.xlsx$/i);
+});

@@ -120,11 +120,11 @@ export class ApiClientError extends Error {
 
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000";
 
-function getApiBaseUrl(): string {
+export function getApiBaseUrl(): string {
   return (process.env.API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
 }
 
-function buildApiUrl(path: string): string {
+export function buildApiUrl(path: string): string {
   return `${getApiBaseUrl()}${path}`;
 }
 
