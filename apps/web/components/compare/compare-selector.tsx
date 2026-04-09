@@ -12,6 +12,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { InfoChip, SurfaceCard } from "@/components/shared/design-system-recipes";
+import { ExcelDownloadButton } from "@/components/shared/excel-download-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -373,6 +374,20 @@ export function CompareSelector({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <ExcelDownloadButton
+          endpoint={`/api/compare/excel?ids=${encodeURIComponent(serializeCompanyIds(selectedIds))}`}
+          fallbackFilename="comparar_excel_lote.zip"
+          buttonLabel="Baixar lote Excel"
+          pendingLabel="Preparando lote..."
+          trackingEvent="compare_excel_download_clicked"
+          failureTrackingEvent="compare_excel_download_failed"
+          trackingPayload={{
+            selected_companies: selectedIds.length,
+            years: selectedYears.join(","),
+          }}
+          disabled={selectedIds.length < 2}
+          className="rounded-full px-5"
+        />
         <Button
           type="button"
           size="lg"

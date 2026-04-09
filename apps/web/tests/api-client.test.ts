@@ -7,6 +7,7 @@ import {
   fetchCompanyFilters,
   getUserFacingErrorCopy,
 } from "../lib/api.ts";
+import { getFilenameFromDisposition } from "../lib/download-file.ts";
 
 type FetchMock = typeof globalThis.fetch;
 
@@ -105,4 +106,19 @@ test("fetchCompanies rejects invalid payload shapes as invalid_response", async 
   } finally {
     restore();
   }
+});
+
+test("getFilenameFromDisposition keeps quoted filenames when present", () => {
+  const filename = getFilenameFromDisposition(
+    'attachment; filename="PETR4_20260409.xlsx"',
+    "fallback.xlsx",
+  );
+
+  assert.equal(filename, "PETR4_20260409.xlsx");
+});
+
+test("getFilenameFromDisposition falls back when header is missing", () => {
+  const filename = getFilenameFromDisposition(null, "fallback.xlsx");
+
+  assert.equal(filename, "fallback.xlsx");
 });
