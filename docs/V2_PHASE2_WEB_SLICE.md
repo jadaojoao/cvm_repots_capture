@@ -4,7 +4,7 @@
 
 Entregar o primeiro fluxo web funcional da V2 em `apps/web`, consumindo apenas a API read-only em `apps/api`.
 
-Escopo fechado desta fase:
+Escopo fechado original desta fase:
 - `/`
 - `/empresas`
 - `/empresas/[cd_cvm]`
@@ -12,6 +12,9 @@ Escopo fechado desta fase:
 O objetivo nao e cobrir o sitemap inteiro. O objetivo e fechar o primeiro fluxo util:
 
 `Home -> Empresas -> Empresa`
+
+Pacote aditivo entregue depois do slice inicial:
+- `/comparar`
 
 ## Stack
 
@@ -54,6 +57,14 @@ O objetivo nao e cobrir o sitemap inteiro. O objetivo e fechar o primeiro fluxo 
 - aba `demonstracoes`
 - `stmt` em URL com `DRE`, `BPA`, `BPP`, `DFC`
 
+### `/comparar`
+
+- selecao de empresas por busca e sugestoes rapidas
+- deep-link publico por `ids` e `anos`
+- periodo anual resolvido por interseccao entre empresas
+- tabela comparativa de KPIs com base de referencia na primeira empresa
+- fallback explicito para ausencia de anos em comum, erro parcial e IDs invalidos
+
 ## Query params publicos
 
 ### Hub
@@ -73,6 +84,14 @@ Defaults:
 - `aba=visao-geral`
 - `stmt=DRE`
 - `anos`: 3 anos mais recentes, ou menos se a empresa tiver menos historico
+
+### Compare
+
+- `/comparar?ids=9512,1179&anos=2023,2024`
+
+Defaults:
+- `ids`: vazio ate o usuario montar a selecao inicial
+- `anos`: interseccao mais recente resolvida pelo frontend quando a URL nao informar um periodo valido
 
 ## Comandos locais
 
@@ -106,7 +125,6 @@ npm run test:e2e
 
 ## O que fica para a proxima fase
 
-- `/comparar`
 - `/setores`
 - `/kpis`
 - `/macro`
