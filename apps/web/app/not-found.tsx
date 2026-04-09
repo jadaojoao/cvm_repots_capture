@@ -21,7 +21,7 @@ export default function NotFound() {
         <SectionHeading
           title="Esse caminho ainda nao existe nesta fase."
           titleAs="h1"
-          description="O slice atual cobre a home, o diretorio de empresas, a comparacao e o detalhe por companhia. Rotas de setores, KPIs e macro entram nas proximas fases."
+          description="O slice atual cobre a home, o diretorio de empresas, a comparacao, o detalhe por companhia e a leitura por setores. KPIs e macro entram nas proximas fases."
           bodyClassName="mx-auto max-w-2xl"
           descriptionClassName="mx-auto"
         />

@@ -26,6 +26,13 @@ export function CompanyHeader({
     compareParams.set("anos", selectedYears.join(","));
   }
   const compareHref = `/comparar?${compareParams.toString()}`;
+  const latestSelectedYear = selectedYears[selectedYears.length - 1] ?? null;
+  const sectorHref =
+    company.sector_slug && latestSelectedYear
+      ? `/setores/${company.sector_slug}?ano=${latestSelectedYear}`
+      : company.sector_slug
+        ? `/setores/${company.sector_slug}`
+        : null;
 
   return (
     <div className="space-y-5">
@@ -83,14 +90,26 @@ export function CompanyHeader({
               }}
               className="rounded-full px-5"
             />
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full px-5"
-              disabled
-            >
-              Ver setor em breve
-            </Button>
+            {sectorHref ? (
+              <Link
+                href={sectorHref}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "rounded-full px-5",
+                )}
+              >
+                Ver setor
+              </Link>
+            ) : (
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full px-5"
+                disabled
+              >
+                Setor indisponivel
+              </Button>
+            )}
             <Link
               href={compareHref}
               className={cn(
