@@ -35,9 +35,15 @@ if (-not (Test-Path $worktreePath)) {
 }
 
 if (-not $Force) {
-  $merged = (git -C $repoRoot branch --merged $Base --list $branch).Trim()
-  if (-not $merged) {
-    throw "A branch $branch ainda nao aparece como mergeada em $Base. Use -Force para remover mesmo assim."
+  $mergedOutput = git -C $repoRoot branch --merged $Base --list $branch
+  $merged = @(
+    $mergedOutput |
+      ForEach-Object { "$_".Trim() } |
+      Where-Object { $_ }
+  )
+
+  if ($merged.Count -eq 0) {
+    throw "A branch $branch ainda nao aparece como mergeada em $Base no clone local. Rode git fetch/pull do base ou use -Force para remover mesmo assim."
   }
 }
 

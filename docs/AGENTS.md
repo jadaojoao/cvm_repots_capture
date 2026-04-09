@@ -91,6 +91,12 @@
 
 ## Sessoes Recentes
 
+### Sessao 35 - 2026-04-08 (fix no helper de remocao de worktree)
+- `scripts/worktree_remove.ps1` deixa de quebrar quando o merge-check local
+  retorna vazio
+- sem `-Force`, o helper agora orienta atualizar `master` local ou usar
+  `-Force` quando o clone ainda nao enxerga o merge remoto
+
 ### Sessao 34 - 2026-04-08 (lanes oficiais, worktrees e critical paths)
 - O repositorio passa a operar com tres lanes oficiais:
   `lane:frontend`, `lane:backend` e `lane:ops-quality`
