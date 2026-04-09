@@ -126,6 +126,46 @@ Resposta exemplo:
 }
 ```
 
+### `GET /companies/{cd_cvm}/export/excel`
+
+Uso:
+- retorna o workbook Excel completo da empresa como binario `.xlsx`
+- usa sempre todos os anos disponiveis da empresa na base
+- preserva o contrato atual do exportador da V1: `CAPA`, `GERAL`, `KPIs`,
+  `DRE`, `BPA`, `BPP`, `DFC`, opcionais `DVA` e `DMPL` quando houver dados, e
+  `METADADOS`
+
+Headers principais:
+- `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- `Content-Disposition: attachment; filename="<ticker-ou-cvm>_<yyyymmdd>.xlsx"`
+
+Regras do endpoint:
+- `404` para empresa inexistente
+- `422` para empresa existente sem anos exportaveis
+- o workbook e gerado no dominio Python (`src/read_service.py` +
+  `src/excel_exporter.py`), nao na camada HTTP
+
+### `GET /companies/export/excel-batch?ids=`
+
+Parametros:
+- `ids`: obrigatorio; CSV de inteiros sem duplicatas, com ao menos 2 empresas,
+  ex. `9512,4170`
+
+Uso:
+- retorna um `.zip` com um workbook `.xlsx` por empresa selecionada
+- existe para o fluxo `/comparar`, sem inventar um workbook combinado novo
+
+Headers principais:
+- `Content-Type: application/zip`
+- `Content-Disposition: attachment; filename="comparar_excel_lote.zip"`
+
+Regras do endpoint:
+- `404` se alguma empresa informada nao existir
+- `422` para `ids` invalido, duplicado ou com menos de 2 empresas
+- cada arquivo interno reutiliza o mesmo contrato do endpoint individual por
+  empresa
+- a ordem dos arquivos no lote segue a ordem dos `ids` recebidos
+
 ### `GET /companies/{cd_cvm}/years`
 
 Resposta:
@@ -305,10 +345,12 @@ Resposta exemplo:
 ## Regras de interface
 
 - respostas usam DTOs estabilizados em `src/contracts.py`
-- nao expor `DataFrame` bruto
+- nao expor `DataFrame` bruto nos endpoints JSON
 - `404` para empresa inexistente
 - `422` para validacao HTTP e parametros invalidos
 - `503` para falha operacional ou banco indisponivel
+- endpoints binarios devem usar `Content-Disposition: attachment` com nome de
+  arquivo estavel
 
 Payload padrao de erro:
 
