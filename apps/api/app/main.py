@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import time
 
 from fastapi import FastAPI, Request
@@ -35,9 +36,12 @@ def create_app(
     app.state.settings = resolved_settings
     app.state.read_service = resolved_service
 
+    _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+    _allowed_origins = [origin.strip() for origin in _raw_origins.split(",") if origin.strip()]
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000"],
+        allow_origins=_allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

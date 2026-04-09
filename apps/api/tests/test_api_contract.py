@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import openpyxl
+import pytest
 from fastapi.testclient import TestClient
 
 from apps.api.app.main import create_app
@@ -506,3 +507,38 @@ def test_company_years_excludes_itr_only_years(client: TestClient):
     # anos com DFP completo devem permanecer
     assert 2023 in years
     assert 2024 in years
+
+
+# ── CORS: ALLOWED_ORIGINS configuravel via env var ─────────────────────────────
+
+
+def test_cors_default_allows_localhost(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Sem ALLOWED_ORIGINS, apenas http://localhost:3000 e aceito."""
+    monkeypatch.delenv("ALLOWED_ORIGINS", raising=False)
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'cors_test.db'}")
+    settings = build_settings()
+    test_app = create_app(settings=settings)
+    with TestClient(test_app) as c:
+        response = c.options(
+            "/health",
+            headers={"Origin": "http://localhost:3000", "Access-Control-Request-Method": "GET"},
+        )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+def test_cors_env_var_allows_multiple_origins(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """ALLOWED_ORIGINS com varios valores separados por virgula — todos aceitos."""
+    monkeypatch.setenv("ALLOWED_ORIGINS", "https://app.vercel.app,https://staging.vercel.app")
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'cors_multi.db'}")
+    settings = build_settings()
+    test_app = create_app(settings=settings)
+    with TestClient(test_app) as c:
+        for origin in ("https://app.vercel.app", "https://staging.vercel.app"):
+            resp = c.options(
+                "/health",
+                headers={"Origin": origin, "Access-Control-Request-Method": "GET"},
+            )
+            assert resp.headers.get("access-control-allow-origin") == origin, (
+                f"Origem {origin} nao foi aceita pelo CORS"
+            )
