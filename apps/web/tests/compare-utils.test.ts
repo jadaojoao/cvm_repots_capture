@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 
 import {
   buildFeaturedCompareRows,
+  hasComparableKpiValues,
   intersectYears,
   parseCompanyIdsCsv,
+  serializeCompanyIds,
 } from "../lib/compare-utils.ts";
 import type { CompanyInfo, KPIBundle } from "../lib/api.ts";
 
@@ -55,6 +57,12 @@ test("parseCompanyIdsCsv dedupes ids and keeps positive values", () => {
   assert.deepEqual(parsed, [9512, 1179, 347]);
 });
 
+test("serializeCompanyIds normalizes duplicates while preserving valid order", () => {
+  const serialized = serializeCompanyIds([9512, 1179, 9512, -4, 347]);
+
+  assert.equal(serialized, "9512,1179,347");
+});
+
 test("intersectYears returns sorted overlap across all groups", () => {
   const years = intersectYears([
     [2021, 2022, 2023, 2024],
@@ -87,4 +95,45 @@ test("buildFeaturedCompareRows computes delta against the first company", () => 
   assert.equal(grossMargin?.cells[1].value, 0.37);
   assert.ok(grossMargin?.cells[1].deltaVsBase !== null);
   assert.ok(Math.abs((grossMargin?.cells[1].deltaVsBase ?? 0) + 0.05) < 1e-9);
+  assert.equal(hasComparableKpiValues(rows), true);
+});
+
+test("hasComparableKpiValues returns false when every KPI cell is empty", () => {
+  const rows = buildFeaturedCompareRows(
+    [
+      {
+        company: buildCompany(9512, "PETROBRAS", "PETR4"),
+        bundle: {
+          cd_cvm: 9512,
+          years: [2024],
+          annual: {
+            columns: ["KPI_ID", "KPI_NOME", "FORMAT_TYPE", "2024"],
+            rows: [],
+          },
+          quarterly: {
+            columns: [],
+            rows: [],
+          },
+        },
+      },
+      {
+        company: buildCompany(1179, "VALE", "VALE3"),
+        bundle: {
+          cd_cvm: 1179,
+          years: [2024],
+          annual: {
+            columns: ["KPI_ID", "KPI_NOME", "FORMAT_TYPE", "2024"],
+            rows: [],
+          },
+          quarterly: {
+            columns: [],
+            rows: [],
+          },
+        },
+      },
+    ],
+    2024,
+  );
+
+  assert.equal(hasComparableKpiValues(rows), false);
 });

@@ -23,6 +23,12 @@ export type CompareKpiRow = {
   cells: CompareKpiCell[];
 };
 
+export function hasComparableKpiValues(rows: CompareKpiRow[]): boolean {
+  return rows.some((row) =>
+    row.cells.some((cell) => cell.value !== null && !Number.isNaN(cell.value)),
+  );
+}
+
 function coerceFiniteNumber(value: NumberLike): number | null {
   if (value === null || value === undefined) {
     return null;

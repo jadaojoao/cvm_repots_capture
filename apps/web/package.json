@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --experimental-strip-types --experimental-specifier-resolution=node --test tests/api-client.test.ts tests/companies-page-data.test.ts tests/compare-utils.test.ts",
+    "test:unit": "node --experimental-strip-types --experimental-specifier-resolution=node --test tests/api-client.test.ts tests/companies-page-data.test.ts tests/compare-utils.test.ts tests/compare-page-data.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
