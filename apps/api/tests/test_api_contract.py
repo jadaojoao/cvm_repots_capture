@@ -405,3 +405,23 @@ def test_company_summary_blocks_have_non_empty_titles(client: TestClient):
     assert response.status_code == 200
     for block in response.json()["blocks"]:
         assert isinstance(block["title"], str) and len(block["title"]) > 0
+
+
+# ── Regressao: /years exclui anos com apenas dados trimestrais ITR ─────────────
+# A seed do banco inclui linhas ITR para PETROBRAS (REPORT_YEAR=2025,
+# PERIOD_LABEL="1Q25"). Sem o filtro PERIOD_LABEL = CAST(REPORT_YEAR AS TEXT)
+# o endpoint retornaria [2023, 2024, 2025] e o Comparar usaria referenceYear=2025,
+# cujas colunas nao existem no KPI bundle (KPI engine so usa dados anuais).
+# Isso causaria todos os valores "-" na tabela de comparacao.
+
+def test_company_years_excludes_itr_only_years(client: TestClient):
+    """Garante que /years retorna apenas anos com DFP (PERIOD_LABEL == ano)."""
+    response = client.get("/companies/9512/years")
+
+    assert response.status_code == 200
+    years = response.json()
+    # 2025 so tem ITR (PERIOD_LABEL="1Q25") no seed — nao deve aparecer
+    assert 2025 not in years
+    # anos com DFP completo devem permanecer
+    assert 2023 in years
+    assert 2024 in years

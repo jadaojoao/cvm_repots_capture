@@ -148,6 +148,13 @@ class CVMQueryLayer:
         return pd.read_sql(sql, self.engine).reset_index(drop=True)
 
     def get_company_years_map(self, cd_cvms: list[int]) -> dict[int, tuple[int, ...]]:
+        """Retorna mapa cd_cvm → anos com dados anuais completos (DFP).
+
+        Filtra por PERIOD_LABEL = REPORT_YEAR (ex: '2024') para excluir anos que
+        possuam apenas dados trimestrais ITR, mantendo consistencia com
+        get_available_years e garantindo que anos_disponiveis reflita apenas
+        periodos computaveis pelo KPI engine.
+        """
         if not cd_cvms:
             return {}
 
@@ -159,6 +166,7 @@ class CVMQueryLayer:
             SELECT CD_CVM, REPORT_YEAR
             FROM financial_reports
             WHERE CD_CVM IN ({placeholders})
+              AND PERIOD_LABEL = CAST(REPORT_YEAR AS TEXT)
             GROUP BY CD_CVM, REPORT_YEAR
             ORDER BY CD_CVM, REPORT_YEAR
             """
@@ -225,11 +233,21 @@ class CVMQueryLayer:
         return row.iloc[0].to_dict()
 
     def get_available_years(self, cd_cvm: int) -> list[int]:
+        """Retorna os anos com dados anuais completos (DFP) para a empresa.
+
+        Filtra por PERIOD_LABEL = REPORT_YEAR (ex: '2024') para excluir anos que
+        possuam apenas dados trimestrais ITR (ex: '1Q24', '3Q25').  Isso garante
+        que o endpoint /years retorne somente anos computaveis pelo KPI engine,
+        que tambem filtra por periodo anual.  Sem esse filtro, companias com ITR
+        mais recente do que o ultimo DFP publicado causariam referenceYear sem
+        dados no Comparar, exibindo '-' em todas as celulas.
+        """
         sql = text(
             """
             SELECT DISTINCT REPORT_YEAR
             FROM financial_reports
             WHERE CD_CVM = :cd_cvm
+              AND PERIOD_LABEL = CAST(REPORT_YEAR AS TEXT)
             ORDER BY REPORT_YEAR
             """
         )
