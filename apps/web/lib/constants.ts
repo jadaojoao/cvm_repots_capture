@@ -2,18 +2,26 @@ export const HOME_QUICK_LINKS = [
   {
     label: "Comparar",
     description: "Comparacao lado a lado entre empresas e contextos setoriais.",
+    href: "/comparar",
+    status: "disponivel",
   },
   {
     label: "Setores",
     description: "Leitura tematica por clusters e cadeias produtivas.",
+    href: null,
+    status: "em-breve",
   },
   {
     label: "KPIs",
     description: "Catalogo navegavel dos indicadores-chave da plataforma.",
+    href: null,
+    status: "em-breve",
   },
   {
     label: "Macro",
     description: "Contexto macroeconomico para leitura dos resultados.",
+    href: null,
+    status: "em-breve",
   },
 ] as const;
 

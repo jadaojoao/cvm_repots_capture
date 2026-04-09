@@ -5,7 +5,13 @@ export type TrackEventName =
   | "companies_pagination_clicked"
   | "company_detail_viewed"
   | "company_years_changed"
-  | "company_statement_changed";
+  | "company_statement_changed"
+  | "compare_viewed"
+  | "compare_company_selected"
+  | "compare_company_removed"
+  | "compare_years_changed"
+  | "compare_adjust_clicked"
+  | "compare_reset_clicked";
 
 type TrackPayload = Record<string, string | number | boolean | null | undefined>;
 

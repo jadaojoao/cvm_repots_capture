@@ -5,8 +5,9 @@ import {
   InfoChip,
   SurfaceCard,
 } from "@/components/shared/design-system-recipes";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import type { CompanyInfo } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 type CompanyHeaderProps = {
   company: CompanyInfo;
@@ -17,6 +18,14 @@ export function CompanyHeader({
   company,
   selectedYears,
 }: CompanyHeaderProps) {
+  const compareParams = new URLSearchParams({
+    ids: String(company.cd_cvm),
+  });
+  if (selectedYears.length > 0) {
+    compareParams.set("anos", selectedYears.join(","));
+  }
+  const compareHref = `/comparar?${compareParams.toString()}`;
+
   return (
     <div className="space-y-5">
       <nav aria-label="breadcrumb">
@@ -68,14 +77,15 @@ export function CompanyHeader({
             >
               Ver setor em breve
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full px-5"
-              disabled
+            <Link
+              href={compareHref}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "rounded-full px-5",
+              )}
             >
-              Comparar em breve
-            </Button>
+              Comparar empresa
+            </Link>
           </div>
         </div>
       </SurfaceCard>
