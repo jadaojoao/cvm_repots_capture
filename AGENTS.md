@@ -11,6 +11,17 @@ repositorio.
 - `docs/STUDENT_PACK_PLAN.md` resume o roadmap e aponta para issues/milestones.
   Nao replique nele o backlog operacional dia a dia.
 
+## Check inicial por chat
+
+- No inicio de qualquer chat executavel, a IA deve verificar:
+  - tasks abertas da propria `lane:*`
+  - child tasks recebidas de outras lanes na propria lane
+  - child tasks que sua lane abriu para outras lanes
+  - PRs abertas ligadas a essas issues para saber se algo ja foi entregue e
+    aguarda consumo
+- Se existir entrega pendente de consumo para a lane atual, a IA deve tratar
+  isso antes de expandir escopo com novas delegacoes.
+
 ## Fluxo obrigatorio
 
 1. Localize uma `task issue` aberta antes de alterar qualquer arquivo versionado.
@@ -98,6 +109,27 @@ duas lanes de produto, divida em child tasks separadas.
 - Mudanca breaking em API/contrato so pode acontecer em task propria,
   classificada como `risk:contract-sensitive`, com coordenacao explicita e merge
   serializado.
+
+## Child tasks entre lanes
+
+- Se uma lane precisar de mudanca em write-set de outra lane, nao use pedido
+  informal no chat como mecanismo de execucao. Abra uma child task formal na
+  lane dona do write-set.
+- Toda child task precisa registrar no corpo da issue:
+  - `Task mae`
+  - `Lane solicitante`
+  - `Criterio de consumo`
+- Toda task mae precisa registrar `Tasks filhas` no proprio corpo da issue.
+- A child task continua obedecendo `1 task = 1 owner = 1 branch = 1 worktree = 1 PR`
+  e fecha pela sua propria PR.
+- Enquanto a child task estiver aberta ou em revisao, a task mae fica
+  `status:blocked`.
+- Quando a child task ja tiver sido entregue/mergeada mas a lane solicitante
+  ainda nao tiver validado ou consumido a entrega, a task mae vira
+  `status:awaiting-consumption`.
+- So a lane solicitante pode marcar a entrega como consumida e tirar a task mae
+  de `status:blocked` ou `status:awaiting-consumption`.
+- `Lane solicitante` deve coincidir com a `Lane oficial` da task mae.
 
 ## Critical paths
 

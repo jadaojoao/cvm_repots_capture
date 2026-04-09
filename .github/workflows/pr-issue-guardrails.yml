@@ -79,6 +79,17 @@ jobs:
                 .filter(Boolean);
             }
 
+            function isNotApplicable(value) {
+              return /^(n\/a|na|nenhuma|nenhum|sem child task|sem task mae)$/i.test(
+                (value || "").trim(),
+              );
+            }
+
+            function parseIssueReference(value) {
+              const match = (value || "").match(/#(\d+)/);
+              return match ? Number(match[1]) : null;
+            }
+
             function expandBracePatterns(pattern) {
               const openIndex = pattern.indexOf("{");
               if (openIndex === -1) {
@@ -259,13 +270,22 @@ jobs:
             }
 
             const owner = extractSection(issue.body || "", "Owner atual");
+            const parentTaskSection = extractSection(issue.body || "", "Task mae");
+            const requesterLane = extractSection(issue.body || "", "Lane solicitante")
+              .toLowerCase()
+              .trim();
             const laneSection = extractSection(issue.body || "", "Lane oficial")
               .toLowerCase()
               .trim();
             const workspace = normalizePath(
               extractSection(issue.body || "", "Workspace da task"),
             );
+            const childTasksSection = extractSection(issue.body || "", "Tasks filhas");
             const writeSet = extractSection(issue.body || "", "Write-set esperado");
+            const consumptionCriteria = extractSection(
+              issue.body || "",
+              "Criterio de consumo",
+            );
             const risk = extractSection(issue.body || "", "Classificacao de risco")
               .toLowerCase()
               .trim();
@@ -321,6 +341,130 @@ jobs:
                 `A issue #${issueNumber} precisa declarar um "Workspace da task" explicito antes da PR.`,
               );
               return;
+            }
+
+            const hasParentTask =
+              parentTaskSection && !isNotApplicable(parentTaskSection);
+            const requesterLaneProvided =
+              requesterLane && !isNotApplicable(requesterLane);
+            const consumptionCriteriaProvided =
+              consumptionCriteria && !isNotApplicable(consumptionCriteria);
+
+            if (!hasParentTask && (requesterLaneProvided || consumptionCriteriaProvided)) {
+              core.setFailed(
+                `A issue #${issueNumber} so pode preencher "Lane solicitante" e "Criterio de consumo" quando declarar uma "Task mae".`,
+              );
+              return;
+            }
+
+            if (hasParentTask) {
+              const parentTaskNumber = parseIssueReference(parentTaskSection);
+              if (!parentTaskNumber) {
+                core.setFailed(
+                  `A issue #${issueNumber} precisa declarar "Task mae" como referencia valida, por exemplo "#40".`,
+                );
+                return;
+              }
+
+              if (!requesterLaneProvided) {
+                core.setFailed(
+                  `A issue #${issueNumber} precisa declarar "Lane solicitante" quando for uma child task.`,
+                );
+                return;
+              }
+
+              if (!acceptedLaneValues.includes(requesterLane)) {
+                core.setFailed(
+                  `A issue #${issueNumber} precisa declarar "Lane solicitante" como frontend, backend ou ops-quality.`,
+                );
+                return;
+              }
+
+              if (requesterLane === laneSection) {
+                core.setFailed(
+                  `A issue #${issueNumber} nao deve abrir child task para a mesma lane "${laneSection}".`,
+                );
+                return;
+              }
+
+              if (!consumptionCriteriaProvided) {
+                core.setFailed(
+                  `A issue #${issueNumber} precisa declarar "Criterio de consumo" quando for uma child task.`,
+                );
+                return;
+              }
+
+              const { data: parentIssue } = await github.rest.issues.get({
+                ...context.repo,
+                issue_number: parentTaskNumber,
+              });
+
+              if (parentIssue.pull_request) {
+                core.setFailed(
+                  `A task mae #${parentTaskNumber} nao pode ser uma pull request.`,
+                );
+                return;
+              }
+
+              if (parentIssue.state !== "open") {
+                core.setFailed(
+                  `A task mae #${parentTaskNumber} precisa permanecer aberta enquanto a child task #${issueNumber} existir.`,
+                );
+                return;
+              }
+
+              const parentLabels = parentIssue.labels.map((label) =>
+                typeof label === "string" ? label : label.name,
+              );
+
+              if (!parentLabels.includes("kind:task")) {
+                core.setFailed(
+                  `A task mae #${parentTaskNumber} precisa ter o label "kind:task".`,
+                );
+                return;
+              }
+
+              if (!requireExactlyOnePrefix(parentLabels, "lane:", "`lane:*` da task mae")) {
+                return;
+              }
+
+              const parentLane = extractSection(parentIssue.body || "", "Lane oficial")
+                .toLowerCase()
+                .trim();
+              if (parentLane !== requesterLane) {
+                core.setFailed(
+                  `A issue #${issueNumber} declara "Lane solicitante"="${requesterLane}", mas a task mae #${parentTaskNumber} declara lane "${parentLane}".`,
+                );
+                return;
+              }
+
+              const parentChildrenSection = extractSection(
+                parentIssue.body || "",
+                "Tasks filhas",
+              );
+              if (
+                !parentChildrenSection ||
+                isNotApplicable(parentChildrenSection) ||
+                !new RegExp(`(^|\\s|-)#${issueNumber}(\\b|\\s|$)`, "i").test(parentChildrenSection)
+              ) {
+                core.setFailed(
+                  `A task mae #${parentTaskNumber} precisa listar a child task #${issueNumber} em "Tasks filhas".`,
+                );
+                return;
+              }
+
+              const parentStatusLabels = parentLabels.filter((label) =>
+                label.startsWith("status:"),
+              );
+              if (
+                !parentStatusLabels.includes("status:blocked") &&
+                !parentStatusLabels.includes("status:awaiting-consumption")
+              ) {
+                core.setFailed(
+                  `A task mae #${parentTaskNumber} precisa ficar "status:blocked" ou "status:awaiting-consumption" enquanto houver child task pendente.`,
+                );
+                return;
+              }
             }
 
             const expectedWorkspaceFragment = normalizePath(

@@ -14,17 +14,22 @@ Hybrid Python project: a CLI scraper that extracts DFP/ITR financial reports fro
 
 Before changing any versioned file:
 
-1. Find or create an open `task issue` in GitHub.
-2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, one `area:*`, one `risk:*`, and one `lane:*` label.
-3. Ensure the issue body declares `Owner atual`, `Lane oficial`, `Workspace da task`, `Write-set esperado`, and `Classificacao de risco`.
-4. Update the issue when work starts and keep the checklist/evidence current.
-5. Create or reuse a dedicated worktree at `.claude/worktrees/<lane>/<issue-number>-<slug>/`.
-6. Keep the repo root stable on `master` and do not switch task branches in the main workspace.
-7. Work in a branch named `task/<issue-number>-<slug>`.
-8. Open a PR with `Closes #<issue-number>` in the body.
-9. Finish the task with `scripts/pr_complete.ps1 -Pr <number>` or an equivalent flow that waits for checks, confirms merge, verifies the linked issue is closed, and confirms the remote branch is gone when applicable.
-10. Update the issue and relevant docs before considering the task complete.
-11. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+1. At the start of every executable chat, inspect:
+   - open tasks in your own `lane:*`
+   - child tasks received from other lanes in your lane
+   - child tasks your lane opened for other lanes
+   - open PRs tied to those issues, especially deliveries waiting for consumption
+2. Find or create an open `task issue` in GitHub.
+3. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, one `area:*`, one `risk:*`, and one `lane:*` label.
+4. Ensure the issue body declares `Owner atual`, `Lane oficial`, `Workspace da task`, `Write-set esperado`, and `Classificacao de risco`.
+5. Update the issue when work starts and keep the checklist/evidence current.
+6. Create or reuse a dedicated worktree at `.claude/worktrees/<lane>/<issue-number>-<slug>/`.
+7. Keep the repo root stable on `master` and do not switch task branches in the main workspace.
+8. Work in a branch named `task/<issue-number>-<slug>`.
+9. Open a PR with `Closes #<issue-number>` in the body.
+10. Finish the task with `scripts/pr_complete.ps1 -Pr <number>` or an equivalent flow that waits for checks, confirms merge, verifies the linked issue is closed, and confirms the remote branch is gone when applicable.
+11. Update the issue and relevant docs before considering the task complete.
+12. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
 
 ## Publish and Merge Policy
 
@@ -78,6 +83,16 @@ Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub I
   explicit coordination in the issue/PR, and serialized merge timing.
 - Do not touch files outside the current lane or the shared governance policy
   unless the task explicitly allows it and the guardrails pass.
+- If your lane needs work from another lane, open a formal child task instead of
+  handing off informally in chat.
+- A child task must declare `Task mae`, `Lane solicitante`, and
+  `Criterio de consumo`.
+- The parent task must list its `Tasks filhas` and remain `status:blocked`
+  while the downstream child task is open or under review.
+- After the child task is merged but before the requester lane consumes the
+  delivery, the parent task moves to `status:awaiting-consumption`.
+- Only the requester lane may mark the delivery as consumed and unblock the
+  parent task.
 
 ## Commands
 

@@ -13,6 +13,19 @@ Regra central: `1 task = 1 owner = 1 branch = 1 worktree = 1 PR`.
 O repo raiz permanece em `master`. Toda task executavel roda em uma worktree
 dedicada em `.claude/worktrees/<lane>/<issue-number>-<slug>/`.
 
+## Check inicial por chat
+
+Antes de iniciar trabalho executavel em qualquer chat, a IA deve verificar:
+
+- tasks abertas da propria `lane:*`
+- child tasks recebidas de outras lanes na propria lane
+- child tasks que sua lane abriu para outras lanes
+- PRs abertas ligadas a essas issues, principalmente quando houver entrega
+  pronta aguardando consumo
+
+Se existir entrega pendente de consumo para a lane atual, isso deve ser tratado
+antes de abrir nova frente dependente de outra lane.
+
 ## Lanes oficiais
 
 ### `lane:frontend`
@@ -63,6 +76,45 @@ child tasks. Nao use uma task gigante multi-lane.
 - A task continua usando a mesma branch e a mesma PR oficial.
 - O handoff nao cria uma segunda branch nem uma segunda PR para a mesma issue.
 - O workspace da task continua sendo a referencia de onde o trabalho ativo vive.
+
+## Child tasks entre lanes
+
+Quando uma lane precisar de mudanca em write-set de outra lane, a delegacao vira
+uma child task formal.
+
+### Metadados obrigatorios
+
+- Na task mae:
+  - `Tasks filhas`
+- Na child task:
+  - `Task mae`
+  - `Lane solicitante`
+  - `Criterio de consumo`
+
+`Lane solicitante` da child task deve coincidir com a `Lane oficial` da task
+mae.
+
+### Fluxo
+
+1. A lane solicitante identifica que o write-set pertence a outra lane.
+2. Ela abre uma child task formal na lane dona do write-set.
+3. A task mae registra a child task em `Tasks filhas`.
+4. A task mae fica `status:blocked` enquanto a child task estiver aberta ou com
+   PR em revisao.
+5. A child task segue o fluxo normal: branch propria, worktree propria, PR
+   propria e merge proprio.
+6. Quando a child task for entregue e a lane solicitante ainda nao tiver
+   validado/consumido a mudanca, a task mae vira
+   `status:awaiting-consumption`.
+7. So a lane solicitante pode consumir a entrega e tirar a task mae de
+   `status:blocked` ou `status:awaiting-consumption`.
+
+### Regra dura
+
+- Pedido entre lanes sem issue formal nao conta como handoff valido.
+- Child task nao compartilha branch, worktree nem PR com a task mae.
+- A task mae nao volta para `status:in-progress` ate a lane solicitante
+  confirmar o consumo da entrega.
 
 ## Critical paths
 
@@ -133,6 +185,16 @@ Boas praticas:
 - branch `task/32-mixed-change`
 - arquivos alterados em `apps/web/**` e `src/read_service.py`
 - resultado esperado: falha do guardrail por mistura de frontend e backend
+
+### Child task valida
+
+- task mae `#40` em `lane:backend`, listando `#41` em `Tasks filhas`
+- child task `#41` em `lane:frontend`
+- child task registra `Task mae: #40`, `Lane solicitante: backend` e
+  `Criterio de consumo`
+- task `#40` fica `status:blocked` enquanto `#41` estiver aberta e muda para
+  `status:awaiting-consumption` depois da entrega, ate o backend consumir a
+  mudanca
 
 ## CODEOWNERS
 
