@@ -163,6 +163,7 @@ Variavel principal:
 ```bash
 pytest tests/ -q
 pytest apps/api/tests -q
+pytest tests apps/api/tests -q --cov=src --cov=desktop --cov=dashboard --cov=apps/api/app --cov-report=xml:coverage.xml --cov-report=term
 python scripts/runtime_doctor.py --require-db --table financial_reports --table companies --require-canonical
 python scripts/db_portability_smoke.py --write-check
 cd apps/web && npm run lint
