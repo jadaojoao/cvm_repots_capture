@@ -110,14 +110,28 @@ jobs:
     needs: [test-python]
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      RAILWAY_DEPLOY_HOOK: ${{ secrets.RAILWAY_DEPLOY_HOOK }}
     steps:
+      - name: Skip Railway deploy when hook is missing
+        if: env.RAILWAY_DEPLOY_HOOK == ''
+        run: echo "::warning::RAILWAY_DEPLOY_HOOK is not configured; skipping Railway deploy."
+
       - name: Trigger Railway deploy
-        run: curl -fsSL -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK }}"
+        if: env.RAILWAY_DEPLOY_HOOK != ''
+        run: curl -fsSL -X POST "$RAILWAY_DEPLOY_HOOK"
 
   deploy-web:
     needs: [test-web]
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
     steps:
+      - name: Skip Vercel deploy when hook is missing
+        if: env.VERCEL_DEPLOY_HOOK == ''
+        run: echo "::warning::VERCEL_DEPLOY_HOOK is not configured; skipping Vercel deploy."
+
       - name: Trigger Vercel deploy
-        run: curl -fsSL -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+        if: env.VERCEL_DEPLOY_HOOK != ''
+        run: curl -fsSL -X POST "$VERCEL_DEPLOY_HOOK"
