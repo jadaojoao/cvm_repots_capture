@@ -132,6 +132,7 @@ body:
         - [ ] Implementacao concluida
         - [ ] Validacao executada
         - [ ] Issue/docs atualizados
+        - [ ] PR mergeada e issue fechada
     validations:
       required: true
   - type: textarea

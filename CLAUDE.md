@@ -22,8 +22,9 @@ Before changing any versioned file:
 6. Keep the repo root stable on `master` and do not switch task branches in the main workspace.
 7. Work in a branch named `task/<issue-number>-<slug>`.
 8. Open a PR with `Closes #<issue-number>` in the body.
-9. Update the issue and relevant docs before considering the task complete.
-10. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+9. Finish the task with `scripts/pr_complete.ps1 -Pr <number>` or an equivalent flow that waits for checks, confirms merge, verifies the linked issue is closed, and confirms the remote branch is gone when applicable.
+10. Update the issue and relevant docs before considering the task complete.
+11. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
 
 ## Publish and Merge Policy
 
@@ -34,7 +35,7 @@ Before changing any versioned file:
 - When acceptance criteria are satisfied and relevant checks pass:
   - update the issue;
   - mark the PR ready if needed;
-  - merge into `master`.
+  - use `scripts/pr_complete.ps1` or an equivalent flow to wait through green checks and complete the merge into `master`.
 - Prefer squash merge for short-lived Codex branches.
 - After merge, confirm the linked task closes and the remote branch is removed when possible.
 - Remove the linked task worktree after merge when it is no longer needed.

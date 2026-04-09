@@ -33,8 +33,15 @@ repositorio.
    - a task usa branch `task/<issue-number>-<slug>`
    - a worktree vive em `.claude/worktrees/<lane>/<issue-number>-<slug>/`
 6. Abra PR com `Closes #<issue-number>` no corpo.
-7. Antes de encerrar, atualize checklist, evidencias e docs afetados.
-8. A task fecha com o merge da PR. Epics fecham manualmente.
+7. Quando a implementacao estiver pronta, conclua a task com
+   `scripts/pr_complete.ps1` ou processo equivalente:
+   - checks obrigatorios verdes;
+   - PR mergeada;
+   - issue fechada;
+   - branch remota removida quando aplicavel.
+8. Antes de encerrar, atualize checklist, evidencias e docs afetados.
+9. A task so conta como concluida depois do merge confirmado da PR. Epics fecham
+   manualmente.
 
 ## Regra de commit, push e merge
 
@@ -51,12 +58,13 @@ repositorio.
 - Quando a task estiver completa e as validacoes relevantes tiverem passado:
   - atualize a issue;
   - marque a PR como pronta;
-  - faca merge para `master` se nao houver bloqueio explicito do usuario.
+  - use `scripts/pr_complete.ps1 -Pr <numero>` ou fluxo equivalente para esperar
+    os checks e concluir o merge.
 - Preferencia de merge: `squash merge`.
 - Depois do merge:
   - confirme o fechamento da task;
   - remova a worktree da task;
-  - confirme que a branch remota sera removida automaticamente.
+  - confirme que a branch remota foi removida ou remova-a explicitamente.
 
 ## Lanes oficiais
 
@@ -121,5 +129,6 @@ duas lanes de produto, divida em child tasks separadas.
 - Atualize a issue com a evidencia principal.
 - Confirme que a PR referencia a mesma issue da branch.
 - Confirme que a worktree da task esta registrada na issue.
-- Se a branch estiver pronta, nao pare em "codigo feito": publique e finalize o
-  merge.
+- Nao pare com a PR apenas aberta: confirme checks verdes e merge real.
+- Confirme que a issue fechou e que a branch remota foi removida, quando
+  aplicavel.

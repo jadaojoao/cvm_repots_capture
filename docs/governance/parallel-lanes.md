@@ -52,8 +52,10 @@ child tasks. Nao use uma task gigante multi-lane.
    - path `.claude/worktrees/<lane>/<issue-number>-<slug>/`
 4. Implementar somente dentro dessa worktree
 5. Abrir uma unica PR oficial para a task com `Closes #<issue-number>`
-6. Validar, atualizar a issue e fazer `squash merge`
-7. Remover a worktree da task
+6. Validar e atualizar a issue
+7. Concluir a PR com `scripts/pr_complete.ps1 -Pr <numero>` ou fluxo
+   equivalente
+8. Remover a worktree da task
 
 ## Handoff entre IAs ou humanos
 
@@ -100,6 +102,7 @@ Scripts oficiais:
 - `scripts/worktree_create.ps1`
 - `scripts/worktree_status.ps1`
 - `scripts/worktree_remove.ps1`
+- `scripts/pr_complete.ps1`
 
 Boas praticas:
 
@@ -107,6 +110,10 @@ Boas praticas:
 - abra uma segunda janela do editor para a worktree da task
 - nao reuse a mesma worktree para duas tasks diferentes
 - nao remova worktree com branch nao mergeada sem `-Force`
+- se o branch-base local estiver desatualizado, atualize o base ou use `-Force`;
+  o helper deve falhar com mensagem clara, nao com erro interno do PowerShell
+- nao considere a task concluida com a PR apenas aberta; confirme merge e issue
+  fechada
 - se o branch-base local estiver desatualizado, atualize o base ou use `-Force`;
   o helper deve falhar com mensagem clara, nao com erro interno do PowerShell
 
