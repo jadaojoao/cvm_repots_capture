@@ -52,6 +52,7 @@ Pacote aditivo entregue depois do slice inicial:
 ### `/empresas/[cd_cvm]`
 
 - header da empresa
+- download do workbook Excel completo da empresa
 - seletor de anos em URL
 - aba `visao-geral`
 - aba `demonstracoes`
@@ -60,6 +61,7 @@ Pacote aditivo entregue depois do slice inicial:
 ### `/comparar`
 
 - selecao de empresas por busca e sugestoes rapidas
+- download em lote `.zip` com um `.xlsx` por empresa selecionada
 - deep-link publico por `ids` e `anos`
 - periodo anual resolvido por interseccao entre empresas
 - tabela comparativa de KPIs com base de referencia na primeira empresa

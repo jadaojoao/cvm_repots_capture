@@ -72,6 +72,7 @@ pessoa que trabalhe em qualquer uma das duas areas deve atualizar este arquivo
 | `GET /companies/{cd_cvm}/years` | - | Anos disponiveis (seletor de periodo) |
 | `GET /companies/{cd_cvm}/statements` | `stmt=DRE\|BPA\|BPP\|DFC`, `years=2023,2024` | Aba Demonstracoes |
 | `GET /companies/{cd_cvm}/kpis` | `years=2023,2024` | Aba Visao Geral |
+| `GET /companies/{cd_cvm}/export/excel` | - | Download do workbook Excel completo da empresa, sempre com todos os anos disponiveis |
 
 **Query params publicos da rota**: `?anos=2023,2024&aba=visao-geral\|demonstracoes&stmt=DRE\|BPA\|BPP\|DFC`
 
@@ -95,6 +96,7 @@ ausencia de interseccao anual e erro parcial sem derrubar a tela.
 | `GET /companies/{cd_cvm}` | - | Metadados de cada empresa selecionada (paralelo) |
 | `GET /companies/{cd_cvm}/years` | - | Anos disponiveis por empresa (paralelo) |
 | `GET /companies/{cd_cvm}/kpis` | `years=<interseccao>` | KPI bundles por empresa (paralelo) |
+| `GET /companies/export/excel-batch` | `ids=cd_cvm1,cd_cvm2,...` | Download do lote `.zip` com um workbook `.xlsx` por empresa selecionada |
 
 **Query params publicos da rota**: `?ids=cd_cvm1,cd_cvm2,...&anos=2022,2023`
 
@@ -194,6 +196,8 @@ de produto. Nao consome endpoints de API.
 | `GET /companies/{cd_cvm}/years` | `/empresas/[cd_cvm]`, `/comparar` |
 | `GET /companies/{cd_cvm}/statements` | `/empresas/[cd_cvm]` |
 | `GET /companies/{cd_cvm}/kpis` | `/empresas/[cd_cvm]`, `/comparar` |
+| `GET /companies/{cd_cvm}/export/excel` | `/empresas/[cd_cvm]` |
+| `GET /companies/export/excel-batch` | `/comparar` |
 | `GET /refresh-status` | Nao consumido pelo frontend ainda |
 | `GET /base-health` | `/` (parcialmente, se trust strip expandir) |
 
