@@ -6,7 +6,7 @@ const SITEMAP = [
     links: [
       { label: "Home", href: "/" },
       { label: "Empresas", href: "/empresas" },
-      { label: "Comparar", href: null },
+      { label: "Comparar", href: "/comparar" },
       { label: "Setores", href: null },
     ],
   },
@@ -47,7 +47,7 @@ export function SiteFooter() {
             </p>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">
               V2 web como camada read-only sobre a API estabilizada. Fluxos de
-              refresh, comparacao e dominios setoriais entram nas proximas fases.
+              refresh e dominios setoriais entram nas proximas fases.
             </p>
           </div>
 

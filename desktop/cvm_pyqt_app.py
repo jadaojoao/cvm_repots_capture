@@ -13,6 +13,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 try:
     from PyQt6.QtCore import Qt
     from PyQt6.QtWidgets import QApplication
@@ -28,8 +32,7 @@ from src.startup import collect_startup_report, format_startup_report
 
 
 def main() -> int:
-    root = Path(__file__).resolve().parent.parent
-    settings = build_settings(project_root=root)
+    settings = build_settings(project_root=ROOT)
     startup_report = collect_startup_report(
         settings,
         require_database=True,

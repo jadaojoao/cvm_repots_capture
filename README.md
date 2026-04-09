@@ -49,7 +49,7 @@ python scripts/setup_companies_table.py
 5. Atualizar dados:
 
 ```bash
-python desktop/cvm_pyqt_app.py
+python -m desktop.cvm_pyqt_app
 ```
 
 6. Alternativas headless:
@@ -68,6 +68,28 @@ uvicorn apps.api.app.main:app --reload
 cd apps/web && npm run dev
 ```
 
+## Trabalho por task
+
+O repo raiz deve permanecer estavel em `master`. Toda task executavel usa:
+
+- issue com `lane:*`, `risk:*` e `write-set esperado`
+- branch `task/<issue-number>-<slug>`
+- worktree dedicada em `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+
+Helpers locais:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/worktree_create.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+powershell -ExecutionPolicy Bypass -File scripts/worktree_status.ps1
+powershell -ExecutionPolicy Bypass -File scripts/worktree_remove.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+powershell -ExecutionPolicy Bypass -File scripts/pr_complete.ps1 -Pr 28
+```
+
+Regras detalhadas:
+
+- `AGENTS.md`
+- `docs/governance/parallel-lanes.md`
+
 ## Interfaces oficiais
 
 ### 1. App Desktop PyQt6
@@ -75,7 +97,7 @@ cd apps/web && npm run dev
 Interface operacional principal para atualizar a base local. Reaproveita `src/refresh_service.py` e concentra ranking, lotes e saude da base.
 
 ```powershell
-python desktop/cvm_pyqt_app.py
+python -m desktop.cvm_pyqt_app
 ```
 
 ### 2. Dashboard Streamlit
@@ -160,6 +182,7 @@ python scripts/db_portability_smoke.py --database-url postgresql://user:pass@hos
 ## Observacoes
 
 - Prefira `desktop/cvm_pyqt_app.py` como interface operacional principal.
+- Prefira executar o app desktop como modulo: `python -m desktop.cvm_pyqt_app`.
 - Prefira `src/refresh_service.py` e `src/read_service.py` como contratos de nucleo.
 - O frontend da V2 deve consumir a API, nao reimplementar queries do `src/`.
 - O dashboard atual continua sendo fallback read-only durante a transicao.
