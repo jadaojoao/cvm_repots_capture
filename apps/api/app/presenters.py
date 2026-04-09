@@ -13,6 +13,8 @@ from src.contracts import (
     HealthSnapshot,
     KPIBundle,
     RefreshStatusDTO,
+    SectorDetailDTO,
+    SectorDirectoryDTO,
     StatementMatrix,
     StatementSummaryDTO,
 )
@@ -97,6 +99,50 @@ class CompanySectorFilterPayload(BaseModel):
 
 class CompanyFiltersPayload(BaseModel):
     sectors: list[CompanySectorFilterPayload]
+
+
+class SectorSnapshotPayload(BaseModel):
+    roe: float | None = None
+    mg_ebit: float | None = None
+    mg_liq: float | None = None
+
+
+class SectorDirectoryItemPayload(BaseModel):
+    sector_name: str
+    sector_slug: str
+    company_count: int
+    latest_year: int | None = None
+    snapshot: SectorSnapshotPayload
+
+
+class SectorDirectoryPayload(BaseModel):
+    items: list[SectorDirectoryItemPayload]
+
+
+class SectorYearOverviewPayload(BaseModel):
+    year: int
+    roe: float | None = None
+    mg_ebit: float | None = None
+    mg_liq: float | None = None
+
+
+class SectorCompanyMetricPayload(BaseModel):
+    cd_cvm: int
+    company_name: str
+    ticker_b3: str | None = None
+    roe: float | None = None
+    mg_ebit: float | None = None
+    mg_liq: float | None = None
+
+
+class SectorDetailPayload(BaseModel):
+    sector_name: str
+    sector_slug: str
+    company_count: int
+    available_years: list[int]
+    selected_year: int
+    yearly_overview: list[SectorYearOverviewPayload]
+    companies: list[SectorCompanyMetricPayload]
 
 
 class TabularDataPayload(BaseModel):
@@ -221,6 +267,14 @@ def present_company_directory_page(dto: CompanyDirectoryPage) -> CompanyDirector
 
 def present_company_filters(dto: CompanyFiltersDTO) -> CompanyFiltersPayload:
     return CompanyFiltersPayload(**dto.to_dict())
+
+
+def present_sector_directory(dto: SectorDirectoryDTO) -> SectorDirectoryPayload:
+    return SectorDirectoryPayload(**dto.to_dict())
+
+
+def present_sector_detail(dto: SectorDetailDTO) -> SectorDetailPayload:
+    return SectorDetailPayload(**dto.to_dict())
 
 
 def present_company_info(dto: CompanyInfoDTO) -> CompanyInfoPayload:

@@ -147,6 +147,123 @@ class CVMQueryLayer:
         )
         return pd.read_sql(sql, self.engine).reset_index(drop=True)
 
+    def get_sector_available_years(self, sector_name: str) -> list[int]:
+        sql = text(
+            f"""
+            SELECT DISTINCT fr.REPORT_YEAR
+            FROM financial_reports fr
+            JOIN companies c ON c.cd_cvm = fr.CD_CVM
+            WHERE {_CANONICAL_SECTOR_SQL} = :sector_name
+              AND fr.PERIOD_LABEL = CAST(fr.REPORT_YEAR AS TEXT)
+            ORDER BY fr.REPORT_YEAR
+            """
+        )
+        df = pd.read_sql(sql, self.engine, params={"sector_name": str(sector_name)})
+        return [int(year) for year in df["REPORT_YEAR"].tolist()]
+
+    def get_sector_metric_rows(
+        self,
+        *,
+        sector_name: str | None = None,
+        years: list[int] | None = None,
+    ) -> pd.DataFrame:
+        where_parts = [
+            "fr.PERIOD_LABEL = CAST(fr.REPORT_YEAR AS TEXT)",
+            "fr.QA_CONFLICT = 0",
+            "fr.CD_CONTA IN ('3.01', '3.05', '3.11', '2.03')",
+        ]
+        params: dict[str, object] = {}
+
+        if sector_name:
+            where_parts.append(f"{_CANONICAL_SECTOR_SQL} = :sector_name")
+            params["sector_name"] = str(sector_name)
+
+        normalized_years = sorted({int(year) for year in years or []})
+        if normalized_years:
+            placeholders = ", ".join(f":y{i}" for i in range(len(normalized_years)))
+            where_parts.append(f"fr.REPORT_YEAR IN ({placeholders})")
+            params.update({f"y{i}": year for i, year in enumerate(normalized_years)})
+
+        sql = text(
+            f"""
+            SELECT
+                c.cd_cvm,
+                c.company_name,
+                c.ticker_b3,
+                {_CANONICAL_SECTOR_SQL} AS sector_name,
+                fr.REPORT_YEAR,
+                fr.CD_CONTA,
+                SUM(fr.VL_CONTA) AS account_value
+            FROM financial_reports fr
+            JOIN companies c ON c.cd_cvm = fr.CD_CVM
+            WHERE {' AND '.join(where_parts)}
+            GROUP BY
+                c.cd_cvm,
+                c.company_name,
+                c.ticker_b3,
+                {_CANONICAL_SECTOR_SQL},
+                fr.REPORT_YEAR,
+                fr.CD_CONTA
+            """
+        )
+        df = pd.read_sql(sql, self.engine, params=params)
+        if df.empty:
+            return pd.DataFrame(
+                columns=[
+                    "cd_cvm",
+                    "company_name",
+                    "ticker_b3",
+                    "sector_name",
+                    "report_year",
+                    "roe",
+                    "mg_ebit",
+                    "mg_liq",
+                ]
+            )
+
+        pivot = df.pivot_table(
+            index=["cd_cvm", "company_name", "ticker_b3", "sector_name", "REPORT_YEAR"],
+            columns="CD_CONTA",
+            values="account_value",
+            aggfunc="first",
+        ).reset_index()
+        pivot.columns.name = None
+        pivot = pivot.rename(
+            columns={
+                "REPORT_YEAR": "report_year",
+                "3.01": "receita",
+                "3.05": "ebit",
+                "3.11": "lucro_liq",
+                "2.03": "pl",
+            }
+        )
+
+        for column in ("receita", "ebit", "lucro_liq", "pl"):
+            if column not in pivot.columns:
+                pivot[column] = pd.NA
+
+        receita = pd.to_numeric(pivot["receita"], errors="coerce")
+        ebit = pd.to_numeric(pivot["ebit"], errors="coerce")
+        lucro_liq = pd.to_numeric(pivot["lucro_liq"], errors="coerce")
+        pl = pd.to_numeric(pivot["pl"], errors="coerce")
+
+        pivot["mg_ebit"] = ebit.divide(receita.where(receita != 0))
+        pivot["mg_liq"] = lucro_liq.divide(receita.where(receita != 0))
+        pivot["roe"] = lucro_liq.divide(pl.where(pl != 0))
+
+        return pivot[
+            [
+                "cd_cvm",
+                "company_name",
+                "ticker_b3",
+                "sector_name",
+                "report_year",
+                "roe",
+                "mg_ebit",
+                "mg_liq",
+            ]
+        ].reset_index(drop=True)
+
     def get_company_years_map(self, cd_cvms: list[int]) -> dict[int, tuple[int, ...]]:
         """Retorna mapa cd_cvm → anos com dados anuais completos (DFP).
 
