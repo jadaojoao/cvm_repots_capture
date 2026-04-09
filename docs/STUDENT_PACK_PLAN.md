@@ -26,6 +26,13 @@ Atualizacao em 2026-04-07:
 - direcao escolhida: `Next.js` + `FastAPI/Uvicorn` + `PostgreSQL` + `Ubuntu Linux`;
 - `Nginx` fica opcional no inicio e entra apenas quando houver self-hosting ou necessidade real de reverse proxy.
 
+Atualizacao em 2026-04-09:
+- o primeiro runtime remoto de aprendizado da V2 fica congelado no ADR
+  [0004 - Primeiro runtime remoto: Railway + Vercel](./decisions/0004-first-remote-runtime-railway-vercel.md);
+- o deploy inicial continua limitado ao slice `/`, `/empresas` e
+  `/empresas/[cd_cvm]`;
+- `/comparar` continua fora do gate remoto desta wave.
+
 ## 1.1 Aprendizado por construcao
 
 Este projeto nao e apenas uma migracao de stack. Ele tambem funciona como trilha pratica de aprendizado em:
@@ -41,7 +48,8 @@ Por isso, o Student Pack entra em duas frentes ao mesmo tempo:
 Sequencia adotada:
 1. `docs/decisions/0002-student-pack-v2-stack.md` congela a stack recomendada.
 2. `docs/WEBAPP_TRANSFORMATION_PLAN.md` define as fases, o primeiro slice tecnico e os objetivos de aprendizado.
-3. `docs/STUDENT_PACK_PLAN.md` registra como os beneficios do Pack apoiam essa trajetoria.
+3. `docs/decisions/0004-first-remote-runtime-railway-vercel.md` fixa o primeiro runtime remoto do ciclo atual.
+4. `docs/STUDENT_PACK_PLAN.md` registra como os beneficios do Pack apoiam essa trajetoria.
 
 ---
 
@@ -70,7 +78,7 @@ Atualizacao operacional em 2026-04-09:
 | JetBrains Student | Produtividade | em avaliacao | alta | melhora navegacao e manutencao do codigo Python | manutencao do scraper, DB e testes | conta elegivel e IDE instalada | baixo; depende de preferencia de IDE | avaliar junto com Copilot | [GitHub Pack](https://education.github.com/pack), [JetBrains Education](https://www.jetbrains.com/community/education/) |
 | GitHub Codespaces | Produtividade | em avaliacao | alta | ajuda a ter ambiente reproduzivel e trabalho remoto | onboarding, testes, estudo da V2 | repo configuravel para dev container depois | custo de tempo para configurar ambiente | avaliar no ciclo, sem bloquear entregas | [GitHub Pack](https://education.github.com/pack), [Codespaces](https://github.com/features/codespaces) |
 | Frontend Masters | Aprendizado aplicado | em avaliacao | imediata | acelera a transicao para fullstack sem travar a V1 | fase de descoberta da V2 | trilha inicial definida e rotina de estudo | custo principal e tempo | usar como base para decidir stack da V2 | [GitHub Pack](https://education.github.com/pack), [Frontend Masters](https://frontendmasters.com/) |
-| Trilha cloud compativel com V2 | Infra/deploy | em avaliacao | imediata | permite ambiente remoto de aprendizado e futura V2 | deploy de testes e primeira fatia da V2 | escolher parceiro ativo do Pack no momento da ativacao | risco medio se a escolha vier cedo demais | escolher 1 ambiente de aprendizado sem fixar a arquitetura final | [GitHub Pack](https://education.github.com/pack) |
+| Trilha cloud compativel com V2 | Infra/deploy | em avaliacao | imediata | permite ambiente remoto de aprendizado e futura V2 | deploy de testes e primeira fatia da V2 | decisao do runtime remoto registrada no ADR 0004 | risco medio se a escolha vier cedo demais | usar `Railway + Vercel` como ambiente de aprendizado desta wave | [GitHub Pack](https://education.github.com/pack) |
 | Sentry | Observabilidade | em avaliacao | imediata | captura erros e reduz diagnostico manual em ambiente remoto | primeiro runtime remoto da V2 ou servico exposto | projeto remoto minimo e DSN configurado | baixo; exige decidir primeiro runtime remoto | integrar no primeiro runtime que ficar online | [GitHub Pack](https://education.github.com/pack), [Sentry](https://sentry.io/) |
 | Codecov | Qualidade | ativado | imediata | torna cobertura visivel e cria guardrail antes da V2 | CI/testes do repo atual | workflow de CI com pytest | baixo; upload externo segue dependente do servico | manter ativo no CI atual e revalidar a visibilidade no servico externo | [GitHub Pack](https://education.github.com/pack), [Codecov](https://about.codecov.io/) |
 | Doppler ou similar | Secrets/operacao | nao priorizado agora | depois | melhora gestao de segredos quando houver multiplos ambientes | deploy cloud e ambientes remotos | multiplos secrets reais e ambientes persistentes | custo operacional desnecessario cedo demais | avaliar apenas depois do primeiro runtime remoto estavel | [GitHub Pack](https://education.github.com/pack), [Doppler](https://www.doppler.com/) |
@@ -89,7 +97,7 @@ Preencher esta tabela conforme os beneficios forem ativados ou descartados.
 | JetBrains Student | `@jadaojoao` | em avaliacao | GitHub Pack + JetBrains Education | revalidar no momento da ativacao | decidir IDE principal | validar se entrara no fluxo diario |
 | GitHub Codespaces | `@jadaojoao` | em avaliacao | GitHub Pack + Codespaces | revalidar no momento da ativacao | definir ambiente de dev remoto | avaliar depois da documentacao do ambiente |
 | Frontend Masters | `@jadaojoao` | em avaliacao | GitHub Pack + Frontend Masters | revalidar no momento da ativacao | definir trilha inicial | concluir trilha inicial e registrar aprendizados |
-| Trilha cloud compativel com V2 | `@jadaojoao` | em avaliacao | GitHub Pack + parceiro cloud ativo | revalidar no momento da ativacao | escolher parceiro | decidir 1 ambiente de aprendizado |
+| Trilha cloud compativel com V2 | `@jadaojoao` | em avaliacao | GitHub Pack + parceiro cloud ativo | revalidar no momento da ativacao | ADR 0004 publicado | executar onboarding e validacao remota em `Railway + Vercel` |
 | Sentry | `@jadaojoao` | em avaliacao | GitHub Pack + Sentry | revalidar no momento da ativacao | existir runtime remoto | integrar no primeiro runtime remoto |
 | Codecov | `@jadaojoao` | ativado | GitHub Pack + Codecov | revalidar no momento da ativacao | CI atual ja integrado na task #8 | manter upload nao bloqueante e confirmar visibilidade no servico |
 | Doppler ou similar | `@jadaojoao` | nao priorizado agora | GitHub Pack + parceiro ativo | revalidar no momento da ativacao | multiplos ambientes remotos | revisitar apos primeiro deploy estavel |
@@ -104,8 +112,8 @@ Preencher esta tabela conforme os beneficios forem ativados ou descartados.
   existir contexto de dev container ou onboarding remoto.
 - Frontend Masters: confirmar o resgate do beneficio, concluir a trilha
   inicial e publicar os aprendizados na issue `#7`.
-- Trilha cloud compativel com V2: registrar a escolha do ambiente de
-  aprendizado na task `#9` antes de qualquer ativacao mais profunda.
+- Trilha cloud compativel com V2: seguir o ADR `0004`, publicar API na
+  `Railway`, publicar web na `Vercel` e registrar o smoke remoto na task `#14`.
 - Sentry: criar o projeto apenas depois do primeiro runtime remoto definido e
   validar a integracao pela task `#13`.
 - Codecov: manter a integracao do CI ativa, confirmar a visibilidade do
