@@ -68,6 +68,27 @@ uvicorn apps.api.app.main:app --reload
 cd apps/web && npm run dev
 ```
 
+## Trabalho por task
+
+O repo raiz deve permanecer estavel em `master`. Toda task executavel usa:
+
+- issue com `lane:*`, `risk:*` e `write-set esperado`
+- branch `task/<issue-number>-<slug>`
+- worktree dedicada em `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+
+Helpers locais:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/worktree_create.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+powershell -ExecutionPolicy Bypass -File scripts/worktree_status.ps1
+powershell -ExecutionPolicy Bypass -File scripts/worktree_remove.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+```
+
+Regras detalhadas:
+
+- `AGENTS.md`
+- `docs/governance/parallel-lanes.md`
+
 ## Interfaces oficiais
 
 ### 1. App Desktop PyQt6

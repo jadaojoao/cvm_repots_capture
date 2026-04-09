@@ -38,6 +38,13 @@ npm install
 cd ..\..
 ```
 
+Se for trabalhar em uma task versionada, prefira criar uma worktree antes de
+editar arquivos:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/worktree_create.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+```
+
 ---
 
 ## 2. Diagnosticar o runtime
