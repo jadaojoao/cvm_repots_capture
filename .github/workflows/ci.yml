@@ -105,3 +105,19 @@ jobs:
 
       - name: Run web build
         run: npm run build
+
+  deploy-api:
+    needs: [test-python]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Railway deploy
+        run: curl -fsSL -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK }}"
+
+  deploy-web:
+    needs: [test-web]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy
+        run: curl -fsSL -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
