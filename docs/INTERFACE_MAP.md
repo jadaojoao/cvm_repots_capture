@@ -240,4 +240,4 @@ for entregue.
 
 ---
 
-_Última atualização: 2026-04-09 — Sessão 34_
+_Última atualização: 2026-04-09 — Sessão 34 | issue #34_
