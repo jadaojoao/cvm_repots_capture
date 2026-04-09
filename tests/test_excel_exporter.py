@@ -1,5 +1,6 @@
 import io
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import openpyxl
@@ -7,7 +8,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.excel_exporter import ExcelExporter
+from src.excel_exporter import ExcelExporter, build_excel_filename
 
 
 def _statement(rows: list[dict[str, object]]) -> pd.DataFrame:
@@ -139,3 +140,24 @@ def test_excel_exporter_geral_sheet_preserves_periods_and_expanded_rows():
 
     assert dre["A1"].value == "CD_CONTA"
     assert dre["B2"].value == "Receita"
+
+
+def test_build_excel_filename_uses_ticker_and_export_date():
+    filename = build_excel_filename(
+        _sample_company(),
+        generated_at=datetime(2026, 4, 9, 14, 30),
+    )
+
+    assert filename == "EXMP3_20260409.xlsx"
+
+
+def test_build_excel_filename_falls_back_to_cvm_code_without_ticker():
+    filename = build_excel_filename(
+        {
+            **_sample_company(),
+            "ticker_b3": None,
+        },
+        generated_at=datetime(2026, 4, 9, 14, 30),
+    )
+
+    assert filename == "cvm1234_20260409.xlsx"

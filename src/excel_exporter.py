@@ -71,6 +71,26 @@ _KPI_CATEGORY_ORDER = [
 ]
 
 
+def build_excel_file_stem(
+    company_info: dict,
+    *,
+    generated_at: datetime | None = None,
+) -> str:
+    """Retorna o file stem padrao usado pelos downloads de Excel."""
+    timestamp = generated_at or datetime.now()
+    ticker = company_info.get("ticker_b3") or f"cvm{company_info.get('cd_cvm', '')}"
+    safe_ticker = str(ticker).replace(" ", "_").replace("/", "-")
+    return f"{safe_ticker}_{timestamp.strftime('%Y%m%d')}"
+
+
+def build_excel_filename(
+    company_info: dict,
+    *,
+    generated_at: datetime | None = None,
+) -> str:
+    return f"{build_excel_file_stem(company_info, generated_at=generated_at)}.xlsx"
+
+
 class ExcelExporter:
     """Gera workbook Excel profissional para uma empresa CVM.
 

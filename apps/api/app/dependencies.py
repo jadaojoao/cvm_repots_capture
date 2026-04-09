@@ -105,6 +105,40 @@ def years_dependency(years: str | None = Query(default=None)) -> list[int]:
     return parse_years_csv(years)
 
 
+def parse_company_ids_csv(
+    raw_ids: str | None,
+    *,
+    minimum: int = 1,
+) -> list[int]:
+    if raw_ids is None:
+        raise InvalidRequestError("O parametro 'ids' e obrigatorio.")
+
+    tokens = [token.strip() for token in str(raw_ids).split(",")]
+    if not tokens or any(not token for token in tokens):
+        raise InvalidRequestError("O parametro 'ids' deve ser uma lista CSV de inteiros.")
+
+    parsed: list[int] = []
+    seen: set[int] = set()
+    for token in tokens:
+        try:
+            company_id = int(token)
+        except ValueError as exc:
+            raise InvalidRequestError("O parametro 'ids' aceita apenas inteiros.") from exc
+        if company_id in seen:
+            raise InvalidRequestError("O parametro 'ids' nao pode conter valores duplicados.")
+        seen.add(company_id)
+        parsed.append(company_id)
+
+    if len(parsed) < minimum:
+        raise InvalidRequestError(f"O parametro 'ids' exige ao menos {minimum} empresa(s).")
+
+    return parsed
+
+
+def company_ids_dependency(ids: str | None = Query(default=None)) -> list[int]:
+    return parse_company_ids_csv(ids, minimum=2)
+
+
 def statement_dependency(stmt: str = Query(..., description="Tipo de demonstracao.")) -> str:
     normalized = str(stmt).strip().upper()
     if normalized not in SUPPORTED_STATEMENTS:

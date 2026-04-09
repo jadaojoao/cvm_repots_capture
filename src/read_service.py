@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import zipfile
 from typing import Any
 
 import pandas as pd
@@ -24,10 +26,13 @@ from src.contracts import (
 )
 from src.statement_summary import build_general_summary_blocks
 from src.db import build_engine
+from src.excel_exporter import ExcelExporter, build_excel_filename
 from src.kpi_engine import compute_all_kpis, compute_quarterly_kpis
 from src.query_layer import CVMQueryLayer
 from src.sector_taxonomy import canonical_sector_name, sector_slugify
 from src.settings import AppSettings, get_settings
+
+EXPORT_STATEMENT_TYPES = ("DRE", "BPA", "BPP", "DFC", "DVA", "DMPL")
 
 
 def _parse_years(raw_years: str | None) -> tuple[int, ...]:
@@ -226,6 +231,61 @@ class CVMReadService:
             years=tuple(sorted(int(y) for y in years)),
             blocks=blocks,
         )
+
+    def build_company_excel_export(self, cd_cvm: int) -> tuple[str, bytes]:
+        company_info = self.get_company_info_dict(cd_cvm)
+        if not company_info:
+            raise ValueError(f"Empresa {cd_cvm} nao encontrada.")
+
+        years = self.get_available_years(cd_cvm)
+        if not years:
+            raise ValueError(f"Empresa {cd_cvm} nao possui anos disponiveis para exportacao.")
+
+        statements = {
+            stmt_type: self.get_statement_dataframe(cd_cvm, years, stmt_type)
+            for stmt_type in EXPORT_STATEMENT_TYPES
+        }
+        exportable_statements = {
+            stmt_type: df
+            for stmt_type, df in statements.items()
+            if df is not None and not df.empty
+        }
+        extra_sheets = [
+            stmt_type
+            for stmt_type in ("DVA", "DMPL")
+            if stmt_type in exportable_statements
+        ]
+        kpis_df = self.get_kpi_bundle(cd_cvm, years).quarterly_dataframe()
+
+        exporter = ExcelExporter(
+            company_info=company_info,
+            statements=exportable_statements,
+            kpis_df=kpis_df,
+            extra_sheets=extra_sheets,
+        )
+        return build_excel_filename(company_info), exporter.export()
+
+    def build_companies_excel_batch_export(self, cd_cvms: list[int]) -> tuple[str, bytes]:
+        if len(cd_cvms) < 2:
+            raise ValueError("O lote de exportacao exige ao menos 2 empresas.")
+
+        seen: set[int] = set()
+        unique_ids: list[int] = []
+        for cd_cvm in cd_cvms:
+            normalized = int(cd_cvm)
+            if normalized in seen:
+                raise ValueError("O lote de exportacao nao aceita empresas duplicadas.")
+            seen.add(normalized)
+            unique_ids.append(normalized)
+
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for cd_cvm in unique_ids:
+                filename, payload = self.build_company_excel_export(cd_cvm)
+                archive.writestr(filename, payload)
+
+        buffer.seek(0)
+        return "comparar_excel_lote.zip", buffer.read()
 
     def get_health_snapshot(
         self,
