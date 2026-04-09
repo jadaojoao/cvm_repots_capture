@@ -31,6 +31,17 @@ def _default_project_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+def _resolve_shared_repo_root_for_worktree(project_root: Path) -> Path | None:
+    lane_dir = project_root.parent
+    worktrees_dir = lane_dir.parent
+    claude_dir = worktrees_dir.parent
+    repo_root = claude_dir.parent
+
+    if worktrees_dir.name != "worktrees" or claude_dir.name != ".claude":
+        return None
+    return repo_root.resolve()
+
+
 def _resolve_path(base_dir: Path, raw_path: str | None, fallback: Path) -> Path:
     if not raw_path:
         return fallback
@@ -38,6 +49,20 @@ def _resolve_path(base_dir: Path, raw_path: str | None, fallback: Path) -> Path:
     if candidate.is_absolute():
         return candidate
     return (base_dir / candidate).resolve()
+
+
+def _prefer_existing_shared_path(
+    local_path: Path,
+    shared_repo_root: Path | None,
+    relative_path: Path,
+) -> Path:
+    if local_path.exists() or shared_repo_root is None:
+        return local_path
+
+    shared_candidate = (shared_repo_root / relative_path).resolve()
+    if shared_candidate.exists():
+        return shared_candidate
+    return local_path
 
 
 @dataclass(frozen=True)
@@ -85,6 +110,7 @@ class AppSettings:
 
 def build_settings(project_root: Path | None = None) -> AppSettings:
     resolved_root = Path(project_root).resolve() if project_root else _default_project_root()
+    shared_repo_root = _resolve_shared_repo_root_for_worktree(resolved_root)
 
     data_dir = _resolve_path(
         resolved_root,
@@ -131,6 +157,29 @@ def build_settings(project_root: Path | None = None) -> AppSettings:
         os.getenv("SQLITE_PATH"),
         db_dir / "cvm_financials.db",
     )
+    db_path = _prefer_existing_shared_path(
+        db_path,
+        shared_repo_root,
+        Path("data/db/cvm_financials.db"),
+    )
+    canonical_accounts_path = _prefer_existing_shared_path(
+        _resolve_path(
+            resolved_root,
+            os.getenv("CVM_CANONICAL_ACCOUNTS_PATH"),
+            data_dir / "canonical_accounts.csv",
+        ),
+        shared_repo_root,
+        Path("data/canonical_accounts.csv"),
+    )
+    account_dictionary_path = _prefer_existing_shared_path(
+        _resolve_path(
+            resolved_root,
+            os.getenv("CVM_ACCOUNT_DICTIONARY_PATH"),
+            data_dir / "cvm_account_dictionary.csv",
+        ),
+        shared_repo_root,
+        Path("data/cvm_account_dictionary.csv"),
+    )
 
     paths = AppPaths(
         project_root=resolved_root,
@@ -145,16 +194,8 @@ def build_settings(project_root: Path | None = None) -> AppSettings:
         metadata_dir=metadata_dir,
         db_dir=db_dir,
         db_path=db_path,
-        canonical_accounts_path=_resolve_path(
-            resolved_root,
-            os.getenv("CVM_CANONICAL_ACCOUNTS_PATH"),
-            data_dir / "canonical_accounts.csv",
-        ),
-        account_dictionary_path=_resolve_path(
-            resolved_root,
-            os.getenv("CVM_ACCOUNT_DICTIONARY_PATH"),
-            data_dir / "cvm_account_dictionary.csv",
-        ),
+        canonical_accounts_path=canonical_accounts_path,
+        account_dictionary_path=account_dictionary_path,
         active_universe_cache_path=cache_dir / "active_universe_cache.json",
         base_health_snapshot_path=cache_dir / "base_health_snapshot.json",
         processed_presence_index_path=cache_dir / "processed_presence_index.json",
