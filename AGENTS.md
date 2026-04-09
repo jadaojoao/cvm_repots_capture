@@ -81,6 +81,7 @@ repositorio.
 - Arquivos compartilhados padrao:
   - `README.md`
   - `COMO_RODAR.md`
+  - `docs/INTERFACE_MAP.md`
   - `docs/V2_API_CONTRACT.md`
   - `docs/STUDENT_PACK_PLAN.md`
   - `docs/AGENTS.md`
@@ -91,11 +92,24 @@ repositorio.
   classificada como `risk:contract-sensitive`, com coordenacao explicita e merge
   serializado.
 
+## Leitura obrigatoria por area
+
+Antes de tocar qualquer arquivo dentro das areas abaixo, leia o documento
+indicado. Nao assuma contexto de arquitetura sem ter lido.
+
+| Area | Leitura obrigatoria |
+|---|---|
+| `apps/web` | `docs/INTERFACE_MAP.md` — rotas existentes, status e endpoints consumidos |
+| `apps/api` | `docs/INTERFACE_MAP.md` + `docs/V2_API_CONTRACT.md` — contratos e quem consome cada endpoint |
+| `src/` | `docs/CONTEXT.md` — dominio Python, regras de negocio e convencoes criticas |
+| `docs/SITEMAP.MD` | `docs/INTERFACE_MAP.md` — o sitemap e derivado do mapa de interface |
+
 ## Onde registrar o que
 
 - Estado tecnico atual e sessoes: `docs/AGENTS.md`
 - Decisoes duraveis: `docs/decisions/`
 - Roadmap de Student Pack e backlog resumido: `docs/STUDENT_PACK_PLAN.md`
+- Mapa de rotas x endpoints: `docs/INTERFACE_MAP.md`
 - Release notes: `docs/releases/`
 
 ## Antes de marcar como concluido
