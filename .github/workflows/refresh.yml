@@ -1,0 +1,47 @@
+name: Atualizacao Semanal CVM
+
+on:
+  schedule:
+    - cron: "0 9 * * 0"   # Domingos 09h UTC (06h BRT)
+  workflow_dispatch:        # trigger manual para testes
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CVM_DATA_DIR: /tmp/cvm_data
+      CVM_LOG_DIR: /tmp/cvm_logs
+      CVM_CANONICAL_ACCOUNTS_PATH: config/canonical_accounts.csv
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Criar diretorios de dados temporarios
+        run: mkdir -p /tmp/cvm_data /tmp/cvm_logs
+
+      - name: Criar tabelas (idempotente)
+        run: python scripts/setup_db.py
+
+      - name: Executar refresh incremental
+        run: >
+          python scripts/atualizar_todos.py
+          --anos ${{ vars.REFRESH_YEAR_PREV }} ${{ vars.REFRESH_YEAR_CURR }}
+
+      - name: Upload logs em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-logs-${{ github.run_id }}
+          path: /tmp/cvm_logs/
+          retention-days: 7
