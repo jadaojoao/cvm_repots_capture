@@ -11,6 +11,9 @@ body:
         Toda alteracao em arquivos versionados deve estar vinculada a uma task.
         Depois de criar esta issue, aplique tambem labels `priority:*`,
         `area:*`, `risk:*` e `lane:*`.
+        Se esta for uma child task entre lanes, preencha `Task mae`,
+        `Lane solicitante` e `Criterio de consumo`. Se nao for child task, use
+        `n/a` nesses campos e `- nenhuma registrada` em `Tasks filhas`.
   - type: input
     id: parent_epic
     attributes:
@@ -19,6 +22,14 @@ body:
       placeholder: "#5"
     validations:
       required: false
+  - type: input
+    id: parent_task
+    attributes:
+      label: Task mae
+      description: Informe a task mae se esta issue for uma child task; caso contrario use `n/a`.
+      placeholder: "#37 ou n/a"
+    validations:
+      required: true
   - type: input
     id: current_owner
     attributes:
@@ -33,6 +44,18 @@ body:
       label: Lane oficial
       description: Depois de criar a issue, aplique o label `lane:*` correspondente.
       options:
+        - frontend
+        - backend
+        - ops-quality
+    validations:
+      required: true
+  - type: dropdown
+    id: requesting_lane
+    attributes:
+      label: Lane solicitante
+      description: Use a lane da task mae quando esta for uma child task; caso contrario escolha `n/a`.
+      options:
+        - n/a
         - frontend
         - backend
         - ops-quality
@@ -79,6 +102,23 @@ body:
         - Depende da task #23 antes de tocar docs/V2_API_CONTRACT.md
     validations:
       required: false
+  - type: textarea
+    id: child_tasks
+    attributes:
+      label: Tasks filhas
+      description: Na task mae, liste as child tasks abertas/entregues. Se nao houver, use `- nenhuma registrada`.
+      value: |
+        - nenhuma registrada
+    validations:
+      required: true
+  - type: textarea
+    id: consumption_criteria
+    attributes:
+      label: Criterio de consumo
+      description: Descreva como a lane solicitante vai validar/consumir a entrega. Use `n/a` se esta nao for uma child task.
+      placeholder: Descreva a verificacao ou o uso esperado da entrega, ou use n/a.
+    validations:
+      required: true
   - type: textarea
     id: context
     attributes:
@@ -129,6 +169,7 @@ body:
       value: |
         - [ ] Escopo confirmado
         - [ ] Owner, lane, workspace, write-set e risco revisados
+        - [ ] Viculos de task mae/tasks filhas/consumo atualizados quando aplicavel
         - [ ] Implementacao concluida
         - [ ] Validacao executada
         - [ ] Issue/docs atualizados

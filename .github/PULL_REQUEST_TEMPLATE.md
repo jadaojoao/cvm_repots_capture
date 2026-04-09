@@ -12,6 +12,9 @@ Closes #
 - worktree usada: `.claude/worktrees/<lane>/<issue-number>-<slug>/`
 - esta e a unica PR oficial da task: `sim | nao`
 - risco da task: `risk:safe | risk:shared | risk:contract-sensitive`
+- task mae: `#<numero> | n/a`
+- lane solicitante: `lane:frontend | lane:backend | lane:ops-quality | n/a`
+- consumo registrado na task mae: `sim | nao | n/a`
 - write-set principal:
 - coordenacao com outras tasks/PRs:
 

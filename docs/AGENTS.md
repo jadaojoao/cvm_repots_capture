@@ -7,7 +7,7 @@
 
 ---
 
-## Estado Atual (2026-04-08)
+## Estado Atual (2026-04-09)
 
 ### Dashboard
 - **3 abas renderizadas** em `dashboard/app.py`: `Visao Geral`, `Demonstracoes`, `Download`
@@ -63,6 +63,13 @@
   `.github/guardrails/path-policy.json`
 - Interfaces publicas ficam `additive-only` por default durante execucao
   simultanea
+- Delegacao entre lanes passa a exigir child task formal com `Task mae`,
+  `Lane solicitante`, `Tasks filhas` e `Criterio de consumo`
+- O inicio de cada chat executavel agora exige triagem de tasks abertas da
+  propria lane, child tasks recebidas/solicitadas e PRs abertas aguardando
+  consumo
+- `status:awaiting-consumption` passa a representar task mae entregue por outra
+  lane, mas ainda nao consumida pela lane solicitante
 - O fechamento da task passa a exigir checks verdes e merge confirmado; PR
   aberta nao conta como concluido
 - `docs/STUDENT_PACK_PLAN.md` deixa de espelhar task-by-task e passa a apontar para milestone + epics + filtros de issues
@@ -92,6 +99,19 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 37 - 2026-04-09 (child tasks formais entre lanes)
+- Delegacao entre lanes passa a exigir child task formal em GitHub Issue, nao
+  pedido informal no chat
+- `Task mae`, `Lane solicitante`, `Tasks filhas` e `Criterio de consumo`
+  passam a ser metadados operacionais da governanca
+- A task mae deve ficar `status:blocked` enquanto a child task estiver aberta e
+  `status:awaiting-consumption` ate a lane solicitante consumir a entrega
+- O inicio de cada chat executavel passa a exigir checagem de tasks abertas da
+  propria lane, child tasks recebidas/solicitadas e PRs abertas ligadas a essas
+  issues
+- O template de task e o guardrail da PR passam a suportar child tasks entre
+  lanes
 
 ### Sessao 36 - 2026-04-08 (fechamento por checks verdes e merge confirmado)
 - `scripts/pr_complete.ps1` passa a ser o helper recomendado para concluir uma

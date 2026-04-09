@@ -75,6 +75,11 @@ O repo raiz deve permanecer estavel em `master`. Toda task executavel usa:
 - issue com `lane:*`, `risk:*` e `write-set esperado`
 - branch `task/<issue-number>-<slug>`
 - worktree dedicada em `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+- check inicial por chat para tasks abertas da propria lane, child tasks
+  recebidas, child tasks solicitadas e PRs abertas ligadas a essas issues
+- child task formal quando uma lane precisar de write-set de outra lane; a task
+  mae fica `status:blocked` e depois `status:awaiting-consumption` ate a
+  solicitante consumir a entrega
 
 Helpers locais:
 
