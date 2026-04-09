@@ -153,6 +153,10 @@ def _seed_database(settings: AppSettings) -> None:
         {"COMPANY_NAME": "SABESP", "CD_CVM": 11223, "STATEMENT_TYPE": "BPP", "REPORT_YEAR": 2024, "PERIOD_LABEL": "2024", "LINE_ID_BASE": "sabesp-bpp", "CD_CONTA": "2", "DS_CONTA": "Passivo Total", "STANDARD_NAME": "Passivo Total", "QA_CONFLICT": 0, "VL_CONTA": 320.0},
         {"COMPANY_NAME": "SABESP", "CD_CVM": 11223, "STATEMENT_TYPE": "DRE", "REPORT_YEAR": 2024, "PERIOD_LABEL": "2024", "LINE_ID_BASE": "sabesp-dre", "CD_CONTA": "3.01", "DS_CONTA": "Receita Liquida", "STANDARD_NAME": "Receita", "QA_CONFLICT": 0, "VL_CONTA": 420.0},
         {"COMPANY_NAME": "SABESP", "CD_CVM": 11223, "STATEMENT_TYPE": "DFC", "REPORT_YEAR": 2024, "PERIOD_LABEL": "2024", "LINE_ID_BASE": "sabesp-dfc", "CD_CONTA": "6.01", "DS_CONTA": "Fluxo Operacional", "STANDARD_NAME": "FCO", "QA_CONFLICT": 0, "VL_CONTA": 90.0},
+        # ITR-only rows: REPORT_YEAR=2025 but PERIOD_LABEL is quarterly (nao anual).
+        # Esses registros sao intencional: testam que /years exclui anos sem DFP completo.
+        {"COMPANY_NAME": "PETROBRAS", "CD_CVM": 9512, "STATEMENT_TYPE": "BPA", "REPORT_YEAR": 2025, "PERIOD_LABEL": "1Q25", "LINE_ID_BASE": "itr-bpa-1", "CD_CONTA": "1", "DS_CONTA": "Ativo Total", "STANDARD_NAME": "Ativo Total", "QA_CONFLICT": 0, "VL_CONTA": 1250.0},
+        {"COMPANY_NAME": "PETROBRAS", "CD_CVM": 9512, "STATEMENT_TYPE": "DRE", "REPORT_YEAR": 2025, "PERIOD_LABEL": "1Q25", "LINE_ID_BASE": "itr-dre-1", "CD_CONTA": "3.01", "DS_CONTA": "Receita Liquida", "STANDARD_NAME": "Receita", "QA_CONFLICT": 0, "VL_CONTA": 280.0},
     ]
 
     with engine.begin() as conn:
