@@ -1,0 +1,1396 @@
+﻿CD_CONTA,STANDARD_NAME,STATEMENT_TYPE,EMPRESA_TIPO,NIVEL,IS_CONSOLIDADO
+1.01,Ativo Circulante,BPA,comercial,2,False
+1.01.01,Caixa e Equivalentes de Caixa,BPA,comercial,3,False
+1.01.02,Aplicações Financeiras,BPA,comercial,3,False
+1.01.02.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,comercial,4,False
+1.01.02.01.01,Títulos para Negociação,BPA,comercial,5,False
+1.01.02.01.02,Títulos Disponíveis para Venda,BPA,comercial,5,False
+1.01.02.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,comercial,4,False
+1.01.02.02.01,Títulos Mantidos até o Vencimento,BPA,comercial,5,False
+1.01.03,Contas a Receber,BPA,comercial,3,False
+1.01.03.01,Clientes,BPA,comercial,4,False
+1.01.03.02,Outras Contas a Receber,BPA,comercial,4,False
+1.01.04,Estoques,BPA,comercial,3,False
+1.01.05,Ativos Biológicos,BPA,comercial,3,False
+1.01.06,Tributos a Recuperar,BPA,comercial,3,False
+1.01.06.01,Tributos Correntes a Recuperar,BPA,comercial,4,False
+1.01.07,Despesas Antecipadas,BPA,comercial,3,False
+1.01.08,Outros Ativos Circulantes,BPA,comercial,3,False
+1.01.08.01,Ativos Não-Correntes a Venda,BPA,comercial,4,False
+1.01.08.02,Ativos de Operações Descontinuadas,BPA,comercial,4,False
+1.01.08.03,Outros,BPA,comercial,4,False
+1.02,Ativo Não Circulante,BPA,comercial,2,False
+1.02.01,Ativo Realizável a Longo Prazo,BPA,comercial,3,False
+1.02.01.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,comercial,4,False
+1.02.01.01.01,Títulos para Negociação,BPA,comercial,5,False
+1.02.01.01.02,Títulos Disponíveis para Venda,BPA,comercial,5,False
+1.02.01.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,comercial,4,False
+1.02.01.02.01,Títulos Mantidos até o Vencimento,BPA,comercial,5,False
+1.02.01.03,Contas a Receber,BPA,comercial,4,False
+1.02.01.03.01,Clientes,BPA,comercial,5,False
+1.02.01.03.02,Outras Contas a Receber,BPA,comercial,5,False
+1.02.01.04,Estoques,BPA,comercial,4,False
+1.02.01.05,Ativos Biológicos,BPA,comercial,4,False
+1.02.01.06,Tributos Diferidos,BPA,comercial,4,False
+1.02.01.06.01,Imposto de Renda e Contribuição Social Diferidos,BPA,comercial,5,False
+1.02.01.07,Despesas Antecipadas,BPA,comercial,4,False
+1.02.01.08,Créditos com Partes Relacionadas,BPA,comercial,4,False
+1.02.01.08.01,Créditos com Coligadas,BPA,comercial,5,False
+1.02.01.08.02,Créditos com Controladas,BPA,comercial,5,False
+1.02.01.08.03,Créditos com Controladores,BPA,comercial,5,False
+1.02.01.08.04,Créditos com Outras Partes Relacionadas,BPA,comercial,5,False
+1.02.01.09,Outros Ativos Não Circulantes,BPA,comercial,4,False
+1.02.01.09.01,Ativos Não-Correntes a Venda,BPA,comercial,5,False
+1.02.01.09.02,Ativos de Operações Descontinuadas,BPA,comercial,5,False
+1.02.02,Investimentos,BPA,comercial,3,False
+1.02.02.01,Participações Societárias,BPA,comercial,4,False
+1.02.02.01.01,Participações em Coligadas,BPA,comercial,5,False
+1.02.02.01.02,Participações em Controladas,BPA,comercial,5,False
+1.02.02.01.03,Participações em Controladas em Conjunto,BPA,comercial,5,False
+1.02.02.01.04,Outras Participações Societárias,BPA,comercial,5,False
+1.02.02.02,Propriedades para Investimento,BPA,comercial,4,False
+1.02.03,Imobilizado,BPA,comercial,3,False
+1.02.03.01,Imobilizado em Operação,BPA,comercial,4,False
+1.02.03.02,Imobilizado Arrendado,BPA,comercial,4,False
+1.02.03.03,Imobilizado em Andamento,BPA,comercial,4,False
+1.02.04,Intangível,BPA,comercial,3,False
+1.02.04.01,Intangíveis,BPA,comercial,4,False
+1.02.04.01.01,Contrato de Concessão,BPA,comercial,5,False
+1.02.05,Diferido,BPA,comercial,3,False
+2.01,Passivo Circulante,BPP,comercial,2,False
+2.01.01,Obrigações Sociais e Trabalhistas,BPP,comercial,3,False
+2.01.01.01,Obrigações Sociais,BPP,comercial,4,False
+2.01.01.02,Obrigações Trabalhistas,BPP,comercial,4,False
+2.01.02,Fornecedores,BPP,comercial,3,False
+2.01.02.01,Fornecedores Nacionais,BPP,comercial,4,False
+2.01.02.02,Fornecedores Estrangeiros,BPP,comercial,4,False
+2.01.03,Obrigações Fiscais,BPP,comercial,3,False
+2.01.03.01,Obrigações Fiscais Federais,BPP,comercial,4,False
+2.01.03.01.01,Imposto de Renda e Contribuição Social a Pagar,BPP,comercial,5,False
+2.01.03.02,Obrigações Fiscais Estaduais,BPP,comercial,4,False
+2.01.03.03,Obrigações Fiscais Municipais,BPP,comercial,4,False
+2.01.04,Empréstimos e Financiamentos,BPP,comercial,3,False
+2.01.04.01,Empréstimos e Financiamentos,BPP,comercial,4,False
+2.01.04.01.01,Em Moeda Nacional,BPP,comercial,5,False
+2.01.04.01.02,Em Moeda Estrangeira,BPP,comercial,5,False
+2.01.04.02,Debêntures,BPP,comercial,4,False
+2.01.04.03,Financiamento por Arrendamento Financeiro,BPP,comercial,4,False
+2.01.05,Outras Obrigações,BPP,comercial,3,False
+2.01.05.01,Passivos com Partes Relacionadas,BPP,comercial,4,False
+2.01.05.01.01,Débitos com Coligadas,BPP,comercial,5,False
+2.01.05.01.02,Débitos com Controladas,BPP,comercial,5,False
+2.01.05.01.03,Débitos com Controladores,BPP,comercial,5,False
+2.01.05.01.04,Débitos com Outras Partes Relacionadas,BPP,comercial,5,False
+2.01.05.02,Outros,BPP,comercial,4,False
+2.01.05.02.01,Dividendos e JCP a Pagar,BPP,comercial,5,False
+2.01.05.02.02,Dividendo Mínimo Obrigatório a Pagar,BPP,comercial,5,False
+2.01.05.02.03,Obrigações por Pagamentos Baseados em Ações,BPP,comercial,5,False
+2.01.06,Provisões,BPP,comercial,3,False
+2.01.06.01,Provisões Fiscais Previdenciárias Trabalhistas e Cíveis,BPP,comercial,4,False
+2.01.06.01.01,Provisões Fiscais,BPP,comercial,5,False
+2.01.06.01.02,Provisões Previdenciárias e Trabalhistas,BPP,comercial,5,False
+2.01.06.01.03,Provisões para Benefícios a Empregados,BPP,comercial,5,False
+2.01.06.01.04,Provisões Cíveis,BPP,comercial,5,False
+2.01.06.02,Outras Provisões,BPP,comercial,4,False
+2.01.06.02.01,Provisões para Garantias,BPP,comercial,5,False
+2.01.06.02.02,Provisões para Reestruturação,BPP,comercial,5,False
+2.01.06.02.03,Provisões para Passivos Ambientais e de Desativação,BPP,comercial,5,False
+2.01.07,Passivos sobre Ativos Não-Correntes a Venda e Descontinuados,BPP,comercial,3,False
+2.01.07.01,Passivos sobre Ativos Não-Correntes a Venda,BPP,comercial,4,False
+2.01.07.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,comercial,4,False
+2.02,Passivo Não Circulante,BPP,comercial,2,False
+2.02.01,Empréstimos e Financiamentos,BPP,comercial,3,False
+2.02.01.01,Empréstimos e Financiamentos,BPP,comercial,4,False
+2.02.01.01.01,Em Moeda Nacional,BPP,comercial,5,False
+2.02.01.01.02,Em Moeda Estrangeira,BPP,comercial,5,False
+2.02.01.02,Debêntures,BPP,comercial,4,False
+2.02.01.03,Financiamento por Arrendamento Financeiro,BPP,comercial,4,False
+2.02.02,Outras Obrigações,BPP,comercial,3,False
+2.02.02.01,Passivos com Partes Relacionadas,BPP,comercial,4,False
+2.02.02.01.01,Débitos com Coligadas,BPP,comercial,5,False
+2.02.02.01.02,Débitos com Controladas,BPP,comercial,5,False
+2.02.02.01.03,Débitos com Controladores,BPP,comercial,5,False
+2.02.02.01.04,Débitos com Outras Partes Relacionadas,BPP,comercial,5,False
+2.02.02.02,Outros,BPP,comercial,4,False
+2.02.02.02.01,Obrigações por Pagamentos Baseados em Ações,BPP,comercial,5,False
+2.02.02.02.02,Adiantamento para Futuro Aumento de Capital,BPP,comercial,5,False
+2.02.03,Tributos Diferidos,BPP,comercial,3,False
+2.02.03.01,Imposto de Renda e Contribuição Social Diferidos,BPP,comercial,4,False
+2.02.04,Provisões,BPP,comercial,3,False
+2.02.04.01,Provisões Fiscais Previdenciárias Trabalhistas e Cíveis,BPP,comercial,4,False
+2.02.04.01.01,Provisões Fiscais,BPP,comercial,5,False
+2.02.04.01.02,Provisões Previdenciárias e Trabalhistas,BPP,comercial,5,False
+2.02.04.01.03,Provisões para Benefícios a Empregados,BPP,comercial,5,False
+2.02.04.01.04,Provisões Cíveis,BPP,comercial,5,False
+2.02.04.02,Outras Provisões,BPP,comercial,4,False
+2.02.04.02.01,Provisões para Garantias,BPP,comercial,5,False
+2.02.04.02.02,Provisões para Reestruturação,BPP,comercial,5,False
+2.02.04.02.03,Provisões para Passivos Ambientais e de Desativação,BPP,comercial,5,False
+2.02.05,Passivos sobre Ativos Não-Correntes a Venda e Descontinuados,BPP,comercial,3,False
+2.02.05.01,Passivos sobre Ativos Não-Correntes a Venda,BPP,comercial,4,False
+2.02.05.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,comercial,4,False
+2.02.06,Lucros e Receitas a Apropriar,BPP,comercial,3,False
+2.02.06.01,Lucros a Apropriar,BPP,comercial,4,False
+2.02.06.02,Receitas a Apropriar,BPP,comercial,4,False
+2.02.06.03,Subvenções de Investimento a Apropriar,BPP,comercial,4,False
+2.03,Patrimônio Líquido,BPP,comercial,2,False
+2.03.01,Capital Social Realizado,BPP,comercial,3,False
+2.03.02,Reservas de Capital,BPP,comercial,3,False
+2.03.02.01,Ágio na Emissão de Ações,BPP,comercial,4,False
+2.03.02.02,Reserva Especial de Ágio na Incorporação,BPP,comercial,4,False
+2.03.02.03,Alienação de Bônus de Subscrição,BPP,comercial,4,False
+2.03.02.04,Opções Outorgadas,BPP,comercial,4,False
+2.03.02.05,Ações em Tesouraria,BPP,comercial,4,False
+2.03.02.06,Adiantamento para Futuro Aumento de Capital,BPP,comercial,4,False
+2.03.03,Reservas de Reavaliação,BPP,comercial,3,False
+2.03.04,Reservas de Lucros,BPP,comercial,3,False
+2.03.04.01,Reserva Legal,BPP,comercial,4,False
+2.03.04.02,Reserva Estatutária,BPP,comercial,4,False
+2.03.04.03,Reserva para Contingências,BPP,comercial,4,False
+2.03.04.04,Reserva de Lucros a Realizar,BPP,comercial,4,False
+2.03.04.05,Reserva de Retenção de Lucros,BPP,comercial,4,False
+2.03.04.06,Reserva Especial para Dividendos Não Distribuídos,BPP,comercial,4,False
+2.03.04.07,Reserva de Incentivos Fiscais,BPP,comercial,4,False
+2.03.04.08,Dividendo Adicional Proposto,BPP,comercial,4,False
+2.03.04.09,Ações em Tesouraria,BPP,comercial,4,False
+2.03.05,Lucros/Prejuízos Acumulados,BPP,comercial,3,False
+2.03.06,Ajustes de Avaliação Patrimonial,BPP,comercial,3,False
+2.03.07,Ajustes Acumulados de Conversão,BPP,comercial,3,False
+2.03.08,Outros Resultados Abrangentes,BPP,comercial,3,False
+6.01,Caixa Líquido Atividades Operacionais,DFC,comercial,2,False
+6.01.01,Caixa Gerado nas Operações,DFC,comercial,3,False
+6.01.02,Variações nos Ativos e Passivos,DFC,comercial,3,False
+6.01.03,Outros,DFC,comercial,3,False
+6.02,Caixa Líquido Atividades de Investimento,DFC,comercial,2,False
+6.03,Caixa Líquido Atividades de Financiamento,DFC,comercial,2,False
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,comercial,2,False
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,comercial,2,False
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,comercial,3,False
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,comercial,3,False
+5.01,Saldos Iniciais,DMPL,comercial,2,False
+5.02,Ajustes de Exercícios Anteriores,DMPL,comercial,2,False
+5.03,Saldos Iniciais Ajustados,DMPL,comercial,2,False
+5.04,Transações de Capital com os Sócios,DMPL,comercial,2,False
+5.04.01,Aumentos de Capital,DMPL,comercial,3,False
+5.04.02,Gastos com Emissão de Ações,DMPL,comercial,3,False
+5.04.03,Opções Outorgadas Reconhecidas,DMPL,comercial,3,False
+5.04.04,Ações em Tesouraria Adquiridas,DMPL,comercial,3,False
+5.04.05,Ações em Tesouraria Vendidas,DMPL,comercial,3,False
+5.04.06,Dividendos,DMPL,comercial,3,False
+5.04.07,Juros sobre Capital Próprio,DMPL,comercial,3,False
+5.05,Resultado Abrangente Total,DMPL,comercial,2,False
+5.05.01,Lucro Líquido do Período,DMPL,comercial,3,False
+5.05.02,Outros Resultados Abrangentes,DMPL,comercial,3,False
+5.05.02.01,Ajustes de Instrumentos Financeiros,DMPL,comercial,4,False
+5.05.02.02,Tributos s/ Ajustes Instrumentos Financeiros,DMPL,comercial,4,False
+5.05.02.03,Equiv. Patrim. s/Result. Abrang. Controladas e Coligadas,DMPL,comercial,4,False
+5.05.02.04,Ajustes de Conversão do Período,DMPL,comercial,4,False
+5.05.02.05,Tributos s/ Ajustes de Conversão do Período,DMPL,comercial,4,False
+5.05.03,Reclassificações para o Resultado,DMPL,comercial,3,False
+5.05.03.01,Ajustes de Instrumentos Financeiros,DMPL,comercial,4,False
+5.06,Mutações Internas do Patrimônio Líquido,DMPL,comercial,2,False
+5.06.01,Constituição de Reservas,DMPL,comercial,3,False
+5.06.02,Realização da Reserva Reavaliação,DMPL,comercial,3,False
+5.06.03,Tributos sobre a Realização da Reserva de Reavaliação,DMPL,comercial,3,False
+5.07,Saldos Finais,DMPL,comercial,2,False
+4.01,Lucro Líquido do Período,DRA,comercial,2,False
+4.02,Outros Resultados Abrangentes,DRA,comercial,2,False
+4.03,Resultado Abrangente do Período,DRA,comercial,2,False
+3.01,Receita de Venda de Bens e/ou Serviços,DRE,comercial,2,False
+3.02,Custo dos Bens e/ou Serviços Vendidos,DRE,comercial,2,False
+3.03,Resultado Bruto,DRE,comercial,2,False
+3.04,Despesas/Receitas Operacionais,DRE,comercial,2,False
+3.04.01,Despesas com Vendas,DRE,comercial,3,False
+3.04.02,Despesas Gerais e Administrativas,DRE,comercial,3,False
+3.04.03,Perdas pela Não Recuperabilidade de Ativos,DRE,comercial,3,False
+3.04.04,Outras Receitas Operacionais,DRE,comercial,3,False
+3.04.05,Outras Despesas Operacionais,DRE,comercial,3,False
+3.04.06,Resultado de Equivalência Patrimonial,DRE,comercial,3,False
+3.05,Resultado Antes do Resultado Financeiro e dos Tributos,DRE,comercial,2,False
+3.06,Resultado Financeiro,DRE,comercial,2,False
+3.06.01,Receitas Financeiras,DRE,comercial,3,False
+3.06.02,Despesas Financeiras,DRE,comercial,3,False
+3.07,Resultado Antes dos Tributos sobre o Lucro,DRE,comercial,2,False
+3.08,Imposto de Renda e Contribuição Social sobre o Lucro,DRE,comercial,2,False
+3.08.01,Corrente,DRE,comercial,3,False
+3.08.02,Diferido,DRE,comercial,3,False
+3.09,Resultado Líquido das Operações Continuadas,DRE,comercial,2,False
+3.10,Resultado Líquido de Operações Descontinuadas,DRE,comercial,2,False
+3.10.01,Lucro/Prejuízo Líquido das Operações Descontinuadas,DRE,comercial,3,False
+3.10.02,Ganhos/Perdas Líquidas sobre Ativos de Operações Descontinuadas,DRE,comercial,3,False
+3.11,Lucro/Prejuízo do Período,DRE,comercial,2,False
+3.99,Lucro por Ação - (Reais / Ação),DRE,comercial,2,False
+3.99.01,Lucro Básico por Ação,DRE,comercial,3,False
+3.99.02,Lucro Diluído por Ação,DRE,comercial,3,False
+7.01,Receitas,DVA,comercial,2,False
+7.01.01,"Vendas de Mercadorias, Produtos e Serviços",DVA,comercial,3,False
+7.01.02,Outras Receitas,DVA,comercial,3,False
+7.01.03,Receitas refs. à Construção de Ativos Próprios,DVA,comercial,3,False
+7.01.04,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,comercial,3,False
+7.02,Insumos Adquiridos de Terceiros,DVA,comercial,2,False
+7.02.01,"Custos Prods., Mercs. e Servs. Vendidos",DVA,comercial,3,False
+7.02.02,"Materiais, Energia, Servs. de Terceiros e Outros",DVA,comercial,3,False
+7.02.03,Perda/Recuperação de Valores Ativos,DVA,comercial,3,False
+7.02.04,Outros,DVA,comercial,3,False
+7.03,Valor Adicionado Bruto,DVA,comercial,2,False
+7.04,Retenções,DVA,comercial,2,False
+7.04.01,"Depreciação, Amortização e Exaustão",DVA,comercial,3,False
+7.04.02,Outras,DVA,comercial,3,False
+7.05,Valor Adicionado Líquido Produzido,DVA,comercial,2,False
+7.06,Vlr Adicionado Recebido em Transferência,DVA,comercial,2,False
+7.06.01,Resultado de Equivalência Patrimonial,DVA,comercial,3,False
+7.06.02,Receitas Financeiras,DVA,comercial,3,False
+7.06.03,Outros,DVA,comercial,3,False
+7.07,Valor Adicionado Total a Distribuir,DVA,comercial,2,False
+7.08,Distribuição do Valor Adicionado,DVA,comercial,2,False
+7.08.01,Pessoal,DVA,comercial,3,False
+7.08.01.01,Remuneração Direta,DVA,comercial,4,False
+7.08.01.02,Benefícios,DVA,comercial,4,False
+7.08.01.03,F.G.T.S.,DVA,comercial,4,False
+7.08.01.04,Outros,DVA,comercial,4,False
+7.08.02,"Impostos, Taxas e Contribuições",DVA,comercial,3,False
+7.08.02.01,Federais,DVA,comercial,4,False
+7.08.02.02,Estaduais,DVA,comercial,4,False
+7.08.02.03,Municipais,DVA,comercial,4,False
+7.08.03,Remuneração de Capitais de Terceiros,DVA,comercial,3,False
+7.08.03.01,Juros,DVA,comercial,4,False
+7.08.03.02,Aluguéis,DVA,comercial,4,False
+7.08.03.03,Outras,DVA,comercial,4,False
+7.08.04,Remuneração de Capitais Próprios,DVA,comercial,3,False
+7.08.04.01,Juros sobre o Capital Próprio,DVA,comercial,4,False
+7.08.04.02,Dividendos,DVA,comercial,4,False
+7.08.04.03,Lucros Retidos / Prejuízo do Período,DVA,comercial,4,False
+7.08.05,Outros,DVA,comercial,3,False
+1.01,Ativo Circulante,BPA,comercial,2,True
+1.01.01,Caixa e Equivalentes de Caixa,BPA,comercial,3,True
+1.01.02,Aplicações Financeiras,BPA,comercial,3,True
+1.01.02.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,comercial,4,True
+1.01.02.01.01,Títulos para Negociação,BPA,comercial,5,True
+1.01.02.01.02,Títulos Disponíveis para Venda,BPA,comercial,5,True
+1.01.02.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,comercial,4,True
+1.01.02.02.01,Títulos Mantidos até o Vencimento,BPA,comercial,5,True
+1.01.03,Contas a Receber,BPA,comercial,3,True
+1.01.03.01,Clientes,BPA,comercial,4,True
+1.01.03.02,Outras Contas a Receber,BPA,comercial,4,True
+1.01.04,Estoques,BPA,comercial,3,True
+1.01.05,Ativos Biológicos,BPA,comercial,3,True
+1.01.06,Tributos a Recuperar,BPA,comercial,3,True
+1.01.06.01,Tributos Correntes a Recuperar,BPA,comercial,4,True
+1.01.07,Despesas Antecipadas,BPA,comercial,3,True
+1.01.08,Outros Ativos Circulantes,BPA,comercial,3,True
+1.01.08.01,Ativos Não-Correntes a Venda,BPA,comercial,4,True
+1.01.08.02,Ativos de Operações Descontinuadas,BPA,comercial,4,True
+1.01.08.03,Outros,BPA,comercial,4,True
+1.02,Ativo Não Circulante,BPA,comercial,2,True
+1.02.01,Ativo Realizável a Longo Prazo,BPA,comercial,3,True
+1.02.01.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,comercial,4,True
+1.02.01.01.01,Títulos para Negociação,BPA,comercial,5,True
+1.02.01.01.02,Títulos Disponíveis para Venda,BPA,comercial,5,True
+1.02.01.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,comercial,4,True
+1.02.01.02.01,Títulos Mantidos até o Vencimento,BPA,comercial,5,True
+1.02.01.03,Contas a Receber,BPA,comercial,4,True
+1.02.01.03.01,Clientes,BPA,comercial,5,True
+1.02.01.03.02,Outras Contas a Receber,BPA,comercial,5,True
+1.02.01.04,Estoques,BPA,comercial,4,True
+1.02.01.05,Ativos Biológicos,BPA,comercial,4,True
+1.02.01.06,Tributos Diferidos,BPA,comercial,4,True
+1.02.01.06.01,Imposto de Renda e Contribuição Social Diferidos,BPA,comercial,5,True
+1.02.01.07,Despesas Antecipadas,BPA,comercial,4,True
+1.02.01.08,Créditos com Partes Relacionadas,BPA,comercial,4,True
+1.02.01.08.01,Créditos com Coligadas,BPA,comercial,5,True
+1.02.01.08.03,Créditos com Controladores,BPA,comercial,5,True
+1.02.01.08.04,Créditos com Outras Partes Relacionadas,BPA,comercial,5,True
+1.02.01.09,Outros Ativos Não Circulantes,BPA,comercial,4,True
+1.02.01.09.01,Ativos Não-Correntes a Venda,BPA,comercial,5,True
+1.02.01.09.02,Ativos de Operações Descontinuadas,BPA,comercial,5,True
+1.02.02,Investimentos,BPA,comercial,3,True
+1.02.02.01,Participações Societárias,BPA,comercial,4,True
+1.02.02.01.01,Participações em Coligadas,BPA,comercial,5,True
+1.02.02.01.04,Outras Participações Societárias,BPA,comercial,5,True
+1.02.02.02,Propriedades para Investimento,BPA,comercial,4,True
+1.02.03,Imobilizado,BPA,comercial,3,True
+1.02.03.01,Imobilizado em Operação,BPA,comercial,4,True
+1.02.03.02,Imobilizado Arrendado,BPA,comercial,4,True
+1.02.03.03,Imobilizado em Andamento,BPA,comercial,4,True
+1.02.04,Intangível,BPA,comercial,3,True
+1.02.04.01,Intangíveis,BPA,comercial,4,True
+1.02.04.01.01,Contrato de Concessão,BPA,comercial,5,True
+1.02.04.02,Goodwill,BPA,comercial,4,True
+2.01,Passivo Circulante,BPP,comercial,2,True
+2.01.01,Obrigações Sociais e Trabalhistas,BPP,comercial,3,True
+2.01.01.01,Obrigações Sociais,BPP,comercial,4,True
+2.01.01.02,Obrigações Trabalhistas,BPP,comercial,4,True
+2.01.02,Fornecedores,BPP,comercial,3,True
+2.01.02.01,Fornecedores Nacionais,BPP,comercial,4,True
+2.01.02.02,Fornecedores Estrangeiros,BPP,comercial,4,True
+2.01.03,Obrigações Fiscais,BPP,comercial,3,True
+2.01.03.01,Obrigações Fiscais Federais,BPP,comercial,4,True
+2.01.03.01.01,Imposto de Renda e Contribuição Social a Pagar,BPP,comercial,5,True
+2.01.03.02,Obrigações Fiscais Estaduais,BPP,comercial,4,True
+2.01.03.03,Obrigações Fiscais Municipais,BPP,comercial,4,True
+2.01.04,Empréstimos e Financiamentos,BPP,comercial,3,True
+2.01.04.01,Empréstimos e Financiamentos,BPP,comercial,4,True
+2.01.04.01.01,Em Moeda Nacional,BPP,comercial,5,True
+2.01.04.01.02,Em Moeda Estrangeira,BPP,comercial,5,True
+2.01.04.02,Debêntures,BPP,comercial,4,True
+2.01.04.03,Financiamento por Arrendamento Financeiro,BPP,comercial,4,True
+2.01.05,Outras Obrigações,BPP,comercial,3,True
+2.01.05.01,Passivos com Partes Relacionadas,BPP,comercial,4,True
+2.01.05.01.01,Débitos com Coligadas,BPP,comercial,5,True
+2.01.05.01.03,Débitos com Controladores,BPP,comercial,5,True
+2.01.05.01.04,Débitos com Outras Partes Relacionadas,BPP,comercial,5,True
+2.01.05.02,Outros,BPP,comercial,4,True
+2.01.05.02.01,Dividendos e JCP a Pagar,BPP,comercial,5,True
+2.01.05.02.02,Dividendo Mínimo Obrigatório a Pagar,BPP,comercial,5,True
+2.01.05.02.03,Obrigações por Pagamentos Baseados em Ações,BPP,comercial,5,True
+2.01.06,Provisões,BPP,comercial,3,True
+2.01.06.01,Provisões Fiscais Previdenciárias Trabalhistas e Cíveis,BPP,comercial,4,True
+2.01.06.01.01,Provisões Fiscais,BPP,comercial,5,True
+2.01.06.01.02,Provisões Previdenciárias e Trabalhistas,BPP,comercial,5,True
+2.01.06.01.03,Provisões para Benefícios a Empregados,BPP,comercial,5,True
+2.01.06.01.04,Provisões Cíveis,BPP,comercial,5,True
+2.01.06.02,Outras Provisões,BPP,comercial,4,True
+2.01.06.02.01,Provisões para Garantias,BPP,comercial,5,True
+2.01.06.02.02,Provisões para Reestruturação,BPP,comercial,5,True
+2.01.06.02.03,Provisões para Passivos Ambientais e de Desativação,BPP,comercial,5,True
+2.01.07,Passivos sobre Ativos Não-Correntes a Venda e Descontinuados,BPP,comercial,3,True
+2.01.07.01,Passivos sobre Ativos Não-Correntes a Venda,BPP,comercial,4,True
+2.01.07.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,comercial,4,True
+2.02,Passivo Não Circulante,BPP,comercial,2,True
+2.02.01,Empréstimos e Financiamentos,BPP,comercial,3,True
+2.02.01.01,Empréstimos e Financiamentos,BPP,comercial,4,True
+2.02.01.01.01,Em Moeda Nacional,BPP,comercial,5,True
+2.02.01.01.02,Em Moeda Estrangeira,BPP,comercial,5,True
+2.02.01.02,Debêntures,BPP,comercial,4,True
+2.02.01.03,Financiamento por Arrendamento Financeiro,BPP,comercial,4,True
+2.02.02,Outras Obrigações,BPP,comercial,3,True
+2.02.02.01,Passivos com Partes Relacionadas,BPP,comercial,4,True
+2.02.02.01.01,Débitos com Coligadas,BPP,comercial,5,True
+2.02.02.01.03,Débitos com Controladores,BPP,comercial,5,True
+2.02.02.01.04,Débitos com Outras Partes Relacionadas,BPP,comercial,5,True
+2.02.02.02,Outros,BPP,comercial,4,True
+2.02.02.02.01,Obrigações por Pagamentos Baseados em Ações,BPP,comercial,5,True
+2.02.02.02.02,Adiantamento para Futuro Aumento de Capital,BPP,comercial,5,True
+2.02.03,Tributos Diferidos,BPP,comercial,3,True
+2.02.03.01,Imposto de Renda e Contribuição Social Diferidos,BPP,comercial,4,True
+2.02.04,Provisões,BPP,comercial,3,True
+2.02.04.01,Provisões Fiscais Previdenciárias Trabalhistas e Cíveis,BPP,comercial,4,True
+2.02.04.01.01,Provisões Fiscais,BPP,comercial,5,True
+2.02.04.01.02,Provisões Previdenciárias e Trabalhistas,BPP,comercial,5,True
+2.02.04.01.03,Provisões para Benefícios a Empregados,BPP,comercial,5,True
+2.02.04.01.04,Provisões Cíveis,BPP,comercial,5,True
+2.02.04.02,Outras Provisões,BPP,comercial,4,True
+2.02.04.02.01,Provisões para Garantias,BPP,comercial,5,True
+2.02.04.02.02,Provisões para Reestruturação,BPP,comercial,5,True
+2.02.04.02.03,Provisões para Passivos Ambientais e de Desativação,BPP,comercial,5,True
+2.02.05,Passivos sobre Ativos Não-Correntes a Venda e Descontinuados,BPP,comercial,3,True
+2.02.05.01,Passivos sobre Ativos Não-Correntes a Venda,BPP,comercial,4,True
+2.02.05.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,comercial,4,True
+2.02.06,Lucros e Receitas a Apropriar,BPP,comercial,3,True
+2.02.06.01,Lucros a Apropriar,BPP,comercial,4,True
+2.02.06.02,Receitas a Apropriar,BPP,comercial,4,True
+2.02.06.03,Subvenções de Investimento a Apropriar,BPP,comercial,4,True
+2.03,Patrimônio Líquido Consolidado,BPP,comercial,2,True
+2.03.01,Capital Social Realizado,BPP,comercial,3,True
+2.03.02,Reservas de Capital,BPP,comercial,3,True
+2.03.02.01,Ágio na Emissão de Ações,BPP,comercial,4,True
+2.03.02.02,Reserva Especial de Ágio na Incorporação,BPP,comercial,4,True
+2.03.02.03,Alienação de Bônus de Subscrição,BPP,comercial,4,True
+2.03.02.04,Opções Outorgadas,BPP,comercial,4,True
+2.03.02.05,Ações em Tesouraria,BPP,comercial,4,True
+2.03.02.06,Adiantamento para Futuro Aumento de Capital,BPP,comercial,4,True
+2.03.03,Reservas de Reavaliação,BPP,comercial,3,True
+2.03.04,Reservas de Lucros,BPP,comercial,3,True
+2.03.04.01,Reserva Legal,BPP,comercial,4,True
+2.03.04.02,Reserva Estatutária,BPP,comercial,4,True
+2.03.04.03,Reserva para Contingências,BPP,comercial,4,True
+2.03.04.04,Reserva de Lucros a Realizar,BPP,comercial,4,True
+2.03.04.05,Reserva de Retenção de Lucros,BPP,comercial,4,True
+2.03.04.06,Reserva Especial para Dividendos Não Distribuídos,BPP,comercial,4,True
+2.03.04.07,Reserva de Incentivos Fiscais,BPP,comercial,4,True
+2.03.04.08,Dividendo Adicional Proposto,BPP,comercial,4,True
+2.03.04.09,Ações em Tesouraria,BPP,comercial,4,True
+2.03.05,Lucros/Prejuízos Acumulados,BPP,comercial,3,True
+2.03.06,Ajustes de Avaliação Patrimonial,BPP,comercial,3,True
+2.03.07,Ajustes Acumulados de Conversão,BPP,comercial,3,True
+2.03.08,Outros Resultados Abrangentes,BPP,comercial,3,True
+2.03.09,Participação dos Acionistas Não Controladores,BPP,comercial,3,True
+6.01,Caixa Líquido Atividades Operacionais,DFC,comercial,2,True
+6.01.01,Caixa Gerado nas Operações,DFC,comercial,3,True
+6.01.02,Variações nos Ativos e Passivos,DFC,comercial,3,True
+6.01.03,Outros,DFC,comercial,3,True
+6.02,Caixa Líquido Atividades de Investimento,DFC,comercial,2,True
+6.03,Caixa Líquido Atividades de Financiamento,DFC,comercial,2,True
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,comercial,2,True
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,comercial,2,True
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,comercial,3,True
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,comercial,3,True
+5.01,Saldos Iniciais,DMPL,comercial,2,True
+5.02,Ajustes de Exercícios Anteriores,DMPL,comercial,2,True
+5.03,Saldos Iniciais Ajustados,DMPL,comercial,2,True
+5.04,Transações de Capital com os Sócios,DMPL,comercial,2,True
+5.04.01,Aumentos de Capital,DMPL,comercial,3,True
+5.04.02,Gastos com Emissão de Ações,DMPL,comercial,3,True
+5.04.03,Opções Outorgadas Reconhecidas,DMPL,comercial,3,True
+5.04.04,Ações em Tesouraria Adquiridas,DMPL,comercial,3,True
+5.04.05,Ações em Tesouraria Vendidas,DMPL,comercial,3,True
+5.04.06,Dividendos,DMPL,comercial,3,True
+5.04.07,Juros sobre Capital Próprio,DMPL,comercial,3,True
+5.05,Resultado Abrangente Total,DMPL,comercial,2,True
+5.05.01,Lucro Líquido do Período,DMPL,comercial,3,True
+5.05.02,Outros Resultados Abrangentes,DMPL,comercial,3,True
+5.05.02.01,Ajustes de Instrumentos Financeiros,DMPL,comercial,4,True
+5.05.02.02,Tributos s/ Ajustes Instrumentos Financeiros,DMPL,comercial,4,True
+5.05.02.03,Equiv. Patrim. s/Result. Abrang. Coligadas,DMPL,comercial,4,True
+5.05.02.04,Ajustes de Conversão do Período,DMPL,comercial,4,True
+5.05.02.05,Tributos s/ Ajustes de Conversão do Período,DMPL,comercial,4,True
+5.05.03,Reclassificações para o Resultado,DMPL,comercial,3,True
+5.05.03.01,Ajustes de Instrumentos Financeiros,DMPL,comercial,4,True
+5.06,Mutações Internas do Patrimônio Líquido,DMPL,comercial,2,True
+5.06.01,Constituição de Reservas,DMPL,comercial,3,True
+5.06.02,Realização da Reserva Reavaliação,DMPL,comercial,3,True
+5.06.03,Tributos sobre a Realização da Reserva de Reavaliação,DMPL,comercial,3,True
+5.07,Saldos Finais,DMPL,comercial,2,True
+4.01,Lucro Líquido Consolidado do Período,DRA,comercial,2,True
+4.02,Outros Resultados Abrangentes,DRA,comercial,2,True
+4.03,Resultado Abrangente Consolidado do Período,DRA,comercial,2,True
+4.03.01,Atribuído a Sócios da Empresa Controladora,DRA,comercial,3,True
+4.03.02,Atribuído a Sócios Não Controladores,DRA,comercial,3,True
+3.01,Receita de Venda de Bens e/ou Serviços,DRE,comercial,2,True
+3.02,Custo dos Bens e/ou Serviços Vendidos,DRE,comercial,2,True
+3.03,Resultado Bruto,DRE,comercial,2,True
+3.04,Despesas/Receitas Operacionais,DRE,comercial,2,True
+3.04.01,Despesas com Vendas,DRE,comercial,3,True
+3.04.02,Despesas Gerais e Administrativas,DRE,comercial,3,True
+3.04.03,Perdas pela Não Recuperabilidade de Ativos,DRE,comercial,3,True
+3.04.04,Outras Receitas Operacionais,DRE,comercial,3,True
+3.04.05,Outras Despesas Operacionais,DRE,comercial,3,True
+3.04.06,Resultado de Equivalência Patrimonial,DRE,comercial,3,True
+3.05,Resultado Antes do Resultado Financeiro e dos Tributos,DRE,comercial,2,True
+3.06,Resultado Financeiro,DRE,comercial,2,True
+3.06.01,Receitas Financeiras,DRE,comercial,3,True
+3.06.02,Despesas Financeiras,DRE,comercial,3,True
+3.07,Resultado Antes dos Tributos sobre o Lucro,DRE,comercial,2,True
+3.08,Imposto de Renda e Contribuição Social sobre o Lucro,DRE,comercial,2,True
+3.08.01,Corrente,DRE,comercial,3,True
+3.08.02,Diferido,DRE,comercial,3,True
+3.09,Resultado Líquido das Operações Continuadas,DRE,comercial,2,True
+3.10,Resultado Líquido de Operações Descontinuadas,DRE,comercial,2,True
+3.10.01,Lucro/Prejuízo Líquido das Operações Descontinuadas,DRE,comercial,3,True
+3.10.02,Ganhos/Perdas Líquidas sobre Ativos de Operações Descontinuadas,DRE,comercial,3,True
+3.11,Lucro/Prejuízo Consolidado do Período,DRE,comercial,2,True
+3.11.01,Atribuído a Sócios da Empresa Controladora,DRE,comercial,3,True
+3.11.02,Atribuído a Sócios Não Controladores,DRE,comercial,3,True
+3.99,Lucro por Ação - (Reais / Ação),DRE,comercial,2,True
+3.99.01,Lucro Básico por Ação,DRE,comercial,3,True
+3.99.02,Lucro Diluído por Ação,DRE,comercial,3,True
+7.01,Receitas,DVA,comercial,2,True
+7.01.01,"Vendas de Mercadorias, Produtos e Serviços",DVA,comercial,3,True
+7.01.02,Outras Receitas,DVA,comercial,3,True
+7.01.03,Receitas refs. à Construção de Ativos Próprios,DVA,comercial,3,True
+7.01.04,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,comercial,3,True
+7.02,Insumos Adquiridos de Terceiros,DVA,comercial,2,True
+7.02.01,"Custos Prods., Mercs. e Servs. Vendidos",DVA,comercial,3,True
+7.02.02,"Materiais, Energia, Servs. de Terceiros e Outros",DVA,comercial,3,True
+7.02.03,Perda/Recuperação de Valores Ativos,DVA,comercial,3,True
+7.02.04,Outros,DVA,comercial,3,True
+7.03,Valor Adicionado Bruto,DVA,comercial,2,True
+7.04,Retenções,DVA,comercial,2,True
+7.04.01,"Depreciação, Amortização e Exaustão",DVA,comercial,3,True
+7.04.02,Outras,DVA,comercial,3,True
+7.05,Valor Adicionado Líquido Produzido,DVA,comercial,2,True
+7.06,Vlr Adicionado Recebido em Transferência,DVA,comercial,2,True
+7.06.01,Resultado de Equivalência Patrimonial,DVA,comercial,3,True
+7.06.02,Receitas Financeiras,DVA,comercial,3,True
+7.06.03,Outros,DVA,comercial,3,True
+7.07,Valor Adicionado Total a Distribuir,DVA,comercial,2,True
+7.08,Distribuição do Valor Adicionado,DVA,comercial,2,True
+7.08.01,Pessoal,DVA,comercial,3,True
+7.08.01.01,Remuneração Direta,DVA,comercial,4,True
+7.08.01.02,Benefícios,DVA,comercial,4,True
+7.08.01.03,F.G.T.S.,DVA,comercial,4,True
+7.08.01.04,Outros,DVA,comercial,4,True
+7.08.02,"Impostos, Taxas e Contribuições",DVA,comercial,3,True
+7.08.02.01,Federais,DVA,comercial,4,True
+7.08.02.02,Estaduais,DVA,comercial,4,True
+7.08.02.03,Municipais,DVA,comercial,4,True
+7.08.03,Remuneração de Capitais de Terceiros,DVA,comercial,3,True
+7.08.03.01,Juros,DVA,comercial,4,True
+7.08.03.02,Aluguéis,DVA,comercial,4,True
+7.08.03.03,Outras,DVA,comercial,4,True
+7.08.04,Remuneração de Capitais Próprios,DVA,comercial,3,True
+7.08.04.01,Juros sobre o Capital Próprio,DVA,comercial,4,True
+7.08.04.02,Dividendos,DVA,comercial,4,True
+7.08.04.03,Lucros Retidos / Prejuízo do Período,DVA,comercial,4,True
+7.08.04.04,Part. Não Controladores nos Lucros Retidos,DVA,comercial,4,True
+7.08.05,Outros,DVA,comercial,3,True
+1.01,Ativo Circulante,BPA,financeira,2,False
+1.01.01,Disponibilidades,BPA,financeira,3,False
+1.01.02,Aplicações Interfinanceiras de Liquidez,BPA,financeira,3,False
+1.01.03,Títulos e Valores Mobiliários,BPA,financeira,3,False
+1.01.04,Relações Interfinanceiras,BPA,financeira,3,False
+1.01.05,Relações Interdependências,BPA,financeira,3,False
+1.01.06,Operações de Crédito,BPA,financeira,3,False
+1.01.07,Operações de Arrendamento Mercantil,BPA,financeira,3,False
+1.01.08,Outros Créditos,BPA,financeira,3,False
+1.01.09,Outros Valores e Bens,BPA,financeira,3,False
+1.02,Ativo Realizável a Longo Prazo,BPA,financeira,2,False
+1.02.01,Aplicações Interfinanceiras de Liquidez,BPA,financeira,3,False
+1.02.02,Títulos e Valores Mobiliários,BPA,financeira,3,False
+1.02.03,Relações Interfinanceiras,BPA,financeira,3,False
+1.02.04,Relações Interdependências,BPA,financeira,3,False
+1.02.05,Operações de Crédito,BPA,financeira,3,False
+1.02.06,Operações de Arrendamento Mercantil,BPA,financeira,3,False
+1.02.07,Outros Créditos,BPA,financeira,3,False
+1.02.08,Outros Valores e Bens,BPA,financeira,3,False
+1.03,Ativo Permanente,BPA,financeira,2,False
+1.03.01,Investimentos,BPA,financeira,3,False
+1.03.01.01,Dependências no Exterior,BPA,financeira,4,False
+1.03.01.02,Participações em Controladas,BPA,financeira,4,False
+1.03.01.03,Participações em Coligadas e Equiparadas,BPA,financeira,4,False
+1.03.01.04,Outros Investimentos,BPA,financeira,4,False
+1.03.01.05,Provisão para Perdas,BPA,financeira,4,False
+1.03.02,Imobilizado de Uso,BPA,financeira,3,False
+1.03.03,Imobilizado de Arrendamento,BPA,financeira,3,False
+1.03.04,Intangível,BPA,financeira,3,False
+1.03.05,Diferido,BPA,financeira,3,False
+2.01,Passivo Circulante,BPP,financeira,2,False
+2.01.01,Depósitos,BPP,financeira,3,False
+2.01.02,Captações no Mercado Aberto,BPP,financeira,3,False
+2.01.03,Recursos de Aceites e Emissão de Títulos,BPP,financeira,3,False
+2.01.04,Relações Interfinanceiras,BPP,financeira,3,False
+2.01.05,Relações Interdependências,BPP,financeira,3,False
+2.01.06,Obrigações por Empréstimos,BPP,financeira,3,False
+2.01.07,Obrigações por Repasse do País,BPP,financeira,3,False
+2.01.08,Obrigações por Repasse do Exterior,BPP,financeira,3,False
+2.01.09,Outras Obrigações,BPP,financeira,3,False
+2.02,Passivo Exigível a Longo Prazo,BPP,financeira,2,False
+2.02.01,Depósitos,BPP,financeira,3,False
+2.02.02,Captações no Mercado Aberto,BPP,financeira,3,False
+2.02.03,Recursos de Aceites e Emissão de Títulos,BPP,financeira,3,False
+2.02.04,Relações Interfinanceiras,BPP,financeira,3,False
+2.02.05,Relações Interdependências,BPP,financeira,3,False
+2.02.06,Obrigações por Empréstimos,BPP,financeira,3,False
+2.02.07,Obrigações por Repasse do País,BPP,financeira,3,False
+2.02.08,Obrigações por Repasse do Exterior,BPP,financeira,3,False
+2.02.09,Outras Obrigações,BPP,financeira,3,False
+2.03,Resultados de Exercícios Futuros,BPP,financeira,2,False
+2.05,Patrimônio Líquido,BPP,financeira,2,False
+2.05.01,Capital Social Realizado,BPP,financeira,3,False
+2.05.02,Reservas de Capital,BPP,financeira,3,False
+2.05.03,Reservas de Reavaliação,BPP,financeira,3,False
+2.05.03.01,Ativos Próprios,BPP,financeira,4,False
+2.05.03.02,Controladas/Coligadas e Equiparadas,BPP,financeira,4,False
+2.05.04,Reservas de Lucro,BPP,financeira,3,False
+2.05.04.01,Legal,BPP,financeira,4,False
+2.05.04.02,Estatutária,BPP,financeira,4,False
+2.05.04.03,Para Contingências,BPP,financeira,4,False
+2.05.04.04,De Lucros a Realizar,BPP,financeira,4,False
+2.05.04.05,Retenção de Lucros,BPP,financeira,4,False
+2.05.04.06,Especial p/ Dividendos Não Distribuídos,BPP,financeira,4,False
+2.05.04.07,Outras Reservas de Lucro,BPP,financeira,4,False
+2.05.05,Ajustes de Avaliação Patrimonial,BPP,financeira,3,False
+2.05.05.01,Ajustes de Títulos e Valores Mobiliários,BPP,financeira,4,False
+2.05.05.02,Ajustes Acumulados de Conversão,BPP,financeira,4,False
+2.05.05.03,Ajustes de Combinação de Negócios,BPP,financeira,4,False
+2.05.06,Lucros/Prejuízos Acumulados,BPP,financeira,3,False
+6.01,Caixa Líquido Atividades Operacionais,DFC,financeira,2,False
+6.01.01,Caixa Gerado nas Operações,DFC,financeira,3,False
+6.01.02,Variações nos Ativos e Passivos,DFC,financeira,3,False
+6.01.03,Outros,DFC,financeira,3,False
+6.02,Caixa Líquido Atividades de Investimento,DFC,financeira,2,False
+6.03,Caixa Líquido Atividades de Financiamento,DFC,financeira,2,False
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,financeira,2,False
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,financeira,2,False
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,financeira,3,False
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,financeira,3,False
+5.01,Saldo Inicial,DMPL,financeira,2,False
+5.02,Ajustes de Exercícios Anteriores,DMPL,financeira,2,False
+5.03,Saldo Ajustado,DMPL,financeira,2,False
+5.04,Lucro / Prejuízo do Período,DMPL,financeira,2,False
+5.05,Destinações,DMPL,financeira,2,False
+5.05.01,Dividendos,DMPL,financeira,3,False
+5.05.02,Juros sobre Capital Próprio,DMPL,financeira,3,False
+5.05.03,Outras Destinações,DMPL,financeira,3,False
+5.06,Realização de Reservas de Lucros,DMPL,financeira,2,False
+5.07,Ajustes de Avaliação Patrimonial,DMPL,financeira,2,False
+5.07.01,Ajustes de Títulos e Valores Mobiliários,DMPL,financeira,3,False
+5.07.02,Ajustes Acumulados de Conversão,DMPL,financeira,3,False
+5.07.03,Ajustes de Combinação de Negócios,DMPL,financeira,3,False
+5.08,Aumento/Redução do Capital Social,DMPL,financeira,2,False
+5.09,Constituição/Realização Reservas Capital,DMPL,financeira,2,False
+5.10,Ações em Tesouraria,DMPL,financeira,2,False
+5.11,Outras Transações de Capital,DMPL,financeira,2,False
+5.12,Outros,DMPL,financeira,2,False
+5.13,Saldo Final,DMPL,financeira,2,False
+4.01,Lucro Líquido do Período,DRA,financeira,2,False
+4.02,Outros Resultados Abrangentes,DRA,financeira,2,False
+4.03,Resultado Abrangente do Período,DRA,financeira,2,False
+3.01,Receitas da Intermediação Financeira,DRE,financeira,2,False
+3.02,Despesas da Intermediação Financeira,DRE,financeira,2,False
+3.03,Resultado Bruto Intermediação Financeira,DRE,financeira,2,False
+3.04,Outras Despesas/Receitas Operacionais,DRE,financeira,2,False
+3.04.01,Receitas de Prestação de Serviços,DRE,financeira,3,False
+3.04.02,Despesas de Pessoal,DRE,financeira,3,False
+3.04.03,Outras Despesas Administrativas,DRE,financeira,3,False
+3.04.04,Despesas Tributárias,DRE,financeira,3,False
+3.04.05,Outras Receitas Operacionais,DRE,financeira,3,False
+3.04.06,Outras Despesas Operacionais,DRE,financeira,3,False
+3.04.07,Resultado da Equivalência Patrimonial,DRE,financeira,3,False
+3.05,Resultado Operacional,DRE,financeira,2,False
+3.06,Resultado Não Operacional,DRE,financeira,2,False
+3.06.01,Receitas,DRE,financeira,3,False
+3.06.02,Despesas,DRE,financeira,3,False
+3.07,Resultado Antes Tributação/Participações,DRE,financeira,2,False
+3.08,Provisão para IR e Contribuição Social,DRE,financeira,2,False
+3.09,IR Diferido,DRE,financeira,2,False
+3.10,Participações/Contribuições Estatutárias,DRE,financeira,2,False
+3.10.01,Participações,DRE,financeira,3,False
+3.10.02,Contribuições,DRE,financeira,3,False
+3.11,Reversão dos Juros sobre Capital Próprio,DRE,financeira,2,False
+3.13,Lucro/Prejuízo do Período,DRE,financeira,2,False
+3.99,Lucro por Ação - (R$ / Ação),DRE,financeira,2,False
+7.01,Receitas,DVA,financeira,2,False
+7.01.01,Intermediação Financeira,DVA,financeira,3,False
+7.01.02,Prestação de Serviços,DVA,financeira,3,False
+7.01.03,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,financeira,3,False
+7.01.04,Outras,DVA,financeira,3,False
+7.02,Despesas de Intermediação Financeira,DVA,financeira,2,False
+7.03,Insumos Adquiridos de Terceiros,DVA,financeira,2,False
+7.03.01,"Materiais, Energia e Outros",DVA,financeira,3,False
+7.03.02,Serviços de Terceiros,DVA,financeira,3,False
+7.03.03,Perda/Recuperação de Valores Ativos,DVA,financeira,3,False
+7.03.04,Outros,DVA,financeira,3,False
+7.04,Valor Adicionado Bruto,DVA,financeira,2,False
+7.05,Retenções,DVA,financeira,2,False
+7.05.01,"Depreciação, Amortização e Exaustão",DVA,financeira,3,False
+7.05.02,Outras,DVA,financeira,3,False
+7.06,Valor Adicionado Líquido Produzido,DVA,financeira,2,False
+7.07,Vlr Adicionado Recebido em Transferência,DVA,financeira,2,False
+7.07.01,Resultado de Equivalência Patrimonial,DVA,financeira,3,False
+7.07.02,Outros,DVA,financeira,3,False
+7.08,Valor Adicionado Total a Distribuir,DVA,financeira,2,False
+7.09,Distribuição do Valor Adicionado,DVA,financeira,2,False
+7.09.01,Pessoal,DVA,financeira,3,False
+7.09.01.01,Remuneração Direta,DVA,financeira,4,False
+7.09.01.02,Benefícios,DVA,financeira,4,False
+7.09.01.03,F.G.T.S.,DVA,financeira,4,False
+7.09.01.04,Outros,DVA,financeira,4,False
+7.09.02,"Impostos, Taxas e Contribuições",DVA,financeira,3,False
+7.09.02.01,Federais,DVA,financeira,4,False
+7.09.02.02,Estaduais,DVA,financeira,4,False
+7.09.02.03,Municipais,DVA,financeira,4,False
+7.09.03,Remuneração de Capitais de Terceiros,DVA,financeira,3,False
+7.09.03.01,Aluguéis,DVA,financeira,4,False
+7.09.03.02,Outras,DVA,financeira,4,False
+7.09.04,Remuneração de Capitais Próprios,DVA,financeira,3,False
+7.09.04.01,Juros sobre o Capital Próprio,DVA,financeira,4,False
+7.09.04.02,Dividendos,DVA,financeira,4,False
+7.09.04.03,Lucros Retidos / Prejuízo do Período,DVA,financeira,4,False
+7.09.05,Outros,DVA,financeira,3,False
+1.01,Caixa e Equivalentes de Caixa,BPA,financeira,2,True
+1.02,Aplicações Financeiras,BPA,financeira,2,True
+1.02.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,financeira,3,True
+1.02.01.01,Títulos para Negociação,BPA,financeira,4,True
+1.02.01.02,Títulos Disponíveis para Venda,BPA,financeira,4,True
+1.02.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,financeira,3,True
+1.02.02.01,Títulos Mantidos até o Vencimento,BPA,financeira,4,True
+1.03,Empréstimos e Recebíveis,BPA,financeira,2,True
+1.04,Tributos Diferidos,BPA,financeira,2,True
+1.04.01,Imposto de Renda e Contribuição Social Diferidos,BPA,financeira,3,True
+1.05,Outros Ativos,BPA,financeira,2,True
+1.05.01,Ativos Não Correntes a Venda,BPA,financeira,3,True
+1.05.02,Ativos de Operações Descontinuadas,BPA,financeira,3,True
+1.05.03,Outros,BPA,financeira,3,True
+1.06,Investimentos,BPA,financeira,2,True
+1.06.01,Participações em Coligadas,BPA,financeira,3,True
+1.06.02,Outros,BPA,financeira,3,True
+1.07,Imobilizado,BPA,financeira,2,True
+1.07.01,Imobilizado de Uso,BPA,financeira,3,True
+1.07.02,Imobilizado de Arrendamento,BPA,financeira,3,True
+1.08,Intangível,BPA,financeira,2,True
+1.08.01,Intangíveis,BPA,financeira,3,True
+1.08.02,Goodwill,BPA,financeira,3,True
+2.01,Passivos Financeiros para Negociação,BPP,financeira,2,True
+2.02,Outros Passivos Financeiros ao Valor Justo no Resultado,BPP,financeira,2,True
+2.03,Passivos Financeiros ao Custo Amortizado,BPP,financeira,2,True
+2.04,Provisões,BPP,financeira,2,True
+2.05,Passivos Fiscais,BPP,financeira,2,True
+2.06,Outros Passivos,BPP,financeira,2,True
+2.07,Passivos sobre Ativos Não Correntes a Venda e Descontinuados,BPP,financeira,2,True
+2.07.01,Passivos sobre Ativos Não Correntes a Venda,BPP,financeira,3,True
+2.07.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,financeira,3,True
+2.08,Patrimônio Líquido Consolidado,BPP,financeira,2,True
+2.08.01,Capital Social Realizado,BPP,financeira,3,True
+2.08.02,Reservas de Capital,BPP,financeira,3,True
+2.08.02.01,Ágio na Emissão de Ações,BPP,financeira,4,True
+2.08.02.02,Reserva Especial de Ágio na Incorporação,BPP,financeira,4,True
+2.08.02.03,Alienação de Bônus de Subscrição,BPP,financeira,4,True
+2.08.02.04,Opções Outorgadas,BPP,financeira,4,True
+2.08.02.05,Ações em Tesouraria,BPP,financeira,4,True
+2.08.03,Reservas de Reavaliação,BPP,financeira,3,True
+2.08.04,Reservas de Lucros,BPP,financeira,3,True
+2.08.04.01,Reserva Legal,BPP,financeira,4,True
+2.08.04.02,Reserva Estatutária,BPP,financeira,4,True
+2.08.04.03,Reserva para Contingências,BPP,financeira,4,True
+2.08.04.04,Reserva de Lucros a Realizar,BPP,financeira,4,True
+2.08.04.05,Reserva de Retenção de Lucros,BPP,financeira,4,True
+2.08.04.06,Reserva Especial para Dividendos Não Distribuídos,BPP,financeira,4,True
+2.08.04.07,Reserva de Incentivos Fiscais,BPP,financeira,4,True
+2.08.04.08,Dividendo Adicional Proposto,BPP,financeira,4,True
+2.08.04.09,Ações em Tesouraria,BPP,financeira,4,True
+2.08.05,Lucros/Prejuízos Acumulados,BPP,financeira,3,True
+2.08.06,Ajustes de Avaliação Patrimonial,BPP,financeira,3,True
+2.08.07,Ajustes Acumulados de Conversão,BPP,financeira,3,True
+2.08.08,Outros Resultados Abrangentes,BPP,financeira,3,True
+2.08.09,Participação dos Acionistas Não Controladores,BPP,financeira,3,True
+6.01,Caixa Líquido Atividades Operacionais,DFC,financeira,2,True
+6.01.01,Caixa Gerado nas Operações,DFC,financeira,3,True
+6.01.02,Variações nos Ativos e Passivos,DFC,financeira,3,True
+6.01.03,Outros,DFC,financeira,3,True
+6.02,Caixa Líquido Atividades de Investimento,DFC,financeira,2,True
+6.03,Caixa Líquido Atividades de Financiamento,DFC,financeira,2,True
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,financeira,2,True
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,financeira,2,True
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,financeira,3,True
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,financeira,3,True
+5.01,Saldos Iniciais,DMPL,financeira,2,True
+5.02,Ajustes de Exercícios Anteriores,DMPL,financeira,2,True
+5.03,Saldos Iniciais Ajustados,DMPL,financeira,2,True
+5.04,Transações de Capital com os Sócios,DMPL,financeira,2,True
+5.04.01,Aumentos de Capital,DMPL,financeira,3,True
+5.04.02,Gastos com Emissão de Ações,DMPL,financeira,3,True
+5.04.03,Opções Outorgadas Reconhecidas,DMPL,financeira,3,True
+5.04.04,Ações em Tesouraria Adquiridas,DMPL,financeira,3,True
+5.04.05,Ações em Tesouraria Vendidas,DMPL,financeira,3,True
+5.04.06,Dividendos,DMPL,financeira,3,True
+5.04.07,Juros sobre Capital Próprio,DMPL,financeira,3,True
+5.05,Resultado Abrangente Total,DMPL,financeira,2,True
+5.05.01,Lucro Líquido do Período,DMPL,financeira,3,True
+5.05.02,Outros Resultados Abrangentes,DMPL,financeira,3,True
+5.05.02.01,Ajustes de Instrumentos Financeiros,DMPL,financeira,4,True
+5.05.02.02,Tributos s/ Ajustes Instrumentos Financeiros,DMPL,financeira,4,True
+5.05.02.03,Equiv. Patrim. s/Result. Abrang. Coligadas,DMPL,financeira,4,True
+5.05.02.04,Ajustes de Conversão do Período,DMPL,financeira,4,True
+5.05.02.05,Tributos s/ Ajustes de Conversão do Período,DMPL,financeira,4,True
+5.05.03,Reclassificações para o Resultado,DMPL,financeira,3,True
+5.05.03.01,Ajustes de Instrumentos Financeiros,DMPL,financeira,4,True
+5.06,Mutações Internas do Patrimônio Líquido,DMPL,financeira,2,True
+5.06.01,Constituição de Reservas,DMPL,financeira,3,True
+5.06.02,Realização da Reserva Reavaliação,DMPL,financeira,3,True
+5.06.03,Tributos sobre a Realização da Reserva de Reavaliação,DMPL,financeira,3,True
+5.07,Saldos Finais,DMPL,financeira,2,True
+4.01,Lucro Líquido Consolidado do Período,DRA,financeira,2,True
+4.02,Outros Resultados Abrangentes,DRA,financeira,2,True
+4.03,Resultado Abrangente Consolidado do Período,DRA,financeira,2,True
+4.03.01,Atribuído a Sócios da Empresa Controladora,DRA,financeira,3,True
+4.03.02,Atribuído a Sócios Não Controladores,DRA,financeira,3,True
+3.01,Receitas da Intermediação Financeira,DRE,financeira,2,True
+3.02,Despesas da Intermediação Financeira,DRE,financeira,2,True
+3.03,Resultado Bruto Intermediação Financeira,DRE,financeira,2,True
+3.04,Outras Despesas/Receitas Operacionais,DRE,financeira,2,True
+3.04.01,Receitas de Prestação de Serviços,DRE,financeira,3,True
+3.04.02,Despesas de Pessoal,DRE,financeira,3,True
+3.04.03,Outras Despesas Administrativas,DRE,financeira,3,True
+3.04.04,Despesas Tributárias,DRE,financeira,3,True
+3.04.05,Outras Receitas Operacionais,DRE,financeira,3,True
+3.04.06,Outras Despesas Operacionais,DRE,financeira,3,True
+3.04.07,Resultado da Equivalência Patrimonial,DRE,financeira,3,True
+3.05,Resultado Antes dos Tributos sobre o Lucro,DRE,financeira,2,True
+3.06,Imposto de Renda e Contribuição Social sobre o Lucro,DRE,financeira,2,True
+3.06.01,Corrente,DRE,financeira,3,True
+3.06.02,Diferido,DRE,financeira,3,True
+3.07,Resultado Líquido das Operações Continuadas,DRE,financeira,2,True
+3.08,Resultado Líquido das Operações Descontinuadas,DRE,financeira,2,True
+3.08.01,Lucro/Prejuízo Líquido das Operações Descontinuadas,DRE,financeira,3,True
+3.08.02,Ganhos/Perdas Líquidas sobre Ativos de Operações Descontinuadas,DRE,financeira,3,True
+3.09,Lucro/Prejuízo Consolidado do Período,DRE,financeira,2,True
+3.09.01,Atribuído a Sócios da Empresa Controladora,DRE,financeira,3,True
+3.09.02,Atribuído a Sócios Não Controladores,DRE,financeira,3,True
+3.99,Lucro por Ação - (R$ / Ação),DRE,financeira,2,True
+3.99.01,Lucro Básico por Ação,DRE,financeira,3,True
+3.99.02,Lucro Diluído por Ação,DRE,financeira,3,True
+7.01,Receitas,DVA,financeira,2,True
+7.01.01,Intermediação Financeira,DVA,financeira,3,True
+7.01.02,Prestação de Serviços,DVA,financeira,3,True
+7.01.03,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,financeira,3,True
+7.01.04,Outras,DVA,financeira,3,True
+7.02,Despesas de Intermediação Financeira,DVA,financeira,2,True
+7.03,Insumos Adquiridos de Terceiros,DVA,financeira,2,True
+7.03.01,"Materiais, Energia e Outros",DVA,financeira,3,True
+7.03.02,Serviços de Terceiros,DVA,financeira,3,True
+7.03.03,Perda/Recuperação de Valores Ativos,DVA,financeira,3,True
+7.03.04,Outros,DVA,financeira,3,True
+7.04,Valor Adicionado Bruto,DVA,financeira,2,True
+7.05,Retenções,DVA,financeira,2,True
+7.05.01,"Depreciação, Amortização e Exaustão",DVA,financeira,3,True
+7.05.02,Outras,DVA,financeira,3,True
+7.06,Valor Adicionado Líquido Produzido,DVA,financeira,2,True
+7.07,Vlr Adicionado Recebido em Transferência,DVA,financeira,2,True
+7.07.01,Resultado de Equivalência Patrimonial,DVA,financeira,3,True
+7.07.02,Outros,DVA,financeira,3,True
+7.08,Valor Adicionado Total a Distribuir,DVA,financeira,2,True
+7.09,Distribuição do Valor Adicionado,DVA,financeira,2,True
+7.09.01,Pessoal,DVA,financeira,3,True
+7.09.01.01,Remuneração Direta,DVA,financeira,4,True
+7.09.01.02,Benefícios,DVA,financeira,4,True
+7.09.01.03,F.G.T.S.,DVA,financeira,4,True
+7.09.01.04,Outros,DVA,financeira,4,True
+7.09.02,"Impostos, Taxas e Contribuições",DVA,financeira,3,True
+7.09.02.01,Federais,DVA,financeira,4,True
+7.09.02.02,Estaduais,DVA,financeira,4,True
+7.09.02.03,Municipais,DVA,financeira,4,True
+7.09.03,Remuneração de Capitais de Terceiros,DVA,financeira,3,True
+7.09.03.01,Aluguéis,DVA,financeira,4,True
+7.09.03.02,Outras,DVA,financeira,4,True
+7.09.04,Remuneração de Capitais Próprios,DVA,financeira,3,True
+7.09.04.01,Juros sobre o Capital Próprio,DVA,financeira,4,True
+7.09.04.02,Dividendos,DVA,financeira,4,True
+7.09.04.03,Lucros Retidos / Prejuízo do Período,DVA,financeira,4,True
+7.09.04.04,Part. Não Controladores nos Lucros Retidos,DVA,financeira,4,True
+7.09.05,Outros,DVA,financeira,3,True
+1.01,Ativo Circulante,BPA,seguradora,2,False
+1.01.01,Caixa e Equivalentes de Caixa,BPA,seguradora,3,False
+1.01.02,Aplicações Financeiras,BPA,seguradora,3,False
+1.01.02.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,seguradora,4,False
+1.01.02.01.01,Títulos para Negociação,BPA,seguradora,5,False
+1.01.02.01.02,Títulos Disponíveis para Venda,BPA,seguradora,5,False
+1.01.02.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,seguradora,4,False
+1.01.02.02.01,Títulos Mantidos até o Vencimento,BPA,seguradora,5,False
+1.01.03,Créditos das Operações,BPA,seguradora,3,False
+1.01.03.01,Seguros e Resseguros,BPA,seguradora,4,False
+1.01.03.02,Previdência Complementar,BPA,seguradora,4,False
+1.01.03.03,Capitalização,BPA,seguradora,4,False
+1.01.03.04,Outras Operações,BPA,seguradora,4,False
+1.01.04,Títulos e Créditos a Receber,BPA,seguradora,3,False
+1.01.05,Outros Valores e Bens,BPA,seguradora,3,False
+1.01.06,Empréstimos e Depósitos Compulsórios,BPA,seguradora,3,False
+1.01.07,Despesas Antecipadas,BPA,seguradora,3,False
+1.01.08,Despesas de Comercialização Diferidas,BPA,seguradora,3,False
+1.01.09,Outros Ativos Circulantes,BPA,seguradora,3,False
+1.01.09.01,Ativos Não Correntes a Venda,BPA,seguradora,4,False
+1.01.09.02,Ativos de Operações Descontinuadas,BPA,seguradora,4,False
+1.01.09.03,Outros,BPA,seguradora,4,False
+1.02,Ativo Não Circulante,BPA,seguradora,2,False
+1.02.01,Ativo Realizável a Longo Prazo,BPA,seguradora,3,False
+1.02.01.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,seguradora,4,False
+1.02.01.01.01,Títulos para Negociação,BPA,seguradora,5,False
+1.02.01.01.02,Títulos Disponíveis para Venda,BPA,seguradora,5,False
+1.02.01.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,seguradora,4,False
+1.02.01.02.01,Títulos Mantidos até o Vencimento,BPA,seguradora,5,False
+1.02.01.03,Créditos das Operações,BPA,seguradora,4,False
+1.02.01.04,Títulos e Créditos a Receber,BPA,seguradora,4,False
+1.02.01.05,Outros Valores e Bens,BPA,seguradora,4,False
+1.02.01.06,Empréstimos e Depósitos Compulsórios,BPA,seguradora,4,False
+1.02.01.07,Despesas Antecipadas,BPA,seguradora,4,False
+1.02.01.08,Despesas de Comercialização Diferidas,BPA,seguradora,4,False
+1.02.01.09,Tributos Diferidos,BPA,seguradora,4,False
+1.02.01.10,Outros Ativos Não Circulantes,BPA,seguradora,4,False
+1.02.01.10.01,Ativos Não Correntes a Venda,BPA,seguradora,5,False
+1.02.01.10.02,Ativos de Operações Descontinuadas,BPA,seguradora,5,False
+1.02.02,Investimentos,BPA,seguradora,3,False
+1.02.02.01,Participações Societárias,BPA,seguradora,4,False
+1.02.02.01.01,Participações em Coligadas no País,BPA,seguradora,5,False
+1.02.02.01.02,Participações em Coligadas no Exterior,BPA,seguradora,5,False
+1.02.02.01.03,Participações em Controladas no País,BPA,seguradora,5,False
+1.02.02.01.04,Participações em Controladas no Exterior,BPA,seguradora,5,False
+1.02.02.01.05,Outras Participações Societárias,BPA,seguradora,5,False
+1.02.02.02,Propriedades para Investimento,BPA,seguradora,4,False
+1.02.03,Imobilizado,BPA,seguradora,3,False
+1.02.03.01,Imobilizado em Operação,BPA,seguradora,4,False
+1.02.03.02,Imobilizado Arrendado,BPA,seguradora,4,False
+1.02.03.03,Imobilizado em Andamento,BPA,seguradora,4,False
+1.02.04,Intangível,BPA,seguradora,3,False
+1.02.05,Diferido,BPA,seguradora,3,False
+2.01,Passivo Circulante,BPP,seguradora,2,False
+2.01.01,Contas a Pagar,BPP,seguradora,3,False
+2.01.02,Débitos de Operações,BPP,seguradora,3,False
+2.01.02.01,Seguros e Resseguros,BPP,seguradora,4,False
+2.01.02.02,Previdência Complementar,BPP,seguradora,4,False
+2.01.02.03,Capitalização,BPP,seguradora,4,False
+2.01.02.04,Outras Operações,BPP,seguradora,4,False
+2.01.03,Depósitos de Terceiros,BPP,seguradora,3,False
+2.01.04,Provisões Técnicas,BPP,seguradora,3,False
+2.01.04.01,Seguros e Resseguros,BPP,seguradora,4,False
+2.01.04.02,Previdência Complementar,BPP,seguradora,4,False
+2.01.04.03,Capitalização,BPP,seguradora,4,False
+2.01.04.04,Outras Provisões,BPP,seguradora,4,False
+2.01.05,Outros Débitos,BPP,seguradora,3,False
+2.01.06,Passivos sobre Ativos Não Correntes a Venda e Descontinuados,BPP,seguradora,3,False
+2.01.06.01,Passivos sobre Ativos Não Correntes a Venda,BPP,seguradora,4,False
+2.01.06.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,seguradora,4,False
+2.02,Passivo Não Circulante,BPP,seguradora,2,False
+2.02.01,Passivo Exigível a Longo Prazo,BPP,seguradora,3,False
+2.02.01.01,Contas a Pagar,BPP,seguradora,4,False
+2.02.01.02,Débitos das Operações,BPP,seguradora,4,False
+2.02.01.03,Provisões Técnicas,BPP,seguradora,4,False
+2.02.01.03.01,Seguros e Resseguros,BPP,seguradora,5,False
+2.02.01.03.02,Previdência Complementar,BPP,seguradora,5,False
+2.02.01.03.03,Capitalização,BPP,seguradora,5,False
+2.02.01.03.04,Outras Provisões,BPP,seguradora,5,False
+2.02.01.04,Outros Passivos,BPP,seguradora,4,False
+2.02.01.05,Tributos Diferidos,BPP,seguradora,4,False
+2.02.01.06,Passivos sobre Ativos Não Correntes a Venda e Descontinuados,BPP,seguradora,4,False
+2.02.01.06.01,Passivos sobre Ativos Não Correntes a Venda,BPP,seguradora,5,False
+2.02.01.06.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,seguradora,5,False
+2.02.01.07,Lucros e Receitas a Apropriar,BPP,seguradora,4,False
+2.02.01.07.01,Lucros a Apropriar,BPP,seguradora,5,False
+2.02.01.07.02,Receitas a Apropriar,BPP,seguradora,5,False
+2.02.01.07.03,Subvenções de Investimento a Apropriar,BPP,seguradora,5,False
+2.02.01.08,Adiantamento para Futuro Aumento Capital,BPP,seguradora,4,False
+2.03,Patrimônio Líquido,BPP,seguradora,2,False
+2.03.01,Capital Social Realizado,BPP,seguradora,3,False
+2.03.02,Reservas de Capital,BPP,seguradora,3,False
+2.03.02.01,Ágio na Emissão de Ações,BPP,seguradora,4,False
+2.03.02.02,Reserva Especial de Ágio na Incorporação,BPP,seguradora,4,False
+2.03.02.03,Alienação de Bônus de Subscrição,BPP,seguradora,4,False
+2.03.02.04,Opções Outorgadas,BPP,seguradora,4,False
+2.03.02.05,Ações em Tesouraria,BPP,seguradora,4,False
+2.03.02.06,Adiantamento para Futuro Aumento Capital,BPP,seguradora,4,False
+2.03.03,Reservas de Reavaliação,BPP,seguradora,3,False
+2.03.03.01,Ativos Próprios,BPP,seguradora,4,False
+2.03.03.02,Controladas/Coligadas,BPP,seguradora,4,False
+2.03.04,Reservas de Lucros,BPP,seguradora,3,False
+2.03.04.01,Reserva Legal,BPP,seguradora,4,False
+2.03.04.02,Reserva Estatutária,BPP,seguradora,4,False
+2.03.04.03,Reserva para Contingências,BPP,seguradora,4,False
+2.03.04.04,Reserva de Lucros a Realizar,BPP,seguradora,4,False
+2.03.04.05,Reserva de Retenção de Lucros,BPP,seguradora,4,False
+2.03.04.06,Reserva Especial para Dividendos Não Distribuídos,BPP,seguradora,4,False
+2.03.04.07,Reserva de Incentivos Fiscais,BPP,seguradora,4,False
+2.03.04.08,Dividendo Adicional Proposto,BPP,seguradora,4,False
+2.03.04.09,Ações em Tesouraria,BPP,seguradora,4,False
+2.03.05,Lucros/Prejuízos Acumulados,BPP,seguradora,3,False
+2.03.06,Ajustes de Avaliação Patrimonial,BPP,seguradora,3,False
+2.03.07,Ajustes Acumulados de Conversão,BPP,seguradora,3,False
+2.03.08,Outros Resultados Abrangentes,BPP,seguradora,3,False
+6.01,Caixa Líquido Atividades Operacionais,DFC,seguradora,2,False
+6.01.01,Caixa Gerado nas Operações,DFC,seguradora,3,False
+6.01.02,Variações nos Ativos e Passivos,DFC,seguradora,3,False
+6.01.03,Outros,DFC,seguradora,3,False
+6.02,Caixa Líquido Atividades de Investimento,DFC,seguradora,2,False
+6.03,Caixa Líquido Atividades de Financiamento,DFC,seguradora,2,False
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,seguradora,2,False
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,seguradora,2,False
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,seguradora,3,False
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,seguradora,3,False
+5.01,Saldos Iniciais,DMPL,seguradora,2,False
+5.02,Ajustes de Exercícios Anteriores,DMPL,seguradora,2,False
+5.03,Saldos Iniciais Ajustados,DMPL,seguradora,2,False
+5.04,Transações de Capital com os Sócios,DMPL,seguradora,2,False
+5.04.01,Aumentos de Capital,DMPL,seguradora,3,False
+5.04.02,Gastos com Emissão de Ações,DMPL,seguradora,3,False
+5.04.03,Opções Outorgadas Reconhecidas,DMPL,seguradora,3,False
+5.04.04,Ações em Tesouraria Adquiridas,DMPL,seguradora,3,False
+5.04.05,Ações em Tesouraria Vendidas,DMPL,seguradora,3,False
+5.04.06,Dividendos,DMPL,seguradora,3,False
+5.04.07,Juros sobre Capital Próprio,DMPL,seguradora,3,False
+5.05,Resultado Abrangente Total,DMPL,seguradora,2,False
+5.05.01,Lucro Líquido do Período,DMPL,seguradora,3,False
+5.05.02,Outros Resultados Abrangentes,DMPL,seguradora,3,False
+5.05.02.01,Ajustes de Instrumentos Financeiros,DMPL,seguradora,4,False
+5.05.02.02,Tributos s/ Ajustes Instrumentos Financeiros,DMPL,seguradora,4,False
+5.05.02.03,Equiv. Patrim. s/Result. Abrang. Controladas e Coligadas,DMPL,seguradora,4,False
+5.05.02.04,Ajustes de Conversão do Período,DMPL,seguradora,4,False
+5.05.02.05,Tributos s/ Ajustes de Conversão do Período,DMPL,seguradora,4,False
+5.05.03,Reclassificações para o Resultado,DMPL,seguradora,3,False
+5.05.03.01,Ajustes de Instrumentos Financeiros,DMPL,seguradora,4,False
+5.06,Mutações Internas do Patrimônio Líquido,DMPL,seguradora,2,False
+5.06.01,Constituição de Reservas,DMPL,seguradora,3,False
+5.06.02,Realização da Reserva Reavaliação,DMPL,seguradora,3,False
+5.06.03,Tributos sobre a Realização da Reserva de Reavaliação,DMPL,seguradora,3,False
+5.07,Saldos Finais,DMPL,seguradora,2,False
+4.01,Lucro Líquido do Período,DRA,seguradora,2,False
+4.02,Outros Resultados Abrangentes,DRA,seguradora,2,False
+4.03,Resultado Abrangente do Período,DRA,seguradora,2,False
+3.01,Receitas das Operações,DRE,seguradora,2,False
+3.01.01,Operações de Seguros,DRE,seguradora,3,False
+3.01.01.01,Prêmios de Seguros Ganhos,DRE,seguradora,4,False
+3.01.01.02,Outras Receitas de Seguros,DRE,seguradora,4,False
+3.01.02,Operações de Resseguros,DRE,seguradora,3,False
+3.01.02.01,Prêmios de Resseguros Ganhos,DRE,seguradora,4,False
+3.01.02.02,Outras Receitas de Resseguros,DRE,seguradora,4,False
+3.01.03,Operações de Previdência Complementar,DRE,seguradora,3,False
+3.01.03.01,Rendas de Contribuições Retidas,DRE,seguradora,4,False
+3.01.03.02,Variações das Provisões Técnicas,DRE,seguradora,4,False
+3.01.03.03,Outras Receitas de Prev. Complementar,DRE,seguradora,4,False
+3.01.04,Operações de Capitalização,DRE,seguradora,3,False
+3.01.04.01,Receita Líquida com Títs. Capitalização,DRE,seguradora,4,False
+3.01.04.02,Variações das Provisões Técnicas,DRE,seguradora,4,False
+3.01.04.03,Outras Receitas de Capitalização,DRE,seguradora,4,False
+3.02,Sinistros e Despesas das Operações,DRE,seguradora,2,False
+3.02.01,Operações de Seguros,DRE,seguradora,3,False
+3.02.01.01,Sinistros Retidos de Seguros,DRE,seguradora,4,False
+3.02.01.02,Despesas de Comercialização de Seguros,DRE,seguradora,4,False
+3.02.01.03,Outras Despesas de Seguros,DRE,seguradora,4,False
+3.02.02,Operações de Resseguros,DRE,seguradora,3,False
+3.02.02.01,Sinistros Retidos de Resseguros,DRE,seguradora,4,False
+3.02.02.02,Despesas de Comercialização de Resseguros,DRE,seguradora,4,False
+3.02.02.03,Outras Despesas de Resseguros,DRE,seguradora,4,False
+3.02.03,Operações de Previdência Complementar,DRE,seguradora,3,False
+3.02.03.01,Despesas com Benefícios e Resgates,DRE,seguradora,4,False
+3.02.03.02,Despesas de Comercialização de Prev. Complementar,DRE,seguradora,4,False
+3.02.03.03,Outras Despesas de Prev. Complementar,DRE,seguradora,4,False
+3.02.04,Operações de Capitalização,DRE,seguradora,3,False
+3.02.04.01,Despesas com Resgates e Sorteios,DRE,seguradora,4,False
+3.02.04.02,Despesas de Comercialização de Op. de Capitalização,DRE,seguradora,4,False
+3.02.04.03,Outras Despesas de Op. de Capitalização,DRE,seguradora,4,False
+3.03,Resultado Bruto,DRE,seguradora,2,False
+3.04,Despesas Administrativas,DRE,seguradora,2,False
+3.04.01,Despesas com Pessoal Próprio,DRE,seguradora,3,False
+3.04.02,Despesas com Serviços de Terceiros,DRE,seguradora,3,False
+3.04.03,Despesas com Localização e Funcionamento,DRE,seguradora,3,False
+3.04.04,Despesas com Publicidade e Propaganda,DRE,seguradora,3,False
+3.04.05,Despesas com Tributos,DRE,seguradora,3,False
+3.04.06,Despesas com Publicações,DRE,seguradora,3,False
+3.04.07,Despesas com Donativos e Contribuições,DRE,seguradora,3,False
+3.04.08,Outras Despesas Administrativas,DRE,seguradora,3,False
+3.05,Outras Receitas e Despesas Operacionais,DRE,seguradora,2,False
+3.06,Resultado de Equivalência Patrimonial,DRE,seguradora,2,False
+3.06.01,Receitas de Equivalência Patrimonial,DRE,seguradora,3,False
+3.06.02,Despesas de Equivalência Patrimonial,DRE,seguradora,3,False
+3.07,Resultado Antes do Resultado Financeiro e dos Tributos,DRE,seguradora,2,False
+3.08,Resultado Financeiro,DRE,seguradora,2,False
+3.08.01,Receitas Financeiras,DRE,seguradora,3,False
+3.08.02,Despesas Financeiras,DRE,seguradora,3,False
+3.09,Resultado Antes dos Tributos sobre o Lucro,DRE,seguradora,2,False
+3.10,Imposto de Renda e Contribuição Social sobre o Lucro,DRE,seguradora,2,False
+3.10.01,Corrente,DRE,seguradora,3,False
+3.10.02,Diferido,DRE,seguradora,3,False
+3.11,Resultado Líquido das Operações Continuadas,DRE,seguradora,2,False
+3.12,Resultado Líquido de Operações Descontinuadas,DRE,seguradora,2,False
+3.12.01,Lucro/Prejuízo Líquido das Operações Descontinuadas,DRE,seguradora,3,False
+3.12.02,Ganhos/Perdas Líquidas sobre Ativos de Operações Descontinuadas,DRE,seguradora,3,False
+3.13,Lucro/Prejuízo do Período,DRE,seguradora,2,False
+3.99,Lucro por Ação - (R$ / Ação),DRE,seguradora,2,False
+3.99.01,Lucro Básico por Ação,DRE,seguradora,3,False
+3.99.02,Lucro Diluído por Ação,DRE,seguradora,3,False
+7.01,Receitas,DVA,seguradora,2,False
+7.01.01,Receitas com Operações de Seguros,DVA,seguradora,3,False
+7.01.02,Receitas Operações Previd. Complementar,DVA,seguradora,3,False
+7.01.03,Rendas com Taxas Gestão e Outras Taxas,DVA,seguradora,3,False
+7.01.04,Outras,DVA,seguradora,3,False
+7.01.05,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,seguradora,3,False
+7.02,Variações das Provisões Técnicas,DVA,seguradora,2,False
+7.02.01,Operações de Seguros,DVA,seguradora,3,False
+7.02.02,Operações de Previdência,DVA,seguradora,3,False
+7.02.03,Outras,DVA,seguradora,3,False
+7.03,Receita Operacional Líquida,DVA,seguradora,2,False
+7.04,Benefícios e Sinistros,DVA,seguradora,2,False
+7.04.01,Sinistros,DVA,seguradora,3,False
+7.04.02,Var Prov Sinistro Ocorrido (Não Avisado),DVA,seguradora,3,False
+7.04.03,Despesas com Benefícios e Resgates,DVA,seguradora,3,False
+7.04.04,Var. Prov. Evento Ocorrido (Não Avisado),DVA,seguradora,3,False
+7.04.05,Outros,DVA,seguradora,3,False
+7.05,Insumos Adquiridos de Terceiros,DVA,seguradora,2,False
+7.05.01,"Materiais, Energia e Outros",DVA,seguradora,3,False
+7.05.02,Serviços Terceiros - Comissões Líquidas,DVA,seguradora,3,False
+7.05.03,Var. Despesas Comercialização Diferidas,DVA,seguradora,3,False
+7.05.04,Perda/Recuperação de Valores Ativos,DVA,seguradora,3,False
+7.05.05,Outros,DVA,seguradora,3,False
+7.06,Valor Adicionado Bruto,DVA,seguradora,2,False
+7.07,Retenções,DVA,seguradora,2,False
+7.07.01,"Depreciação, Amortização e Exaustão",DVA,seguradora,3,False
+7.07.02,Outras,DVA,seguradora,3,False
+7.08,Valor Adicionado Líquido Produzido,DVA,seguradora,2,False
+7.09,Vl Adic Recebido/Cedido em Transferência,DVA,seguradora,2,False
+7.09.01,Receitas Financeiras,DVA,seguradora,3,False
+7.09.02,Resultado de Equivalência Patrimonial,DVA,seguradora,3,False
+7.09.03,Resultado Operações Resseguros Cedidos,DVA,seguradora,3,False
+7.09.04,Resultado Operações Cosseguros Cedidos,DVA,seguradora,3,False
+7.09.05,Outros,DVA,seguradora,3,False
+7.10,Valor Adicionado Total a Distribuir,DVA,seguradora,2,False
+7.11,Distribuição do Valor Adicionado,DVA,seguradora,2,False
+7.11.01,Pessoal,DVA,seguradora,3,False
+7.11.01.01,Remuneração Direta,DVA,seguradora,4,False
+7.11.01.02,Benefícios,DVA,seguradora,4,False
+7.11.01.03,F.G.T.S.,DVA,seguradora,4,False
+7.11.01.04,Outros,DVA,seguradora,4,False
+7.11.02,"Impostos, Taxas e Contribuições",DVA,seguradora,3,False
+7.11.02.01,Federais,DVA,seguradora,4,False
+7.11.02.02,Estaduais,DVA,seguradora,4,False
+7.11.02.03,Municipais,DVA,seguradora,4,False
+7.11.03,Remuneração de Capitais de Terceiros,DVA,seguradora,3,False
+7.11.03.01,Juros,DVA,seguradora,4,False
+7.11.03.02,Aluguéis,DVA,seguradora,4,False
+7.11.03.03,Outras,DVA,seguradora,4,False
+7.11.04,Remuneração de Capitais Próprios,DVA,seguradora,3,False
+7.11.04.01,Juros sobre o Capital Próprio,DVA,seguradora,4,False
+7.11.04.02,Dividendos,DVA,seguradora,4,False
+7.11.04.03,Lucros Retidos / Prejuízo do Período,DVA,seguradora,4,False
+7.11.05,Outros,DVA,seguradora,3,False
+1.01,Ativo Circulante,BPA,seguradora,2,True
+1.01.01,Caixa e Equivalentes de Caixa,BPA,seguradora,3,True
+1.01.02,Aplicações Financeiras,BPA,seguradora,3,True
+1.01.02.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,seguradora,4,True
+1.01.02.01.01,Títulos para Negociação,BPA,seguradora,5,True
+1.01.02.01.02,Títulos Disponíveis para Venda,BPA,seguradora,5,True
+1.01.02.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,seguradora,4,True
+1.01.02.02.01,Títulos Mantidos até o Vencimento,BPA,seguradora,5,True
+1.01.03,Créditos das Operações,BPA,seguradora,3,True
+1.01.03.01,Seguros e Resseguros,BPA,seguradora,4,True
+1.01.03.02,Previdência Complementar,BPA,seguradora,4,True
+1.01.03.03,Capitalização,BPA,seguradora,4,True
+1.01.03.04,Outras Operações,BPA,seguradora,4,True
+1.01.04,Títulos e Créditos a Receber,BPA,seguradora,3,True
+1.01.05,Outros Valores e Bens,BPA,seguradora,3,True
+1.01.06,Empréstimos e Depósitos Compulsórios,BPA,seguradora,3,True
+1.01.07,Despesas Antecipadas,BPA,seguradora,3,True
+1.01.08,Despesas de Comercialização Diferidas,BPA,seguradora,3,True
+1.01.09,Outros Ativos Circulantes,BPA,seguradora,3,True
+1.01.09.01,Ativos Não Correntes a Venda,BPA,seguradora,4,True
+1.01.09.02,Ativos de Operações Descontinuadas,BPA,seguradora,4,True
+1.01.09.03,Outros,BPA,seguradora,4,True
+1.02,Ativo Não Circulante,BPA,seguradora,2,True
+1.02.01,Ativo Realizável a Longo Prazo,BPA,seguradora,3,True
+1.02.01.01,Aplicações Financeiras Avaliadas a Valor Justo,BPA,seguradora,4,True
+1.02.01.01.01,Títulos para Negociação,BPA,seguradora,5,True
+1.02.01.01.02,Títulos Disponíveis para Venda,BPA,seguradora,5,True
+1.02.01.02,Aplicações Financeiras Avaliadas ao Custo Amortizado,BPA,seguradora,4,True
+1.02.01.02.01,Títulos Mantidos até o Vencimento,BPA,seguradora,5,True
+1.02.01.03,Créditos das Operações,BPA,seguradora,4,True
+1.02.01.04,Títulos e Créditos a Receber,BPA,seguradora,4,True
+1.02.01.05,Outros Valores e Bens,BPA,seguradora,4,True
+1.02.01.06,Empréstimos e Depósitos Compulsórios,BPA,seguradora,4,True
+1.02.01.07,Despesas Antecipadas,BPA,seguradora,4,True
+1.02.01.08,Despesas de Comercialização Diferidas,BPA,seguradora,4,True
+1.02.01.09,Tributos Diferidos,BPA,seguradora,4,True
+1.02.01.10,Outros Ativos Não Circulantes,BPA,seguradora,4,True
+1.02.01.10.01,Ativos Não Correntes a Venda,BPA,seguradora,5,True
+1.02.01.10.02,Ativos de Operações Descontinuadas,BPA,seguradora,5,True
+1.02.02,Investimentos,BPA,seguradora,3,True
+1.02.02.01,Participações Societárias,BPA,seguradora,4,True
+1.02.02.01.01,Participações em Coligadas no País,BPA,seguradora,5,True
+1.02.02.01.02,Participações em Coligadas no Exterior,BPA,seguradora,5,True
+1.02.02.01.05,Outras Participações Societárias,BPA,seguradora,5,True
+1.02.02.02,Propriedades para Investimento,BPA,seguradora,4,True
+1.02.03,Imobilizado,BPA,seguradora,3,True
+1.02.03.01,Imobilizado em Operação,BPA,seguradora,4,True
+1.02.03.02,Imobilizado Arrendado,BPA,seguradora,4,True
+1.02.03.03,Imobilizado em Andamento,BPA,seguradora,4,True
+1.02.04,Intangível,BPA,seguradora,3,True
+1.02.04.01,Intangíveis,BPA,seguradora,4,True
+1.02.04.02,Goodwill,BPA,seguradora,4,True
+2.01,Passivo Circulante,BPP,seguradora,2,True
+2.01.01,Contas a Pagar,BPP,seguradora,3,True
+2.01.02,Débitos de Operações,BPP,seguradora,3,True
+2.01.02.01,Seguros e Resseguros,BPP,seguradora,4,True
+2.01.02.02,Previdência Complementar,BPP,seguradora,4,True
+2.01.02.03,Capitalização,BPP,seguradora,4,True
+2.01.02.04,Outras Operações,BPP,seguradora,4,True
+2.01.03,Depósitos de Terceiros,BPP,seguradora,3,True
+2.01.04,Provisões Técnicas,BPP,seguradora,3,True
+2.01.04.01,Seguros e Resseguros,BPP,seguradora,4,True
+2.01.04.02,Previdência Complementar,BPP,seguradora,4,True
+2.01.04.03,Capitalização,BPP,seguradora,4,True
+2.01.04.04,Outras Provisões,BPP,seguradora,4,True
+2.01.05,Outros Débitos,BPP,seguradora,3,True
+2.01.06,Passivos sobre Ativos Não Correntes a Venda e Descontinuados,BPP,seguradora,3,True
+2.01.06.01,Passivos sobre Ativos Não Correntes a Venda,BPP,seguradora,4,True
+2.01.06.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,seguradora,4,True
+2.02,Passivo Não Circulante,BPP,seguradora,2,True
+2.02.01,Passivo Exigível a Longo Prazo,BPP,seguradora,3,True
+2.02.01.01,Contas a Pagar,BPP,seguradora,4,True
+2.02.01.02,Débitos das Operações,BPP,seguradora,4,True
+2.02.01.03,Provisões Técnicas,BPP,seguradora,4,True
+2.02.01.03.01,Seguros e Resseguros,BPP,seguradora,5,True
+2.02.01.03.02,Previdência Complementar,BPP,seguradora,5,True
+2.02.01.03.03,Capitalização,BPP,seguradora,5,True
+2.02.01.03.04,Outras Provisões,BPP,seguradora,5,True
+2.02.01.04,Outros Passivos,BPP,seguradora,4,True
+2.02.01.05,Tributos Diferidos,BPP,seguradora,4,True
+2.02.01.06,Passivos sobre Ativos Não Correntes a Venda e Descontinuados,BPP,seguradora,4,True
+2.02.01.06.01,Passivos sobre Ativos Não Correntes a Venda,BPP,seguradora,5,True
+2.02.01.06.02,Passivos sobre Ativos de Operações Descontinuadas,BPP,seguradora,5,True
+2.02.01.07,Lucros e Receitas a Apropriar,BPP,seguradora,4,True
+2.02.01.07.01,Lucros a Apropriar,BPP,seguradora,5,True
+2.02.01.07.02,Receitas a Apropriar,BPP,seguradora,5,True
+2.02.01.07.03,Subvenções de Investimento a Apropriar,BPP,seguradora,5,True
+2.02.01.08,Adiantamento para Futuro Aumento Capital,BPP,seguradora,4,True
+2.03,Patrimônio Líquido Consolidado,BPP,seguradora,2,True
+2.03.01,Capital Social Realizado,BPP,seguradora,3,True
+2.03.02,Reservas de Capital,BPP,seguradora,3,True
+2.03.02.01,Ágio na Emissão de Ações,BPP,seguradora,4,True
+2.03.02.02,Reserva Especial de Ágio na Incorporação,BPP,seguradora,4,True
+2.03.02.03,Alienação de Bônus de Subscrição,BPP,seguradora,4,True
+2.03.02.04,Opções Outorgadas,BPP,seguradora,4,True
+2.03.02.05,Ações em Tesouraria,BPP,seguradora,4,True
+2.03.02.06,Adiantamento para Futuro Aumento Capital,BPP,seguradora,4,True
+2.03.03,Reservas de Reavaliação,BPP,seguradora,3,True
+2.03.03.01,Ativos Próprios,BPP,seguradora,4,True
+2.03.03.02,Controladas/Coligadas,BPP,seguradora,4,True
+2.03.04,Reservas de Lucros,BPP,seguradora,3,True
+2.03.04.01,Reserva Legal,BPP,seguradora,4,True
+2.03.04.02,Reserva Estatutária,BPP,seguradora,4,True
+2.03.04.03,Reserva para Contingências,BPP,seguradora,4,True
+2.03.04.04,Reserva de Lucros a Realizar,BPP,seguradora,4,True
+2.03.04.05,Reserva de Retenção de Lucros,BPP,seguradora,4,True
+2.03.04.06,Reserva Especial para Dividendos Não Distribuídos,BPP,seguradora,4,True
+2.03.04.07,Reserva de Incentivos Fiscais,BPP,seguradora,4,True
+2.03.04.08,Dividendo Adicional Proposto,BPP,seguradora,4,True
+2.03.04.09,Ações em Tesouraria,BPP,seguradora,4,True
+2.03.05,Lucros/Prejuízos Acumulados,BPP,seguradora,3,True
+2.03.06,Ajustes de Avaliação Patrimonial,BPP,seguradora,3,True
+2.03.07,Ajustes Acumulados de Conversão,BPP,seguradora,3,True
+2.03.08,Outros Resultados Abrangentes,BPP,seguradora,3,True
+2.03.09,Participação dos Acionistas Não Controladores,BPP,seguradora,3,True
+6.01,Caixa Líquido Atividades Operacionais,DFC,seguradora,2,True
+6.01.01,Caixa Gerado nas Operações,DFC,seguradora,3,True
+6.01.02,Variações nos Ativos e Passivos,DFC,seguradora,3,True
+6.01.03,Outros,DFC,seguradora,3,True
+6.02,Caixa Líquido Atividades de Investimento,DFC,seguradora,2,True
+6.03,Caixa Líquido Atividades de Financiamento,DFC,seguradora,2,True
+6.04,Variação Cambial s/ Caixa e Equivalentes,DFC,seguradora,2,True
+6.05,Aumento (Redução) de Caixa e Equivalentes,DFC,seguradora,2,True
+6.05.01,Saldo Inicial de Caixa e Equivalentes,DFC,seguradora,3,True
+6.05.02,Saldo Final de Caixa e Equivalentes,DFC,seguradora,3,True
+5.01,Saldos Iniciais,DMPL,seguradora,2,True
+5.02,Ajustes de Exercícios Anteriores,DMPL,seguradora,2,True
+5.03,Saldos Iniciais Ajustados,DMPL,seguradora,2,True
+5.04,Transações de Capital com os Sócios,DMPL,seguradora,2,True
+5.04.01,Aumentos de Capital,DMPL,seguradora,3,True
+5.04.02,Gastos com Emissão de Ações,DMPL,seguradora,3,True
+5.04.03,Opções Outorgadas Reconhecidas,DMPL,seguradora,3,True
+5.04.04,Ações em Tesouraria Adquiridas,DMPL,seguradora,3,True
+5.04.05,Ações em Tesouraria Vendidas,DMPL,seguradora,3,True
+5.04.06,Dividendos,DMPL,seguradora,3,True
+5.04.07,Juros sobre Capital Próprio,DMPL,seguradora,3,True
+5.05,Resultado Abrangente Total,DMPL,seguradora,2,True
+5.05.01,Lucro Líquido do Período,DMPL,seguradora,3,True
+5.05.02,Outros Resultados Abrangentes,DMPL,seguradora,3,True
+5.05.02.01,Ajustes de Instrumentos Financeiros,DMPL,seguradora,4,True
+5.05.02.02,Tributos s/ Ajustes Instrumentos Financeiros,DMPL,seguradora,4,True
+5.05.02.03,Equiv. Patrim. s/Result. Abrang. Coligadas,DMPL,seguradora,4,True
+5.05.02.04,Ajustes de Conversão do Período,DMPL,seguradora,4,True
+5.05.02.05,Tributos s/ Ajustes de Conversão do Período,DMPL,seguradora,4,True
+5.05.03,Reclassificações para o Resultado,DMPL,seguradora,3,True
+5.05.03.01,Ajustes de Instrumentos Financeiros,DMPL,seguradora,4,True
+5.06,Mutações Internas do Patrimônio Líquido,DMPL,seguradora,2,True
+5.06.01,Constituição de Reservas,DMPL,seguradora,3,True
+5.06.02,Realização da Reserva Reavaliação,DMPL,seguradora,3,True
+5.06.03,Tributos sobre a Realização da Reserva de Reavaliação,DMPL,seguradora,3,True
+5.07,Saldos Finais,DMPL,seguradora,2,True
+4.01,Lucro Líquido Consolidado do Período,DRA,seguradora,2,True
+4.02,Outros Resultados Abrangentes,DRA,seguradora,2,True
+4.03,Resultado Abrangente Consolidado do Período,DRA,seguradora,2,True
+4.03.01,Atribuído a Sócios da Empresa Controladora,DRA,seguradora,3,True
+4.03.02,Atribuído a Sócios Não Controladores,DRA,seguradora,3,True
+3.01,Receitas das Operações,DRE,seguradora,2,True
+3.01.01,Operações de Seguros,DRE,seguradora,3,True
+3.01.01.01,Prêmios de Seguros Ganhos,DRE,seguradora,4,True
+3.01.01.02,Outras Receitas de Seguros,DRE,seguradora,4,True
+3.01.02,Operações de Resseguros,DRE,seguradora,3,True
+3.01.02.01,Prêmios de Resseguros Ganhos,DRE,seguradora,4,True
+3.01.02.02,Outras Receitas de Resseguros,DRE,seguradora,4,True
+3.01.03,Operações de Previdência Complementar,DRE,seguradora,3,True
+3.01.03.01,Rendas de Contribuições Retidas,DRE,seguradora,4,True
+3.01.03.02,Variações das Provisões Técnicas,DRE,seguradora,4,True
+3.01.03.03,Outras Receitas de Prev. Complementar,DRE,seguradora,4,True
+3.01.04,Operações de Capitalização,DRE,seguradora,3,True
+3.01.04.01,Receita Líquida com Títs. Capitalização,DRE,seguradora,4,True
+3.01.04.02,Variações das Provisões Técnicas,DRE,seguradora,4,True
+3.01.04.03,Outras Receitas de Capitalização,DRE,seguradora,4,True
+3.02,Sinistros e Despesas das Operações,DRE,seguradora,2,True
+3.02.01,Operações de Seguros,DRE,seguradora,3,True
+3.02.01.01,Sinistros Retidos de Seguros,DRE,seguradora,4,True
+3.02.01.02,Despesas de Comercialização de Seguros,DRE,seguradora,4,True
+3.02.01.03,Outras Despesas de Seguros,DRE,seguradora,4,True
+3.02.02,Operações de Resseguros,DRE,seguradora,3,True
+3.02.02.01,Sinistros Retidos de Resseguros,DRE,seguradora,4,True
+3.02.02.02,Despesas de Comercialização de Resseguros,DRE,seguradora,4,True
+3.02.02.03,Outras Despesas de Resseguros,DRE,seguradora,4,True
+3.02.03,Operações de Previdência Complementar,DRE,seguradora,3,True
+3.02.03.01,Despesas com Benefícios e Resgates,DRE,seguradora,4,True
+3.02.03.02,Despesas de Comercialização de Prev. Complementar,DRE,seguradora,4,True
+3.02.03.03,Outras Despesas de Prev. Complementar,DRE,seguradora,4,True
+3.02.04,Operações de Capitalização,DRE,seguradora,3,True
+3.02.04.01,Despesas com Resgates e Sorteios,DRE,seguradora,4,True
+3.02.04.02,Despesas de Comercialização de Op. de Capitalização,DRE,seguradora,4,True
+3.02.04.03,Outras Despesas de Op. de Capitalização,DRE,seguradora,4,True
+3.03,Resultado Bruto,DRE,seguradora,2,True
+3.04,Despesas Administrativas,DRE,seguradora,2,True
+3.04.01,Despesas com Pessoal Próprio,DRE,seguradora,3,True
+3.04.02,Despesas com Serviços de Terceiros,DRE,seguradora,3,True
+3.04.03,Despesas com Localização e Funcionamento,DRE,seguradora,3,True
+3.04.04,Despesas com Publicidade e Propaganda,DRE,seguradora,3,True
+3.04.05,Despesas com Tributos,DRE,seguradora,3,True
+3.04.06,Despesas com Publicações,DRE,seguradora,3,True
+3.04.07,Despesas com Donativos e Contribuições,DRE,seguradora,3,True
+3.04.08,Outras Despesas Administrativas,DRE,seguradora,3,True
+3.05,Outras Receitas e Despesas Operacionais,DRE,seguradora,2,True
+3.06,Resultado de Equivalência Patrimonial,DRE,seguradora,2,True
+3.06.01,Receitas de Equivalência Patrimonial,DRE,seguradora,3,True
+3.06.02,Despesas de Equivalência Patrimonial,DRE,seguradora,3,True
+3.07,Resultado Antes do Resultado Financeiro e dos Tributos,DRE,seguradora,2,True
+3.08,Resultado Financeiro,DRE,seguradora,2,True
+3.08.01,Receitas Financeiras,DRE,seguradora,3,True
+3.08.02,Despesas Financeiras,DRE,seguradora,3,True
+3.09,Resultado Antes dos Tributos sobre o Lucro,DRE,seguradora,2,True
+3.10,Imposto de Renda e Contribuição Social sobre o Lucro,DRE,seguradora,2,True
+3.10.01,Corrente,DRE,seguradora,3,True
+3.10.02,Diferido,DRE,seguradora,3,True
+3.11,Resultado Líquido das Operações Continuadas,DRE,seguradora,2,True
+3.12,Resultado Líquido de Operações Descontinuadas,DRE,seguradora,2,True
+3.12.01,Lucro/Prejuízo Líquido das Operações Descontinuadas,DRE,seguradora,3,True
+3.12.02,Ganhos/Perdas Líquidas sobre Ativos de Operações Descontinuadas,DRE,seguradora,3,True
+3.13,Lucro/Prejuízo Consolidado do Período,DRE,seguradora,2,True
+3.13.01,Atribuído a Sócios da Empresa Controladora,DRE,seguradora,3,True
+3.13.02,Atribuído a Sócios Não Controladores,DRE,seguradora,3,True
+3.99,Lucro por Ação - (R$ / Ação),DRE,seguradora,2,True
+3.99.01,Lucro Básico por Ação,DRE,seguradora,3,True
+3.99.02,Lucro Diluído por Ação,DRE,seguradora,3,True
+7.01,Receitas,DVA,seguradora,2,True
+7.01.01,Receitas com Operações de Seguros,DVA,seguradora,3,True
+7.01.02,Receitas Operações Previd. Complementar,DVA,seguradora,3,True
+7.01.03,Rendas com Taxas Gestão e Outras Taxas,DVA,seguradora,3,True
+7.01.04,Outras,DVA,seguradora,3,True
+7.01.05,Provisão/Reversão de Créds. Liquidação Duvidosa,DVA,seguradora,3,True
+7.02,Variações das Provisões Técnicas,DVA,seguradora,2,True
+7.02.01,Operações de Seguros,DVA,seguradora,3,True
+7.02.02,Operações de Previdência,DVA,seguradora,3,True
+7.02.03,Outras,DVA,seguradora,3,True
+7.03,Receita Operacional Líquida,DVA,seguradora,2,True
+7.04,Benefícios e Sinistros,DVA,seguradora,2,True
+7.04.01,Sinistros,DVA,seguradora,3,True
+7.04.02,Var Prov Sinistro Ocorrido (Não Avisado),DVA,seguradora,3,True
+7.04.03,Despesas com Benefícios e Resgates,DVA,seguradora,3,True
+7.04.04,Var. Prov. Evento Ocorrido (Não Avisado),DVA,seguradora,3,True
+7.04.05,Outros,DVA,seguradora,3,True
+7.05,Insumos Adquiridos de Terceiros,DVA,seguradora,2,True
+7.05.01,"Materiais, Energia e Outros",DVA,seguradora,3,True
+7.05.02,Serviços Terceiros - Comissões Líquidas,DVA,seguradora,3,True
+7.05.03,Var. Despesas Comercialização Diferidas,DVA,seguradora,3,True
+7.05.04,Perda/Recuperação de Valores Ativos,DVA,seguradora,3,True
+7.05.05,Outros,DVA,seguradora,3,True
+7.06,Valor Adicionado Bruto,DVA,seguradora,2,True
+7.07,Retenções,DVA,seguradora,2,True
+7.07.01,"Depreciação, Amortização e Exaustão",DVA,seguradora,3,True
+7.07.02,Outras,DVA,seguradora,3,True
+7.08,Valor Adicionado Líquido Produzido,DVA,seguradora,2,True
+7.09,Vl Adic Recebido/Cedido em Transferência,DVA,seguradora,2,True
+7.09.01,Receitas Financeiras,DVA,seguradora,3,True
+7.09.02,Resultado de Equivalência Patrimonial,DVA,seguradora,3,True
+7.09.03,Resultado Operações Resseguros Cedidos,DVA,seguradora,3,True
+7.09.04,Resultado Operações Cosseguros Cedidos,DVA,seguradora,3,True
+7.09.05,Outros,DVA,seguradora,3,True
+7.10,Valor Adicionado Total a Distribuir,DVA,seguradora,2,True
+7.11,Distribuição do Valor Adicionado,DVA,seguradora,2,True
+7.11.01,Pessoal,DVA,seguradora,3,True
+7.11.01.01,Remuneração Direta,DVA,seguradora,4,True
+7.11.01.02,Benefícios,DVA,seguradora,4,True
+7.11.01.03,F.G.T.S.,DVA,seguradora,4,True
+7.11.01.04,Outros,DVA,seguradora,4,True
+7.11.02,"Impostos, Taxas e Contribuições",DVA,seguradora,3,True
+7.11.02.01,Federais,DVA,seguradora,4,True
+7.11.02.02,Estaduais,DVA,seguradora,4,True
+7.11.02.03,Municipais,DVA,seguradora,4,True
+7.11.03,Remuneração de Capitais de Terceiros,DVA,seguradora,3,True
+7.11.03.01,Juros,DVA,seguradora,4,True
+7.11.03.02,Aluguéis,DVA,seguradora,4,True
+7.11.03.03,Outras,DVA,seguradora,4,True
+7.11.04,Remuneração de Capitais Próprios,DVA,seguradora,3,True
+7.11.04.01,Juros sobre o Capital Próprio,DVA,seguradora,4,True
+7.11.04.02,Dividendos,DVA,seguradora,4,True
+7.11.04.03,Lucros Retidos / Prejuízo do Período,DVA,seguradora,4,True
+7.11.04.04,Part. Não Controladores nos Lucros Retidos,DVA,seguradora,4,True
+7.11.05,Outros,DVA,seguradora,3,True
