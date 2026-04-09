@@ -16,6 +16,7 @@ import { fetchCompanies } from "@/lib/api";
 import {
   loadComparePageData,
   type CompareCompanyOption,
+  type ComparePageData,
 } from "@/lib/compare-page-data";
 import { getFirstParam } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,37 @@ function toQuickOption(item: {
   };
 }
 
+function getComparisonStateCopy(compareData: ComparePageData): {
+  title: string;
+  description: string;
+} | null {
+  if (compareData.selectedCompanies.length < 2 || !compareData.dataError) {
+    return null;
+  }
+
+  if (compareData.availableYears.length === 0) {
+    return {
+      title: "Sem periodo em comum",
+      description:
+        "A selecao atual nao chegou a um recorte anual comum. Ajuste as empresas ou volte ao diretorio para montar outra combinacao.",
+    };
+  }
+
+  if (compareData.comparedCompanies.length < 2) {
+    return {
+      title: "Dados insuficientes para comparar",
+      description:
+        "A pagina manteve a selecao atual, mas ainda faltam ao menos duas empresas com dados validos para o periodo resolvido.",
+    };
+  }
+
+  return {
+    title: "Comparacao precisa de ajuste",
+    description:
+      "Os dados foram carregados, mas este recorte ainda nao produz uma tabela comparavel util. Ajuste o periodo ou a combinacao de empresas.",
+  };
+}
+
 export default async function ComparePage({ searchParams }: ComparePageProps) {
   const resolvedSearchParams = await searchParams;
   const ids = getFirstParam(resolvedSearchParams.ids);
@@ -63,6 +95,19 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
       company.cd_cvm > 0 &&
       company.company_name.trim() !== "--",
   );
+  const comparisonState = getComparisonStateCopy(compareData);
+  const partialErrorDescription =
+    compareData.partialErrors.length === 0
+      ? null
+      : [
+          compareData.partialErrors.slice(0, 3).join(" "),
+          compareData.comparedCompanies.length >= 2 &&
+          compareData.comparedCompanies.length < compareData.selectedCompanies.length
+            ? `A tabela abaixo usa ${compareData.comparedCompanies.length} empresas com dados completos para o periodo.`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ");
 
   return (
     <PageShell density="default">
@@ -104,9 +149,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
       {compareData.partialErrors.length > 0 ? (
         <Alert className="rounded-[1.75rem] border border-border/70 bg-background/85 px-5 py-4 text-left">
           <AlertTitle>Alguns dados nao puderam ser carregados</AlertTitle>
-          <AlertDescription>
-            {compareData.partialErrors.slice(0, 3).join(" ")}
-          </AlertDescription>
+          <AlertDescription>{partialErrorDescription}</AlertDescription>
         </Alert>
       ) : null}
 
@@ -142,9 +185,47 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         </SurfaceCard>
       ) : null}
 
+      {comparisonState ? (
+        <SurfaceCard
+          tone="muted"
+          padding="hero"
+          className="space-y-5"
+          data-testid="compare-state-card"
+        >
+          <SectionHeading
+            eyebrow="Estado atual"
+            title={comparisonState.title}
+            titleAs="h2"
+            description={comparisonState.description}
+            descriptionClassName="text-sm leading-7"
+          />
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/comparar"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "rounded-full px-5",
+              )}
+            >
+              Reiniciar comparacao
+            </Link>
+            <Link
+              href="/empresas"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "rounded-full px-5",
+              )}
+            >
+              Escolher outras empresas
+            </Link>
+          </div>
+        </SurfaceCard>
+      ) : null}
+
       {compareData.comparedCompanies.length >= 2 &&
       compareData.referenceYear !== null &&
-      compareData.rows.length > 0 ? (
+      compareData.rows.length > 0 &&
+      !compareData.dataError ? (
         <CompareKpiTable
           companies={compareData.comparedCompanies}
           rows={compareData.rows}

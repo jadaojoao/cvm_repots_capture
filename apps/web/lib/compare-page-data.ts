@@ -4,15 +4,17 @@ import {
   fetchCompanyYears,
   getUserFacingErrorMessage,
   type CompanyInfo,
-} from "@/lib/api";
+  type KPIBundle,
+} from "./api.ts";
 import {
   buildFeaturedCompareRows,
+  hasComparableKpiValues,
   intersectYears,
   parseCompanyIdsCsv,
   type CompareCompanyBundle,
   type CompareKpiRow,
-} from "@/lib/compare-utils";
-import { normalizeSelectedYears } from "@/lib/search-params";
+} from "./compare-utils.ts";
+import { normalizeSelectedYears } from "./search-params.ts";
 
 export type CompareCompanyOption = {
   cd_cvm: number;
@@ -30,6 +32,17 @@ export type ComparePageData = {
   rows: CompareKpiRow[];
   dataError: string | null;
   partialErrors: string[];
+};
+
+type ComparePageLoaders = {
+  fetchCompanyInfo?: (cdCvm: number) => Promise<CompanyInfo | null>;
+  fetchCompanyYears?: (cdCvm: number) => Promise<number[]>;
+  fetchCompanyKpis?: (cdCvm: number, years: number[]) => Promise<KPIBundle>;
+};
+
+type CompareYearCandidate = {
+  company: CompanyInfo;
+  years: number[];
 };
 
 function toCompareOption(company: CompanyInfo): CompareCompanyOption {
@@ -55,14 +68,18 @@ const EMPTY_RESULT: ComparePageData = {
 export async function loadComparePageData(
   rawIds: string | undefined,
   rawYears: string | undefined,
+  loaders: ComparePageLoaders = {},
 ): Promise<ComparePageData> {
   const ids = parseCompanyIdsCsv(rawIds);
   if (ids.length === 0) {
     return EMPTY_RESULT;
   }
 
+  const fetchInfo = loaders.fetchCompanyInfo ?? fetchCompanyInfo;
+  const fetchYears = loaders.fetchCompanyYears ?? fetchCompanyYears;
+  const fetchKpis = loaders.fetchCompanyKpis ?? fetchCompanyKpis;
   const partialErrors: string[] = [];
-  const infoResults = await Promise.allSettled(ids.map((id) => fetchCompanyInfo(id)));
+  const infoResults = await Promise.allSettled(ids.map((id) => fetchInfo(id)));
 
   const selectedCompanyInfo: CompanyInfo[] = [];
 
@@ -99,11 +116,8 @@ export async function loadComparePageData(
     };
   }
 
-  const yearsResults = await Promise.allSettled(
-    selectedCompanyInfo.map((company) => fetchCompanyYears(company.cd_cvm)),
-  );
-
-  const yearGroups: number[][] = [];
+  const yearsResults = await Promise.allSettled(selectedCompanyInfo.map((company) => fetchYears(company.cd_cvm)));
+  const yearCapableCompanies: CompareYearCandidate[] = [];
 
   yearsResults.forEach((result, index) => {
     const company = selectedCompanyInfo[index];
@@ -113,7 +127,10 @@ export async function loadComparePageData(
         partialErrors.push(`A empresa ${company.company_name} nao possui anos disponiveis.`);
         return;
       }
-      yearGroups.push(result.value);
+      yearCapableCompanies.push({
+        company,
+        years: result.value,
+      });
       return;
     }
 
@@ -122,8 +139,22 @@ export async function loadComparePageData(
     );
   });
 
-  const availableYears = intersectYears(yearGroups);
+  const availableYears = intersectYears(
+    yearCapableCompanies.map((entry) => entry.years),
+  );
   const selectedYears = normalizeSelectedYears(availableYears, rawYears);
+
+  if (yearCapableCompanies.length < 2) {
+    return {
+      ...EMPTY_RESULT,
+      selectedCompanies,
+      availableYears,
+      selectedYears,
+      partialErrors,
+      dataError:
+        "A comparacao precisa de pelo menos duas empresas com anos disponiveis para o mesmo fluxo.",
+    };
+  }
 
   if (availableYears.length === 0) {
     return {
@@ -149,13 +180,13 @@ export async function loadComparePageData(
   }
 
   const kpiResults = await Promise.allSettled(
-    selectedCompanyInfo.map((company) => fetchCompanyKpis(company.cd_cvm, selectedYears)),
+    yearCapableCompanies.map((entry) => fetchKpis(entry.company.cd_cvm, selectedYears)),
   );
 
   const comparedBundles: CompareCompanyBundle[] = [];
 
   kpiResults.forEach((result, index) => {
-    const company = selectedCompanyInfo[index];
+    const company = yearCapableCompanies[index].company;
 
     if (result.status === "fulfilled") {
       comparedBundles.push({
@@ -187,6 +218,20 @@ export async function loadComparePageData(
     referenceYear === null
       ? []
       : buildFeaturedCompareRows(comparedBundles, referenceYear);
+
+  if (!hasComparableKpiValues(rows)) {
+    return {
+      ...EMPTY_RESULT,
+      selectedCompanies,
+      comparedCompanies: comparedBundles.map((entry) => toCompareOption(entry.company)),
+      availableYears,
+      selectedYears,
+      referenceYear,
+      partialErrors,
+      dataError:
+        "Os KPIs anuais deste recorte nao possuem valores comparaveis para a selecao atual.",
+    };
+  }
 
   return {
     ...EMPTY_RESULT,

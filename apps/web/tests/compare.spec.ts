@@ -31,3 +31,42 @@ test("fluxo inicial de comparacao entre empresas", async ({ page }) => {
   await expect(page.locator("#resultado-comparacao")).toBeVisible({ timeout: 30_000 });
   await expect(page.locator("#resultado-comparacao table")).toBeVisible();
 });
+
+test("deep-link com ids reidrata a comparacao", async ({ page }) => {
+  await page.goto("/comparar");
+
+  const quickAddButtons = page
+    .getByTestId("compare-quick-add")
+    .filter({ hasNotText: /^--$/ });
+  await expect(quickAddButtons.first()).toBeVisible({ timeout: 15_000 });
+
+  await quickAddButtons.first().click();
+  await expect(page).toHaveURL(/\/comparar\?ids=\d+/i, {
+    timeout: 30_000,
+  });
+
+  const secondRoundButtons = page
+    .getByTestId("compare-quick-add")
+    .filter({ hasNotText: /^--$/ });
+  await expect(secondRoundButtons.first()).toBeVisible({ timeout: 15_000 });
+  await secondRoundButtons.first().click();
+
+  await expect(page).toHaveURL(/\/comparar\?ids=\d+(%2C|,)\d+/i, {
+    timeout: 30_000,
+  });
+
+  const deepLink = page.url();
+  await page.goto(deepLink);
+
+  await expect(page.locator("#resultado-comparacao")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("compare-selected-chip")).toHaveCount(2);
+});
+
+test("ids invalidos mostram fallback controlado", async ({ page }) => {
+  await page.goto("/comparar?ids=999999,888888");
+
+  await expect(
+    page.getByRole("alert").filter({ hasText: /comparacao indisponivel no estado atual/i }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("link", { name: /abrir diretorio/i })).toBeVisible();
+});
