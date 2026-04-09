@@ -15,7 +15,7 @@ def test_health_returns_ok_payload(client: TestClient):
     payload = response.json()
     assert payload["status"] == "ok"
     assert payload["version"] == "v2-phase1"
-    assert payload["database_dialect"] == "sqlite"
+    assert payload["database_dialect"] == client.app.state.read_service.engine.dialect.name
     assert payload["required_tables"] == ["financial_reports", "companies"]
 
 
@@ -73,6 +73,23 @@ def test_companies_sector_filter_uses_canonical_slug(client: TestClient):
     assert payload["items"][0]["sector_name"] == "Saneamento"
 
 
+def test_companies_unknown_sector_returns_empty_page_with_stable_payload(client: TestClient):
+    response = client.get("/companies", params={"sector": "setor-inexistente"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["items"] == []
+    assert payload["pagination"] == {
+        "page": 1,
+        "page_size": 20,
+        "total_items": 0,
+        "total_pages": 1,
+        "has_next": False,
+        "has_previous": False,
+    }
+    assert payload["applied_filters"] == {"search": "", "sector": "setor-inexistente"}
+
+
 def test_companies_filters_returns_canonical_sector_options(client: TestClient):
     response = client.get("/companies/filters")
 
@@ -120,6 +137,13 @@ def test_company_years_returns_sorted_values(client: TestClient):
     assert response.json() == [2023, 2024]
 
 
+def test_company_years_returns_empty_list_when_company_has_no_reports(client: TestClient):
+    response = client.get("/companies/77889/years")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 def test_company_statement_returns_matrix(client: TestClient):
     response = client.get(
         "/companies/9512/statements",
@@ -132,6 +156,30 @@ def test_company_statement_returns_matrix(client: TestClient):
     assert payload["years"] == [2023, 2024]
     assert "2023" in payload["table"]["columns"]
     assert "2024" in payload["table"]["columns"]
+
+
+def test_company_statement_sorts_requested_years_for_stable_contract(client: TestClient):
+    response = client.get(
+        "/companies/9512/statements",
+        params={"stmt": "DRE", "years": "2024,2023"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["years"] == [2023, 2024]
+    assert payload["table"]["columns"][-2:] == ["2023", "2024"]
+
+
+def test_company_statement_returns_empty_table_for_year_without_data(client: TestClient):
+    response = client.get(
+        "/companies/4170/statements",
+        params={"stmt": "DRE", "years": "2023"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["years"] == [2023]
+    assert payload["table"] == {"columns": [], "rows": []}
 
 
 def test_company_statement_rejects_invalid_years(client: TestClient):
@@ -173,6 +221,26 @@ def test_company_kpis_returns_annual_and_quarterly_tables(client: TestClient):
     assert payload["years"] == [2023, 2024]
     assert payload["annual"]["rows"]
     assert payload["quarterly"]["rows"]
+
+
+def test_company_kpis_sort_requested_years_for_stable_contract(client: TestClient):
+    response = client.get("/companies/9512/kpis", params={"years": "2024,2023"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["years"] == [2023, 2024]
+    assert "2023" in payload["annual"]["columns"]
+    assert "2024" in payload["annual"]["columns"]
+
+
+def test_company_kpis_return_empty_tables_when_requested_year_has_no_data(client: TestClient):
+    response = client.get("/companies/4170/kpis", params={"years": "2023"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["years"] == [2023]
+    assert payload["annual"] == {"columns": [], "rows": []}
+    assert payload["quarterly"] == {"columns": [], "rows": []}
 
 
 def test_refresh_status_returns_operational_rows(client: TestClient):
