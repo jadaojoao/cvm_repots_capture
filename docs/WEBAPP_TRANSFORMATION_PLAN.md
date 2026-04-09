@@ -3,6 +3,7 @@
 > Documento de execucao para a transformacao do projeto atual em uma web app mais proxima de producao.
 > Escopo deste documento: roadmap, refinamento por fases e objetivo de aprendizado.
 > Base arquitetural: [0002 - Stack recomendada para a V2 com GitHub Student Developer Pack](./decisions/0002-student-pack-v2-stack.md).
+> Runtime remoto do ciclo atual: [0004 - Primeiro runtime remoto: Railway + Vercel](./decisions/0004-first-remote-runtime-railway-vercel.md).
 
 ---
 
@@ -104,6 +105,12 @@ Meta de entrega:
 - validar conectividade remota, erros basicos e operacao de leitura fora do ambiente local;
 - manter a V1 local como fonte operacional em paralelo.
 
+Decisao operacional do ciclo atual:
+- API e banco alvo na `Railway`;
+- web em `Vercel`;
+- contrato minimo entre camadas usando `ALLOWED_ORIGINS` na API e
+  `API_BASE_URL` na web.
+
 Meta de aprendizado:
 - aprender deploy gerenciado por camada, sem assumir self-hosting cedo demais;
 - aprender configuracao de ambiente, secrets e conexoes remotas;
@@ -138,7 +145,8 @@ Saida esperada:
 1. Fechar a Fase 1 com validacao PostgreSQL real.
 2. Consolidar o primeiro slice `Home -> Empresas -> Empresa` em `apps/web`.
 3. Testar o slice local completo antes de qualquer deploy remoto.
-4. Publicar o primeiro slice em deploy gerenciado, sem introduzir `Nginx` cedo demais.
+4. Publicar a API na `Railway` e a web na `Vercel`, sem introduzir `Nginx`
+   cedo demais.
 5. Integrar observabilidade e qualidade antes de expandir escopo funcional.
 
 ---
@@ -147,6 +155,6 @@ Saida esperada:
 
 - nao muda a stack atual da V1;
 - nao substitui a documentacao detalhada da Fase 1 em `docs/V2_PHASE1_BACKEND.md`;
-- nao define provedor especifico de deploy;
+- nao substitui o ADR `0004`, que fixa o primeiro runtime remoto do ciclo;
 - nao introduz endpoints de escrita;
 - nao substitui o ADR 0002, que continua sendo a decisao arquitetural principal.
