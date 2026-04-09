@@ -80,6 +80,50 @@ export type StatementMatrix = {
   exclude_conflicts: boolean;
 };
 
+export type SectorSnapshot = {
+  roe: number | null;
+  mg_ebit: number | null;
+  mg_liq: number | null;
+};
+
+export type SectorDirectoryItem = {
+  sector_name: string;
+  sector_slug: string;
+  company_count: number;
+  latest_year: number | null;
+  snapshot: SectorSnapshot;
+};
+
+export type SectorDirectory = {
+  items: SectorDirectoryItem[];
+};
+
+export type SectorYearOverview = {
+  year: number;
+  roe: number | null;
+  mg_ebit: number | null;
+  mg_liq: number | null;
+};
+
+export type SectorCompanyMetric = {
+  cd_cvm: number;
+  company_name: string;
+  ticker_b3: string | null;
+  roe: number | null;
+  mg_ebit: number | null;
+  mg_liq: number | null;
+};
+
+export type SectorDetail = {
+  sector_name: string;
+  sector_slug: string;
+  company_count: number;
+  available_years: number[];
+  selected_year: number;
+  yearly_overview: SectorYearOverview[];
+  companies: SectorCompanyMetric[];
+};
+
 type ApiErrorShape = {
   error?: {
     code?: string;
@@ -210,6 +254,66 @@ function isStatementMatrix(value: unknown): value is StatementMatrix {
     isNumberArray(value.years) &&
     isTabularData(value.table) &&
     typeof value.exclude_conflicts === "boolean"
+  );
+}
+
+function isNullableNumber(value: unknown): value is number | null {
+  return value === null || typeof value === "number";
+}
+
+function isSectorSnapshot(value: unknown): value is SectorSnapshot {
+  return (
+    isRecord(value) &&
+    isNullableNumber(value.roe) &&
+    isNullableNumber(value.mg_ebit) &&
+    isNullableNumber(value.mg_liq)
+  );
+}
+
+function isSectorDirectory(value: unknown): value is SectorDirectory {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.items) &&
+    value.items.every(
+      (item) =>
+        isRecord(item) &&
+        typeof item.sector_name === "string" &&
+        typeof item.sector_slug === "string" &&
+        typeof item.company_count === "number" &&
+        isNullableNumber(item.latest_year) &&
+        isSectorSnapshot(item.snapshot),
+    )
+  );
+}
+
+function isSectorDetail(value: unknown): value is SectorDetail {
+  return (
+    isRecord(value) &&
+    typeof value.sector_name === "string" &&
+    typeof value.sector_slug === "string" &&
+    typeof value.company_count === "number" &&
+    isNumberArray(value.available_years) &&
+    typeof value.selected_year === "number" &&
+    Array.isArray(value.yearly_overview) &&
+    value.yearly_overview.every(
+      (entry) =>
+        isRecord(entry) &&
+        typeof entry.year === "number" &&
+        isNullableNumber(entry.roe) &&
+        isNullableNumber(entry.mg_ebit) &&
+        isNullableNumber(entry.mg_liq),
+    ) &&
+    Array.isArray(value.companies) &&
+    value.companies.every(
+      (company) =>
+        isRecord(company) &&
+        typeof company.cd_cvm === "number" &&
+        typeof company.company_name === "string" &&
+        (company.ticker_b3 === null || typeof company.ticker_b3 === "string") &&
+        isNullableNumber(company.roe) &&
+        isNullableNumber(company.mg_ebit) &&
+        isNullableNumber(company.mg_liq),
+    )
   );
 }
 
@@ -443,6 +547,27 @@ export async function fetchCompanyFilters(): Promise<CompanyFiltersResponse> {
       invalidResponseMessage: "A API retornou filtros de empresas invalidos.",
     },
   )) as CompanyFiltersResponse;
+}
+
+export async function fetchSectorDirectory(): Promise<SectorDirectory> {
+  return (await apiFetch<SectorDirectory>("/sectors", {
+    validate: isSectorDirectory,
+    invalidResponseMessage: "A API retornou um diretorio de setores invalido.",
+  })) as SectorDirectory;
+}
+
+export async function fetchSectorDetail(
+  sectorSlug: string,
+  year?: number,
+): Promise<SectorDetail | null> {
+  return apiFetch<SectorDetail>(
+    `/sectors/${sectorSlug}${buildQuery({ year })}`,
+    {
+      allowNotFound: true,
+      validate: isSectorDetail,
+      invalidResponseMessage: "A API retornou um detalhe setorial invalido.",
+    },
+  );
 }
 
 export async function fetchCompanyInfo(
