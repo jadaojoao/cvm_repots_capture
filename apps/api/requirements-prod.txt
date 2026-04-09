@@ -1,0 +1,11 @@
+# Dependencias minimas para a API FastAPI em producao.
+# Nao inclui PyQt6, Streamlit, plotly, yfinance, requests
+# (usados apenas em dev local / desktop / dashboard).
+pandas>=2.0
+numpy>=1.24
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+xlsxwriter>=3.1
+requests>=2.31
+fastapi>=0.115
+uvicorn[standard]>=0.32
