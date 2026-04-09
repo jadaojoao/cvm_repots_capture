@@ -15,7 +15,11 @@ export type TrackEventName =
   | "compare_company_removed"
   | "compare_years_changed"
   | "compare_adjust_clicked"
-  | "compare_reset_clicked";
+  | "compare_reset_clicked"
+  | "sectors_hub_viewed"
+  | "sector_detail_viewed"
+  | "sector_year_changed"
+  | "sector_company_clicked";
 
 type TrackPayload = Record<string, string | number | boolean | null | undefined>;
 

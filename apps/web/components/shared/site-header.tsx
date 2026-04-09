@@ -7,7 +7,7 @@ const PRIMARY_NAV = [
   { label: "Home", href: "/" },
   { label: "Empresas", href: "/empresas" },
   { label: "Comparar", href: "/comparar" },
-  { label: "Setores", href: null },
+  { label: "Setores", href: "/setores" },
   { label: "KPIs", href: null },
   { label: "Macro", href: null },
 ] as const;

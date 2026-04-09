@@ -8,8 +8,8 @@ export const HOME_QUICK_LINKS = [
   {
     label: "Setores",
     description: "Leitura tematica por clusters e cadeias produtivas.",
-    href: null,
-    status: "em-breve",
+    href: "/setores",
+    status: "disponivel",
   },
   {
     label: "KPIs",
