@@ -82,6 +82,7 @@ Helpers locais:
 powershell -ExecutionPolicy Bypass -File scripts/worktree_create.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
 powershell -ExecutionPolicy Bypass -File scripts/worktree_status.ps1
 powershell -ExecutionPolicy Bypass -File scripts/worktree_remove.ps1 -Issue 27 -Slug exemplo-task -Lane ops-quality
+powershell -ExecutionPolicy Bypass -File scripts/pr_complete.ps1 -Pr 28
 ```
 
 Regras detalhadas:

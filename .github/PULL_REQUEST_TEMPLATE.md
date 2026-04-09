@@ -38,4 +38,6 @@ Closes #
 - [ ] se a task for `risk:shared` ou `risk:contract-sensitive`, a PR abriu em draft
 - [ ] se a task for `risk:contract-sensitive`, a compatibilidade foi revisada e documentada
 - [ ] PR em draft apenas enquanto o trabalho ou as validacoes ainda estiverem incompletos
+- [ ] checks obrigatorios verdes ou helper de conclusao acionado para aguardar
 - [ ] pronto para `squash merge` em `master` quando os checks estiverem verdes
+- [ ] nao considerar a task concluida ate confirmar merge, issue fechada e branch remota removida quando aplicavel

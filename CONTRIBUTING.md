@@ -14,6 +14,8 @@
   `.claude/worktrees/<lane>/<issue-number>-<slug>/`.
 - O repo raiz permanece em `master`.
 - Abra PR com `Closes #<issue-number>`.
+- Quando a task estiver pronta, use `scripts/pr_complete.ps1 -Pr <numero>` ou
+  fluxo equivalente para esperar checks verdes e concluir o merge real.
 - Atualize checklist, status e evidencias na issue antes do merge.
 - Faca `commit` em checkpoints verificaveis, `push` ao finalizar um checkpoint
   remoto e `merge` para `master` quando a task estiver concluida e os checks
@@ -41,6 +43,7 @@ Se a entrega realmente tocar duas lanes de produto, quebre em tasks separadas.
   explicita.
 - Paths criticos sao governados por `.github/guardrails/path-policy.json`.
 - Em trabalho paralelo, contratos publicos seguem `additive-only` por default.
+- A task so e concluida depois de PR mergeada e issue fechada.
 
 ## Tipos de issue
 

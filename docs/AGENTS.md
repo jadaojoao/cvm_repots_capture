@@ -63,6 +63,8 @@
   `.github/guardrails/path-policy.json`
 - Interfaces publicas ficam `additive-only` por default durante execucao
   simultanea
+- O fechamento da task passa a exigir checks verdes e merge confirmado; PR
+  aberta nao conta como concluido
 - `docs/STUDENT_PACK_PLAN.md` deixa de espelhar task-by-task e passa a apontar para milestone + epics + filtros de issues
 - `docs/AGENTS.md` permanece apenas como estado atual e historico de sessoes
 
@@ -90,6 +92,14 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 36 - 2026-04-08 (fechamento por checks verdes e merge confirmado)
+- `scripts/pr_complete.ps1` passa a ser o helper recomendado para concluir uma
+  task com PR
+- A governanca passa a exigir checks verdes, merge confirmado, issue fechada e
+  branch remota removida quando aplicavel
+- Templates de task e PR deixam explicito que PR aberta nao significa task
+  concluida
 
 ### Sessao 35 - 2026-04-08 (fix no helper de remocao de worktree)
 - `scripts/worktree_remove.ps1` deixa de quebrar quando o merge-check local
