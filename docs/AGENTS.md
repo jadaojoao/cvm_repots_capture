@@ -51,11 +51,20 @@
 ### Governanca de Trabalho
 - `GitHub Issues` passa a ser a fonte oficial do backlog e do status do trabalho
 - `AGENTS.md` na raiz define o contrato operacional `issue -> branch -> PR -> merge`
+- O repositorio passa a operar com tres lanes oficiais:
+  `lane:frontend`, `lane:backend` e `lane:ops-quality`
+- O repo raiz permanece estavel em `master`; cada task executavel roda em
+  `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+- A regra oficial passa a ser `1 task = 1 owner = 1 branch = 1 worktree = 1 PR`
 - Trabalho paralelo agora e regido por `owner atual`, `write-set esperado` e
   classificacao `risk:*` declarados em cada task
 - `risk:shared` e `risk:contract-sensitive` exigem PR em draft na abertura
+- Paths sensiveis passam a ser governados por
+  `.github/guardrails/path-policy.json`
 - Interfaces publicas ficam `additive-only` por default durante execucao
   simultanea
+- O fechamento da task passa a exigir checks verdes e merge confirmado; PR
+  aberta nao conta como concluido
 - `docs/STUDENT_PACK_PLAN.md` deixa de espelhar task-by-task e passa a apontar para milestone + epics + filtros de issues
 - `docs/AGENTS.md` permanece apenas como estado atual e historico de sessoes
 
@@ -83,6 +92,34 @@
 ---
 
 ## Sessoes Recentes
+
+### Sessao 36 - 2026-04-08 (fechamento por checks verdes e merge confirmado)
+- `scripts/pr_complete.ps1` passa a ser o helper recomendado para concluir uma
+  task com PR
+- A governanca passa a exigir checks verdes, merge confirmado, issue fechada e
+  branch remota removida quando aplicavel
+- Templates de task e PR deixam explicito que PR aberta nao significa task
+  concluida
+
+### Sessao 35 - 2026-04-08 (fix no helper de remocao de worktree)
+- `scripts/worktree_remove.ps1` deixa de quebrar quando o merge-check local
+  retorna vazio
+- sem `-Force`, o helper agora orienta atualizar `master` local ou usar
+  `-Force` quando o clone ainda nao enxerga o merge remoto
+
+### Sessao 34 - 2026-04-08 (lanes oficiais, worktrees e critical paths)
+- O repositorio passa a operar com tres lanes oficiais:
+  `lane:frontend`, `lane:backend` e `lane:ops-quality`
+- Toda task executavel passa a exigir `Lane oficial` e `Workspace da task`
+- A regra de execucao vira `1 task = 1 owner = 1 branch = 1 worktree = 1 PR`
+- O repo raiz permanece em `master`; worktrees oficiais vivem em
+  `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+- `.github/guardrails/path-policy.json` passa a versionar `shared-governance`,
+  `critical-bootstrap`, `critical-runtime` e `critical-contract`
+- O guardrail de PR passa a validar lane, workspace, paths criticos, risco
+  minimo, write-set coberto e unicidade de PR por task
+- Scripts `worktree_create.ps1`, `worktree_status.ps1` e
+  `worktree_remove.ps1` passam a apoiar o fluxo local
 
 ### Sessao 33 - 2026-04-08 (smoke local da V1 e bootstrap do desktop)
 - `desktop/cvm_pyqt_app.py` passa a inserir a raiz do projeto em `sys.path`,

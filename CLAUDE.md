@@ -15,13 +15,16 @@ Hybrid Python project: a CLI scraper that extracts DFP/ITR financial reports fro
 Before changing any versioned file:
 
 1. Find or create an open `task issue` in GitHub.
-2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, one `area:*`, and one `risk:*` label.
-3. Ensure the issue body declares `Owner atual`, `Write-set esperado`, and `Classificacao de risco`.
+2. Ensure the issue has `kind:task`, one `status:*`, one `priority:*`, one `area:*`, one `risk:*`, and one `lane:*` label.
+3. Ensure the issue body declares `Owner atual`, `Lane oficial`, `Workspace da task`, `Write-set esperado`, and `Classificacao de risco`.
 4. Update the issue when work starts and keep the checklist/evidence current.
-5. Work in a branch named `task/<issue-number>-<slug>`.
-6. Open a PR with `Closes #<issue-number>` in the body.
-7. Update the issue and relevant docs before considering the task complete.
-8. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
+5. Create or reuse a dedicated worktree at `.claude/worktrees/<lane>/<issue-number>-<slug>/`.
+6. Keep the repo root stable on `master` and do not switch task branches in the main workspace.
+7. Work in a branch named `task/<issue-number>-<slug>`.
+8. Open a PR with `Closes #<issue-number>` in the body.
+9. Finish the task with `scripts/pr_complete.ps1 -Pr <number>` or an equivalent flow that waits for checks, confirms merge, verifies the linked issue is closed, and confirms the remote branch is gone when applicable.
+10. Update the issue and relevant docs before considering the task complete.
+11. Commit validated checkpoints, push them promptly, and merge to `master` when the task is complete and checks are green unless the user explicitly says not to.
 
 ## Publish and Merge Policy
 
@@ -32,17 +35,34 @@ Before changing any versioned file:
 - When acceptance criteria are satisfied and relevant checks pass:
   - update the issue;
   - mark the PR ready if needed;
-  - merge into `master`.
+  - use `scripts/pr_complete.ps1` or an equivalent flow to wait through green checks and complete the merge into `master`.
 - Prefer squash merge for short-lived Codex branches.
 - After merge, confirm the linked task closes and the remote branch is removed when possible.
+- Remove the linked task worktree after merge when it is no longer needed.
 
 Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub Issues.
+
+## Lane and Worktree Rules
+
+- Official lanes:
+  - `lane:frontend`
+  - `lane:backend`
+  - `lane:ops-quality`
+- Rule of thumb: `1 task = 1 owner = 1 branch = 1 worktree = 1 PR`
+- Use the repo root only as the stable `master` worktree.
+- If you need to inspect another task, open a second editor window on that
+  task's worktree instead of switching branches in the root workspace.
+- Sensitive files are governed by `.github/guardrails/path-policy.json`.
+- Paths in `shared-governance`, `critical-bootstrap`, `critical-runtime`, and
+  `critical-contract` require the lane and `risk:*` classification allowed by
+  the path policy.
 
 ## Parallel Work Protocol
 
 - Treat the `task issue` as the ownership boundary, not the agent identity.
 - If another IA or human takes over the same task, update `Owner atual` in the
   issue before continuing work.
+- Keep `Lane oficial` and `Workspace da task` current in the issue body.
 - Respect the declared `Write-set esperado`. If another open task needs the same
   write-set, coordinate through the issues or reduce scope before editing.
 - Record dependencies or write-set collisions in the task issue before moving
@@ -56,6 +76,8 @@ Do not use `docs/AGENTS.md` as a backlog. The official backlog lives in GitHub I
   work.
 - Breaking contract changes require a dedicated `risk:contract-sensitive` task,
   explicit coordination in the issue/PR, and serialized merge timing.
+- Do not touch files outside the current lane or the shared governance policy
+  unless the task explicitly allows it and the guardrails pass.
 
 ## Commands
 
@@ -251,10 +273,11 @@ Dead/archived scripts are in `archive/` at the repo root — do not touch those.
 ## Issue Management
 
 1. **Issue First**: no executable work starts without a `task issue`
-2. **Branch From Issue**: use `task/<issue-number>-<slug>`
-3. **Track Progress in Issue**: keep status, checklist, and evidence current
-4. **Close via PR**: use `Closes #<issue-number>` in the PR body
-5. **Keep Docs Durable**: ADRs and durable docs stay in `docs/`; operational state stays in GitHub Issues
+2. **Worktree From Issue**: use `.claude/worktrees/<lane>/<issue-number>-<slug>/`
+3. **Branch From Issue**: use `task/<issue-number>-<slug>`
+4. **Track Progress in Issue**: keep status, checklist, and evidence current
+5. **Close via PR**: use `Closes #<issue-number>` in the PR body
+6. **Keep Docs Durable**: ADRs and durable docs stay in `docs/`; operational state stays in GitHub Issues
 
 ## Core Principles
 

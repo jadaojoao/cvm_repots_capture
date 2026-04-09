@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - master
-      - "codex/**"
+      - "task/**"
   pull_request:
+  merge_group:
 
 jobs:
   test-python:

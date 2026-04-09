@@ -1,0 +1,123 @@
+{
+  "laneAllowlists": {
+    "frontend": [
+      "apps/web/**",
+      "apps/web/docs/**"
+    ],
+    "backend": [
+      "apps/api/**",
+      "src/**",
+      "desktop/**",
+      "dashboard/**",
+      "tests/**",
+      "apps/api/tests/**",
+      "main.py",
+      "requirements.txt"
+    ],
+    "ops-quality": [
+      ".github/**",
+      "docs/**",
+      "scripts/**",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "CONTRIBUTING.md",
+      "README.md",
+      "COMO_RODAR.md",
+      "pytest.ini"
+    ]
+  },
+  "criticalGroups": [
+    {
+      "name": "shared-governance",
+      "patterns": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "CONTRIBUTING.md",
+        "README.md",
+        "COMO_RODAR.md",
+        "docs/AGENTS.md",
+        "docs/STUDENT_PACK_PLAN.md",
+        ".github/**"
+      ],
+      "ownerLane": "ops-quality",
+      "allowedLanes": [
+        "frontend",
+        "backend",
+        "ops-quality"
+      ],
+      "minimumRisk": "shared",
+      "requireDraft": true,
+      "requireCompatibility": false
+    },
+    {
+      "name": "critical-bootstrap",
+      "patterns": [
+        "scripts/setup_db.py",
+        "scripts/setup_companies_table.py",
+        "scripts/runtime_doctor.py",
+        "scripts/smoke_validate.py",
+        "scripts/db_portability_smoke.py"
+      ],
+      "ownerLane": "ops-quality",
+      "allowedLanes": [
+        "ops-quality",
+        "backend"
+      ],
+      "minimumRisk": "shared",
+      "requireDraft": true,
+      "requireCompatibility": false
+    },
+    {
+      "name": "critical-runtime",
+      "patterns": [
+        "src/settings.py",
+        "src/db.py",
+        "src/database.py",
+        "src/query_layer.py",
+        "src/read_service.py",
+        "src/refresh_service.py",
+        "src/scraper.py",
+        "apps/api/app/main.py",
+        "apps/api/app/dependencies.py",
+        "desktop/cvm_pyqt_app.py",
+        "dashboard/app.py"
+      ],
+      "ownerLane": "backend",
+      "allowedLanes": [
+        "backend"
+      ],
+      "minimumRisk": "shared",
+      "requireDraft": true,
+      "requireCompatibility": false
+    },
+    {
+      "name": "critical-contract",
+      "patterns": [
+        "apps/api/app/routes/**",
+        "apps/api/app/presenters.py",
+        "docs/V2_API_CONTRACT.md"
+      ],
+      "ownerLane": "backend",
+      "allowedLanes": [
+        "backend"
+      ],
+      "minimumRisk": "contract-sensitive",
+      "requireDraft": true,
+      "requireCompatibility": true
+    }
+  ],
+  "disallowedDomainMixes": [
+    {
+      "name": "frontend-with-backend-runtime",
+      "left": [
+        "apps/web/**"
+      ],
+      "right": [
+        "src/**",
+        "apps/api/**",
+        "desktop/**",
+        "dashboard/**"
+      ]
+    }
+  ]
+}
