@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRightIcon } from "lucide-react";
 
 import {
@@ -19,16 +20,28 @@ export function FutureDomainGrid() {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-xl text-foreground">{item.label}</h2>
-              <InfoChip tone="muted">Em breve</InfoChip>
+              <InfoChip tone={item.status === "disponivel" ? "brand" : "muted"}>
+                {item.status === "disponivel" ? "Disponivel" : "Em breve"}
+              </InfoChip>
             </div>
             <p className="text-sm leading-7 text-muted-foreground">
               {item.description}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Aguardando proximos contratos
-            <ArrowUpRightIcon className="size-3.5" />
-          </div>
+          {item.href ? (
+            <Link
+              href={item.href}
+              className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-foreground transition-colors hover:text-primary"
+            >
+              Abrir superficie
+              <ArrowUpRightIcon className="size-3.5" />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              Aguardando proximos contratos
+              <ArrowUpRightIcon className="size-3.5" />
+            </div>
+          )}
         </SurfaceCard>
       ))}
     </section>

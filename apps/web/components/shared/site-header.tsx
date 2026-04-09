@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const PRIMARY_NAV = [
   { label: "Home", href: "/" },
   { label: "Empresas", href: "/empresas" },
-  { label: "Comparar", href: null },
+  { label: "Comparar", href: "/comparar" },
   { label: "Setores", href: null },
   { label: "KPIs", href: null },
   { label: "Macro", href: null },

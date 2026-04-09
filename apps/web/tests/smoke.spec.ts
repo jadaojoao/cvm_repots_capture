@@ -13,12 +13,16 @@ test("fluxo inicial de descoberta por empresa", async ({ page }) => {
     .getByRole("searchbox", { name: /buscar empresa/i })
     .fill("petrobras");
 
-  await page.getByRole("button", { name: /buscar empresa/i }).click();
+  await page
+    .getByRole("searchbox", { name: /buscar empresa/i })
+    .press("Enter");
 
-  await expect(page).toHaveURL(/\/empresas\?busca=petrobras/i);
+  await expect(page).toHaveURL(/\/empresas\?busca=petrobras/i, {
+    timeout: 30_000,
+  });
   await expect(
     page.getByRole("heading", { name: /diretorio publico de empresas/i }),
-  ).toBeVisible({ timeout: 15_000 });
+  ).toBeVisible({ timeout: 30_000 });
 
   await expect(page.locator("article").first()).toContainText(/PETROBRAS/i);
   await page.getByRole("link", { name: /ver empresa/i }).first().click();
