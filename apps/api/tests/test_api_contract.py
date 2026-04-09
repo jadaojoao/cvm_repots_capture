@@ -542,3 +542,32 @@ def test_cors_env_var_allows_multiple_origins(monkeypatch: pytest.MonkeyPatch, t
             assert resp.headers.get("access-control-allow-origin") == origin, (
                 f"Origem {origin} nao foi aceita pelo CORS"
             )
+
+
+# ── Sentry: inicializacao condicional via SENTRY_DSN ──────────────────────────
+
+
+def test_sentry_skipped_when_dsn_is_absent(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Sem SENTRY_DSN, o Sentry nao deve ser inicializado."""
+    import sentry_sdk
+
+    monkeypatch.delenv("SENTRY_DSN", raising=False)
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'sentry_off.db'}")
+    settings = build_settings()
+    create_app(settings=settings)
+    assert sentry_sdk.get_client().dsn is None
+
+
+def test_sentry_initialized_when_dsn_is_present(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    """Com SENTRY_DSN valido, o Sentry deve ser inicializado com o environment correto."""
+    import sentry_sdk
+
+    fake_dsn = "https://pub@o0.ingest.sentry.io/0"
+    monkeypatch.setenv("SENTRY_DSN", fake_dsn)
+    monkeypatch.setenv("SENTRY_ENVIRONMENT", "staging")
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'sentry_on.db'}")
+    settings = build_settings()
+    create_app(settings=settings)
+    client = sentry_sdk.get_client()
+    assert client.dsn == fake_dsn
+    assert client.options["environment"] == "staging"
