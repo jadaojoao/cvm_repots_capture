@@ -16,6 +16,7 @@ from apps.api.app.dependencies import ApiError, ServiceUnavailableError, seriali
 from apps.api.app.presenters import ErrorResponsePayload
 from apps.api.app.routes.companies import router as companies_router
 from apps.api.app.routes.health import router as health_router
+from apps.api.app.routes.sectors import router as sectors_router
 from apps.api.app.routes.status import router as status_router
 from src.read_service import CVMReadService
 from src.settings import AppSettings, get_settings as get_shared_settings
@@ -115,6 +116,7 @@ def create_app(
 
     app.include_router(health_router)
     app.include_router(companies_router)
+    app.include_router(sectors_router)
     app.include_router(status_router)
     return app
 

@@ -105,6 +105,25 @@ def years_dependency(years: str | None = Query(default=None)) -> list[int]:
     return parse_years_csv(years)
 
 
+def optional_year_dependency(year: str | None = Query(default=None)) -> int | None:
+    if year is None:
+        return None
+
+    token = str(year).strip()
+    if not token:
+        raise InvalidRequestError("O parametro 'year' aceita um unico inteiro positivo.")
+
+    try:
+        parsed = int(token)
+    except ValueError as exc:
+        raise InvalidRequestError("O parametro 'year' aceita um unico inteiro positivo.") from exc
+
+    if parsed <= 0:
+        raise InvalidRequestError("O parametro 'year' aceita um unico inteiro positivo.")
+
+    return parsed
+
+
 def parse_company_ids_csv(
     raw_ids: str | None,
     *,

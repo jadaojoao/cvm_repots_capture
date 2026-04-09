@@ -19,6 +19,12 @@ from src.contracts import (
     HealthSnapshot,
     KPIBundle,
     RefreshStatusDTO,
+    SectorCompanyMetricDTO,
+    SectorDetailDTO,
+    SectorDirectoryDTO,
+    SectorDirectoryItemDTO,
+    SectorSnapshotDTO,
+    SectorYearOverviewDTO,
     StatementMatrix,
     StatementSummaryDTO,
     SummaryBlockDTO,
@@ -152,6 +158,133 @@ class CVMReadService:
             for _, row in df.iterrows()
         )
         return CompanyFiltersDTO(sectors=sectors)
+
+    def resolve_sector_slug(self, sector_slug: str | None) -> str | None:
+        return self._resolve_sector_slug(sector_slug)
+
+    def list_sectors(self) -> SectorDirectoryDTO:
+        sectors_df = self.query_layer.get_available_company_sectors()
+        companies_df = self.query_layer.get_companies()
+        metric_rows = self.query_layer.get_sector_metric_rows()
+        yearly = self._aggregate_sector_yearly_metrics(metric_rows)
+
+        items: list[SectorDirectoryItemDTO] = []
+        for _, row in sectors_df.iterrows():
+            sector_name = str(row["sector_name"])
+            sector_companies = companies_df[companies_df["sector_name"] == sector_name]
+            available_years = self._extract_years_from_company_rows(sector_companies)
+            latest_year = max(available_years) if available_years else None
+            snapshot_row = None
+            if latest_year is not None and not yearly.empty:
+                filtered = yearly[
+                    (yearly["sector_name"] == sector_name)
+                    & (yearly["year"] == latest_year)
+                ]
+                snapshot_row = filtered.iloc[0] if not filtered.empty else None
+
+            items.append(
+                SectorDirectoryItemDTO(
+                    sector_name=sector_name,
+                    sector_slug=sector_slugify(sector_name),
+                    company_count=int(row["company_count"] or 0),
+                    latest_year=latest_year,
+                    snapshot=SectorSnapshotDTO(
+                        roe=self._coerce_optional_float(snapshot_row["roe"]) if snapshot_row is not None else None,
+                        mg_ebit=self._coerce_optional_float(snapshot_row["mg_ebit"]) if snapshot_row is not None else None,
+                        mg_liq=self._coerce_optional_float(snapshot_row["mg_liq"]) if snapshot_row is not None else None,
+                    ),
+                )
+            )
+
+        items.sort(key=lambda item: (-item.company_count, item.sector_name))
+        return SectorDirectoryDTO(items=tuple(items))
+
+    def get_sector_detail(self, sector_slug: str, year: int | None = None) -> SectorDetailDTO | None:
+        resolved_sector_name = self._resolve_sector_slug(sector_slug)
+        if resolved_sector_name is None:
+            return None
+
+        company_rows, total_items = self.query_layer.get_companies_directory_page(
+            search="",
+            sector_name=resolved_sector_name,
+            page=1,
+            page_size=None,
+        )
+        if company_rows.empty:
+            return None
+
+        years_map = self.query_layer.get_company_years_map(company_rows["cd_cvm"].tolist())
+        company_rows = company_rows.copy()
+        company_rows["anos_disponiveis"] = company_rows["cd_cvm"].map(
+            lambda cd_cvm: years_map.get(int(cd_cvm), ())
+        )
+        available_years = self._extract_years_from_company_rows(company_rows)
+        if not available_years:
+            return None
+
+        if year is None:
+            selected_year = max(available_years)
+        else:
+            selected_year = int(year)
+            if selected_year not in available_years:
+                raise ValueError(
+                    f"O parametro 'year' precisa ser um dos anos disponiveis do setor: {', '.join(str(value) for value in available_years)}."
+                )
+
+        metric_rows = self.query_layer.get_sector_metric_rows(sector_name=resolved_sector_name)
+        yearly = self._aggregate_sector_yearly_metrics(metric_rows)
+        yearly_overview = tuple(
+            SectorYearOverviewDTO(
+                year=int(row["year"]),
+                roe=self._coerce_optional_float(row["roe"]),
+                mg_ebit=self._coerce_optional_float(row["mg_ebit"]),
+                mg_liq=self._coerce_optional_float(row["mg_liq"]),
+            )
+            for _, row in yearly[yearly["sector_name"] == resolved_sector_name]
+            .sort_values("year")
+            .iterrows()
+        )
+
+        company_metrics = metric_rows[metric_rows["report_year"] == selected_year].copy()
+        selected_companies = company_rows[
+            company_rows["anos_disponiveis"].map(lambda years: selected_year in years)
+        ][["cd_cvm", "company_name", "ticker_b3"]].drop_duplicates()
+        selected_companies = selected_companies.merge(
+            company_metrics[
+                ["cd_cvm", "roe", "mg_ebit", "mg_liq"]
+            ],
+            on="cd_cvm",
+            how="left",
+        )
+        selected_companies["ticker_b3"] = selected_companies["ticker_b3"].replace("", None)
+        selected_companies["sort_roe"] = pd.to_numeric(selected_companies["roe"], errors="coerce")
+        selected_companies = selected_companies.sort_values(
+            by=["sort_roe", "company_name"],
+            ascending=[False, True],
+            na_position="last",
+        )
+
+        companies = tuple(
+            SectorCompanyMetricDTO(
+                cd_cvm=int(row["cd_cvm"]),
+                company_name=str(row["company_name"]),
+                ticker_b3=self._clean_optional_text(row.get("ticker_b3")),
+                roe=self._coerce_optional_float(row.get("roe")),
+                mg_ebit=self._coerce_optional_float(row.get("mg_ebit")),
+                mg_liq=self._coerce_optional_float(row.get("mg_liq")),
+            )
+            for _, row in selected_companies.iterrows()
+        )
+
+        return SectorDetailDTO(
+            sector_name=resolved_sector_name,
+            sector_slug=sector_slugify(resolved_sector_name),
+            company_count=int(total_items),
+            available_years=tuple(available_years),
+            selected_year=int(selected_year),
+            yearly_overview=yearly_overview,
+            companies=companies,
+        )
 
     def get_statement_matrix(
         self,
@@ -387,6 +520,34 @@ class CVMReadService:
             if option.sector_slug == normalized_slug:
                 return option.sector_name
         return None
+
+    @staticmethod
+    def _extract_years_from_company_rows(df: pd.DataFrame) -> list[int]:
+        years: set[int] = set()
+        if df is None or df.empty:
+            return []
+        for raw_years in df.get("anos_disponiveis", []):
+            years.update(_parse_years(raw_years))
+        return sorted(years)
+
+    @staticmethod
+    def _aggregate_sector_yearly_metrics(metric_rows: pd.DataFrame) -> pd.DataFrame:
+        if metric_rows is None or metric_rows.empty:
+            return pd.DataFrame(columns=["sector_name", "year", "roe", "mg_ebit", "mg_liq"])
+
+        aggregated = (
+            metric_rows.groupby(["sector_name", "report_year"], dropna=False)[["roe", "mg_ebit", "mg_liq"]]
+            .mean()
+            .reset_index()
+            .rename(columns={"report_year": "year"})
+        )
+        return aggregated
+
+    @staticmethod
+    def _coerce_optional_float(value: Any) -> float | None:
+        if value is None or pd.isna(value):
+            return None
+        return float(value)
 
     @staticmethod
     def _empty_company_page(

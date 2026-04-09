@@ -227,6 +227,84 @@ class CompanyFiltersDTO:
 
 
 @dataclass(frozen=True)
+class SectorSnapshotDTO:
+    roe: float | None
+    mg_ebit: float | None
+    mg_liq: float | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class SectorDirectoryItemDTO:
+    sector_name: str
+    sector_slug: str
+    company_count: int
+    latest_year: int | None
+    snapshot: SectorSnapshotDTO
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["snapshot"] = self.snapshot.to_dict()
+        return payload
+
+
+@dataclass(frozen=True)
+class SectorDirectoryDTO:
+    items: tuple[SectorDirectoryItemDTO, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"items": [item.to_dict() for item in self.items]}
+
+
+@dataclass(frozen=True)
+class SectorYearOverviewDTO:
+    year: int
+    roe: float | None
+    mg_ebit: float | None
+    mg_liq: float | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class SectorCompanyMetricDTO:
+    cd_cvm: int
+    company_name: str
+    ticker_b3: str | None
+    roe: float | None
+    mg_ebit: float | None
+    mg_liq: float | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class SectorDetailDTO:
+    sector_name: str
+    sector_slug: str
+    company_count: int
+    available_years: tuple[int, ...]
+    selected_year: int
+    yearly_overview: tuple[SectorYearOverviewDTO, ...]
+    companies: tuple[SectorCompanyMetricDTO, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "sector_name": self.sector_name,
+            "sector_slug": self.sector_slug,
+            "company_count": self.company_count,
+            "available_years": list(self.available_years),
+            "selected_year": self.selected_year,
+            "yearly_overview": [row.to_dict() for row in self.yearly_overview],
+            "companies": [row.to_dict() for row in self.companies],
+        }
+
+
+@dataclass(frozen=True)
 class StatementMatrix:
     cd_cvm: int
     statement_type: str

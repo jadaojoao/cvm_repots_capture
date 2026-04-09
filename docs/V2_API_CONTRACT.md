@@ -104,6 +104,80 @@ Resposta exemplo:
 }
 ```
 
+### `GET /sectors`
+
+Uso:
+- retorna o hub setorial da V2 com snapshot agregado por setor
+- a ordenacao padrao e `company_count DESC`, depois `sector_name ASC`
+
+Resposta exemplo:
+
+```json
+{
+  "items": [
+    {
+      "sector_name": "Energia",
+      "sector_slug": "energia",
+      "company_count": 12,
+      "latest_year": 2024,
+      "snapshot": {
+        "roe": 0.18,
+        "mg_ebit": 0.21,
+        "mg_liq": 0.14
+      }
+    }
+  ]
+}
+```
+
+Regras do endpoint:
+- `snapshot` usa os KPIs agregados do `latest_year` do setor
+- `roe`, `mg_ebit` e `mg_liq` podem ser `null` quando o setor nao tiver contas suficientes
+- o item do setor continua valido mesmo quando o snapshot vier parcial ou nulo
+
+### `GET /sectors/{slug}?year=`
+
+Parametros:
+- `year`: opcional; inteiro positivo. Quando omitido, o backend usa o ano mais recente disponivel do setor
+
+Resposta exemplo:
+
+```json
+{
+  "sector_name": "Energia",
+  "sector_slug": "energia",
+  "company_count": 12,
+  "available_years": [2023, 2024],
+  "selected_year": 2024,
+  "yearly_overview": [
+    {
+      "year": 2023,
+      "roe": 0.16,
+      "mg_ebit": 0.19,
+      "mg_liq": 0.13
+    }
+  ],
+  "companies": [
+    {
+      "cd_cvm": 9512,
+      "company_name": "PETROBRAS",
+      "ticker_b3": "PETR4",
+      "roe": 0.47,
+      "mg_ebit": 0.21,
+      "mg_liq": 0.16
+    }
+  ]
+}
+```
+
+Regras do endpoint:
+- `404` para `slug` inexistente
+- `422` para `year` invalido ou fora dos anos disponiveis do setor
+- `available_years` sai em ordem crescente
+- `companies` sai ordenado por `roe DESC`, depois `company_name ASC`, com `null` no fim
+- `yearly_overview` agrega `roe`, `mg_ebit` e `mg_liq` por ano, ignorando valores ausentes
+- `companies` do `selected_year` continuam presentes mesmo quando as metricas do ano vierem `null`
+
 ### `GET /companies/{cd_cvm}`
 
 DTO de saida:

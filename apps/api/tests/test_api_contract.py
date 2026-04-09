@@ -106,6 +106,112 @@ def test_companies_filters_returns_canonical_sector_options(client: TestClient):
     ]
 
 
+def test_sectors_returns_directory_with_latest_year_and_snapshot(client: TestClient):
+    response = client.get("/sectors")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert [item["sector_name"] for item in payload["items"]] == [
+        "Energia",
+        "Materiais Basicos",
+        "Saneamento",
+    ]
+    energia = payload["items"][0]
+    assert energia["sector_slug"] == "energia"
+    assert energia["company_count"] == 1
+    assert energia["latest_year"] == 2024
+    assert energia["snapshot"]["roe"] == pytest.approx(180.0 / 380.0)
+    assert energia["snapshot"]["mg_ebit"] == pytest.approx(240.0 / 1100.0)
+    assert energia["snapshot"]["mg_liq"] == pytest.approx(180.0 / 1100.0)
+
+
+def test_sectors_directory_keeps_null_snapshot_metrics_when_accounts_are_partial(client: TestClient):
+    response = client.get("/sectors")
+
+    assert response.status_code == 200
+    payload = response.json()
+    materiais = next(item for item in payload["items"] if item["sector_slug"] == "materiais-basicos")
+    assert materiais["latest_year"] == 2024
+    assert materiais["snapshot"] == {"roe": None, "mg_ebit": None, "mg_liq": None}
+
+
+def test_sector_detail_returns_default_latest_year_and_yearly_overview(client: TestClient):
+    response = client.get("/sectors/energia")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["sector_name"] == "Energia"
+    assert payload["sector_slug"] == "energia"
+    assert payload["company_count"] == 1
+    assert payload["available_years"] == [2023, 2024]
+    assert payload["selected_year"] == 2024
+    assert payload["yearly_overview"] == [
+        {
+            "year": 2023,
+            "roe": pytest.approx(150.0 / 300.0),
+            "mg_ebit": pytest.approx(200.0 / 1000.0),
+            "mg_liq": pytest.approx(150.0 / 1000.0),
+        },
+        {
+            "year": 2024,
+            "roe": pytest.approx(180.0 / 380.0),
+            "mg_ebit": pytest.approx(240.0 / 1100.0),
+            "mg_liq": pytest.approx(180.0 / 1100.0),
+        },
+    ]
+    assert payload["companies"] == [
+        {
+            "cd_cvm": 9512,
+            "company_name": "PETROBRAS",
+            "ticker_b3": "PETR4",
+            "roe": pytest.approx(180.0 / 380.0),
+            "mg_ebit": pytest.approx(240.0 / 1100.0),
+            "mg_liq": pytest.approx(180.0 / 1100.0),
+        }
+    ]
+
+
+def test_sector_detail_respects_explicit_year(client: TestClient):
+    response = client.get("/sectors/energia", params={"year": "2023"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["selected_year"] == 2023
+    assert payload["companies"][0]["roe"] == pytest.approx(150.0 / 300.0)
+
+
+def test_sector_detail_keeps_company_row_with_null_metrics_when_accounts_are_partial(client: TestClient):
+    response = client.get("/sectors/saneamento")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["selected_year"] == 2024
+    assert payload["companies"] == [
+        {
+            "cd_cvm": 11223,
+            "company_name": "SABESP",
+            "ticker_b3": "SBSP3",
+            "roe": None,
+            "mg_ebit": None,
+            "mg_liq": None,
+        }
+    ]
+
+
+def test_sector_detail_returns_404_for_unknown_slug(client: TestClient):
+    response = client.get("/sectors/setor-inexistente")
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "not_found"
+
+
+def test_sector_detail_returns_422_for_year_outside_available_range(client: TestClient):
+    response = client.get("/sectors/energia", params={"year": "1990"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
 def test_company_detail_returns_metadata(client: TestClient):
     response = client.get("/companies/9512")
 
