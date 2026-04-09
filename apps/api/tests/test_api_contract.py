@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import io
+import zipfile
 from pathlib import Path
 
+import openpyxl
 import pytest
 from fastapi.testclient import TestClient
 
@@ -143,6 +146,84 @@ def test_company_years_returns_empty_list_when_company_has_no_reports(client: Te
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_company_excel_export_returns_binary_workbook(client: TestClient):
+    response = client.get("/companies/9512/export/excel")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    assert 'filename="PETR4_' in response.headers["content-disposition"]
+
+    workbook = openpyxl.load_workbook(io.BytesIO(response.content))
+    assert workbook.sheetnames[:4] == ["CAPA", "GERAL", "KPIs", "DRE"]
+
+
+def test_company_excel_export_uses_all_available_years(client: TestClient):
+    response = client.get("/companies/9512/export/excel")
+
+    assert response.status_code == 200
+    workbook = openpyxl.load_workbook(io.BytesIO(response.content))
+    dre = workbook["DRE"]
+
+    assert dre["E1"].value == "2023"
+    assert dre["F1"].value == "2024"
+
+
+def test_company_excel_export_returns_404_for_unknown_company(client: TestClient):
+    response = client.get("/companies/999999/export/excel")
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "not_found"
+
+
+def test_company_excel_export_returns_422_when_company_has_no_exportable_years(client: TestClient):
+    response = client.get("/companies/77889/export/excel")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_company_excel_batch_export_returns_zip_with_one_workbook_per_company(client: TestClient):
+    response = client.get("/companies/export/excel-batch", params={"ids": "9512,4170"})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/zip")
+    assert 'filename="comparar_excel_lote.zip"' in response.headers["content-disposition"]
+
+    with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
+        names = sorted(archive.namelist())
+        assert len(names) == 2
+        assert names[0].startswith("PETR4_")
+        assert names[1].startswith("VALE3_")
+        assert names[0].endswith(".xlsx")
+        assert names[1].endswith(".xlsx")
+
+        workbook = openpyxl.load_workbook(io.BytesIO(archive.read(names[0])))
+        assert "CAPA" in workbook.sheetnames
+
+
+def test_company_excel_batch_export_rejects_duplicate_ids(client: TestClient):
+    response = client.get("/companies/export/excel-batch", params={"ids": "9512,9512"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_company_excel_batch_export_rejects_single_company(client: TestClient):
+    response = client.get("/companies/export/excel-batch", params={"ids": "9512"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_company_excel_batch_export_returns_404_for_unknown_company(client: TestClient):
+    response = client.get("/companies/export/excel-batch", params={"ids": "9512,999999"})
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "not_found"
 
 
 def test_company_statement_returns_matrix(client: TestClient):

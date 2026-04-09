@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query, Request
+from fastapi.responses import Response
 
 from apps.api.app.dependencies import (
+    InvalidRequestError,
     NotFoundError,
+    company_ids_dependency,
     coerce_company,
     ensure_api_ready,
     get_read_service,
@@ -67,6 +70,32 @@ def get_company_filters(
 
 
 @router.get(
+    "/companies/export/excel-batch",
+    summary="Retorna um arquivo ZIP com um workbook Excel por empresa selecionada.",
+)
+def export_companies_excel_batch(
+    request: Request,
+    ids: list[int] = Depends(company_ids_dependency),
+    service: CVMReadService = Depends(get_read_service),
+) -> Response:
+    ensure_api_ready(get_settings(request))
+    for cd_cvm in ids:
+        coerce_company(cd_cvm, service)
+    try:
+        filename, payload = service.build_companies_excel_batch_export(ids)
+    except ValueError as exc:
+        raise InvalidRequestError(str(exc)) from exc
+
+    return Response(
+        content=payload,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
+
+
+@router.get(
     "/companies/{cd_cvm}",
     response_model=CompanyInfoPayload,
     summary="Retorna os metadados principais de uma empresa.",
@@ -81,6 +110,31 @@ def get_company(
     if info is None:
         raise NotFoundError(f"Empresa {cd_cvm} nao encontrada.")
     return present_company_info(info)
+
+
+@router.get(
+    "/companies/{cd_cvm}/export/excel",
+    summary="Retorna o workbook Excel completo da empresa para download.",
+)
+def export_company_excel(
+    cd_cvm: int,
+    request: Request,
+    service: CVMReadService = Depends(get_read_service),
+) -> Response:
+    ensure_api_ready(get_settings(request))
+    coerce_company(cd_cvm, service)
+    try:
+        filename, payload = service.build_company_excel_export(cd_cvm)
+    except ValueError as exc:
+        raise InvalidRequestError(str(exc)) from exc
+
+    return Response(
+        content=payload,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        },
+    )
 
 
 @router.get(
