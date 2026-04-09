@@ -17,11 +17,13 @@ from apps.api.app.presenters import (
     CompanyInfoPayload,
     KPIBundlePayload,
     StatementMatrixPayload,
+    StatementSummaryPayload,
     present_company_directory_page,
     present_company_filters,
     present_company_info,
     present_kpis,
     present_statement,
+    present_statement_summary,
 )
 from src.read_service import CVMReadService
 
@@ -129,3 +131,20 @@ def get_company_kpis(
     coerce_company(cd_cvm, service)
     bundle = service.get_kpi_bundle(cd_cvm=cd_cvm, years=years)
     return present_kpis(bundle)
+
+
+@router.get(
+    "/companies/{cd_cvm}/summary",
+    response_model=StatementSummaryPayload,
+    summary="Retorna o resumo condensado multi-bloco das demonstracoes financeiras.",
+)
+def get_company_summary(
+    cd_cvm: int,
+    request: Request,
+    years: list[int] = Depends(years_dependency),
+    service: CVMReadService = Depends(get_read_service),
+) -> StatementSummaryPayload:
+    ensure_api_ready(get_settings(request))
+    coerce_company(cd_cvm, service)
+    dto = service.get_statement_summary(cd_cvm=cd_cvm, years=years)
+    return present_statement_summary(dto)

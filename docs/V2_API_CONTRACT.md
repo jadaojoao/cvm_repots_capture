@@ -199,6 +199,49 @@ Resposta exemplo:
 }
 ```
 
+### `GET /companies/{cd_cvm}/summary?years=`
+
+Parametros:
+- `years`: obrigatorio; CSV de inteiros sem duplicatas, ex. `2023,2024`
+
+DTO de saida:
+- `src.contracts.StatementSummaryDTO`
+
+Resposta exemplo:
+
+```json
+{
+  "cd_cvm": 9512,
+  "years": [2023, 2024],
+  "blocks": [
+    {
+      "stmt_type": "DRE",
+      "title": "DRE — Resumo Condensado",
+      "table": {
+        "columns": ["CD_CONTA", "LABEL", "IS_SUBTOTAL", "2023", "2024"],
+        "rows": [
+          {
+            "CD_CONTA": "3.01",
+            "LABEL": "Receita",
+            "IS_SUBTOTAL": true,
+            "2023": 1000.0,
+            "2024": 1100.0
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+Regras do endpoint:
+- `blocks` contem apenas demonstracoes com dados disponiveis para os anos solicitados
+- ordem dos blocos: DRE, BPA, BPP, DFC (quando presentes)
+- cada bloco expoe apenas linhas de resumo condensado (codigos subtotais e filhos diretos selecionados)
+- `IS_SUBTOTAL` e `true` para codigos marcados como subtotais em cada demonstracao
+- se nenhuma demonstracao tiver dados, `blocks` retorna `[]` (nao e erro)
+- `years` no response reflete exatamente os anos solicitados, ordenados ascendente
+
 ### `GET /refresh-status?cd_cvm=`
 
 Parametros:

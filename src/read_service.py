@@ -18,8 +18,11 @@ from src.contracts import (
     KPIBundle,
     RefreshStatusDTO,
     StatementMatrix,
+    StatementSummaryDTO,
+    SummaryBlockDTO,
     TabularData,
 )
+from src.statement_summary import build_general_summary_blocks
 from src.db import build_engine
 from src.kpi_engine import compute_all_kpis, compute_quarterly_kpis
 from src.query_layer import CVMQueryLayer
@@ -196,6 +199,32 @@ class CVMReadService:
             years=tuple(int(year) for year in years),
             annual=TabularData.from_dataframe(annual),
             quarterly=TabularData.from_dataframe(quarterly),
+        )
+
+    def get_statement_summary(self, cd_cvm: int, years: list[int]) -> StatementSummaryDTO:
+        stmt_types = ["DRE", "BPA", "BPP", "DFC"]
+        statements = {
+            s: self.query_layer.get_statement(
+                cd_cvm=cd_cvm,
+                years=years,
+                stmt_type=s,
+                exclude_conflicts=True,
+            )
+            for s in stmt_types
+        }
+        raw_blocks = build_general_summary_blocks(statements)
+        blocks = tuple(
+            SummaryBlockDTO(
+                stmt_type=b.stmt_type,
+                title=b.title,
+                table=TabularData.from_dataframe(b.rows),
+            )
+            for b in raw_blocks
+        )
+        return StatementSummaryDTO(
+            cd_cvm=int(cd_cvm),
+            years=tuple(sorted(int(y) for y in years)),
+            blocks=blocks,
         )
 
     def get_health_snapshot(

@@ -267,6 +267,30 @@ class KPIBundle:
 
 
 @dataclass(frozen=True)
+class SummaryBlockDTO:
+    stmt_type: str
+    title: str
+    table: TabularData
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"stmt_type": self.stmt_type, "title": self.title, "table": self.table.to_dict()}
+
+
+@dataclass(frozen=True)
+class StatementSummaryDTO:
+    cd_cvm: int
+    years: tuple[int, ...]
+    blocks: tuple[SummaryBlockDTO, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "cd_cvm": int(self.cd_cvm),
+            "years": list(self.years),
+            "blocks": [b.to_dict() for b in self.blocks],
+        }
+
+
+@dataclass(frozen=True)
 class RefreshStatusDTO:
     cd_cvm: int
     company_name: str
