@@ -23,7 +23,9 @@
       "CONTRIBUTING.md",
       "README.md",
       "COMO_RODAR.md",
-      "pytest.ini"
+      "pytest.ini",
+      "railway.toml",
+      "vercel.json"
     ]
   },
   "criticalGroups": [
