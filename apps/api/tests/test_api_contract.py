@@ -242,3 +242,98 @@ def test_companies_reject_invalid_page_size(client: TestClient):
 
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "validation_error"
+
+
+# ---------------------------------------------------------------------------
+# Summary endpoint
+# ---------------------------------------------------------------------------
+
+
+def test_company_summary_returns_blocks(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2023,2024"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["cd_cvm"] == 9512
+    assert payload["years"] == [2023, 2024]
+    assert len(payload["blocks"]) >= 1
+    assert payload["blocks"][0]["stmt_type"] in {"DRE", "BPA", "BPP", "DFC"}
+
+
+def test_company_summary_block_columns_contain_required_fields(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2023,2024"})
+
+    assert response.status_code == 200
+    for block in response.json()["blocks"]:
+        cols = block["table"]["columns"]
+        assert "CD_CONTA" in cols
+        assert "LABEL" in cols
+        assert "IS_SUBTOTAL" in cols
+
+
+def test_company_summary_is_subtotal_propagation(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2023"})
+
+    assert response.status_code == 200
+    dre_block = next((b for b in response.json()["blocks"] if b["stmt_type"] == "DRE"), None)
+    assert dre_block is not None
+    row_3_01 = next((r for r in dre_block["table"]["rows"] if r["CD_CONTA"] == "3.01"), None)
+    assert row_3_01 is not None
+    assert row_3_01["IS_SUBTOTAL"] is True
+
+
+def test_company_summary_empty_blocks_when_no_data(client: TestClient):
+    # year 1990 has no data for PETROBRAS → blocks should be []
+    response = client.get("/companies/9512/summary", params={"years": "1990"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["blocks"] == []
+
+
+def test_company_summary_404_unknown_company(client: TestClient):
+    response = client.get("/companies/999999/summary", params={"years": "2024"})
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "not_found"
+
+
+def test_company_summary_422_invalid_years(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2024,foo"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_company_summary_422_duplicate_years(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2024,2024"})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "invalid_request"
+
+
+def test_company_summary_years_sorted_stable(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2024,2023"})
+
+    assert response.status_code == 200
+    assert response.json()["years"] == [2023, 2024]
+
+
+def test_company_summary_single_year_columns(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2024"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["years"] == [2024]
+    assert len(payload["blocks"]) >= 1
+    first_block = payload["blocks"][0]
+    assert "2024" in first_block["table"]["columns"]
+    assert "2023" not in first_block["table"]["columns"]
+
+
+def test_company_summary_blocks_have_non_empty_titles(client: TestClient):
+    response = client.get("/companies/9512/summary", params={"years": "2023"})
+
+    assert response.status_code == 200
+    for block in response.json()["blocks"]:
+        assert isinstance(block["title"], str) and len(block["title"]) > 0

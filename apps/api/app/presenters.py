@@ -14,6 +14,7 @@ from src.contracts import (
     KPIBundle,
     RefreshStatusDTO,
     StatementMatrix,
+    StatementSummaryDTO,
 )
 from src.startup import StartupIssue
 
@@ -116,6 +117,18 @@ class KPIBundlePayload(BaseModel):
     years: list[int]
     annual: TabularDataPayload
     quarterly: TabularDataPayload
+
+
+class SummaryBlockPayload(BaseModel):
+    stmt_type: str
+    title: str
+    table: TabularDataPayload
+
+
+class StatementSummaryPayload(BaseModel):
+    cd_cvm: int
+    years: list[int]
+    blocks: list[SummaryBlockPayload]
 
 
 class RefreshStatusPayload(BaseModel):
@@ -225,6 +238,18 @@ def present_kpis(dto: KPIBundle) -> KPIBundlePayload:
     payload["annual"] = _normalize_tabular_payload(payload["annual"])
     payload["quarterly"] = _normalize_tabular_payload(payload["quarterly"])
     return KPIBundlePayload(**payload)
+
+
+def present_statement_summary(dto: StatementSummaryDTO) -> StatementSummaryPayload:
+    blocks = [
+        SummaryBlockPayload(
+            stmt_type=b.stmt_type,
+            title=b.title,
+            table=TabularDataPayload(**_normalize_tabular_payload(b.table.to_dict())),
+        )
+        for b in dto.blocks
+    ]
+    return StatementSummaryPayload(cd_cvm=dto.cd_cvm, years=list(dto.years), blocks=blocks)
 
 
 def present_refresh_status(rows: list[RefreshStatusDTO]) -> list[RefreshStatusPayload]:

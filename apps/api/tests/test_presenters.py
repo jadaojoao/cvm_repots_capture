@@ -9,6 +9,7 @@ from apps.api.app.presenters import (
     present_kpis,
     present_refresh_status,
     present_statement,
+    present_statement_summary,
 )
 from src.contracts import (
     CompanyDirectoryAppliedFilters,
@@ -24,6 +25,8 @@ from src.contracts import (
     KPIBundle,
     RefreshStatusDTO,
     StatementMatrix,
+    StatementSummaryDTO,
+    SummaryBlockDTO,
     TabularData,
 )
 
@@ -183,3 +186,34 @@ def test_presenters_serialize_dtos_without_raw_pandas_objects():
     )
     assert health.per_year[0].year == 2023
     assert health.prioritized_companies[0].years_missing == [2024]
+
+
+def test_summary_presenter_serializes_dto_without_raw_pandas():
+    dto = StatementSummaryDTO(
+        cd_cvm=9512,
+        years=(2023, 2024),
+        blocks=(
+            SummaryBlockDTO(
+                stmt_type="DRE",
+                title="DRE — Resumo Condensado",
+                table=TabularData(
+                    columns=("CD_CONTA", "LABEL", "IS_SUBTOTAL", "2023", "2024"),
+                    rows=(
+                        {"CD_CONTA": "3.01", "LABEL": "Receita", "IS_SUBTOTAL": True, "2023": 1000.0, "2024": 1100.0},
+                        {"CD_CONTA": "3.03", "LABEL": "Resultado Bruto", "IS_SUBTOTAL": True, "2023": 400.0, "2024": None},
+                    ),
+                ),
+            ),
+        ),
+    )
+    payload = present_statement_summary(dto)
+
+    assert payload.cd_cvm == 9512
+    assert payload.years == [2023, 2024]
+    assert len(payload.blocks) == 1
+    block = payload.blocks[0]
+    assert block.stmt_type == "DRE"
+    assert block.title == "DRE — Resumo Condensado"
+    assert block.table.columns == ["CD_CONTA", "LABEL", "IS_SUBTOTAL", "2023", "2024"]
+    assert block.table.rows[0]["IS_SUBTOTAL"] is True
+    assert block.table.rows[1]["2024"] is None
