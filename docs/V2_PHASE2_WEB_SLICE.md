@@ -15,6 +15,8 @@ O objetivo nao e cobrir o sitemap inteiro. O objetivo e fechar o primeiro fluxo 
 
 Pacote aditivo entregue depois do slice inicial:
 - `/comparar`
+- `/setores`
+- `/setores/[slug]`
 
 ## Stack
 
@@ -67,6 +69,21 @@ Pacote aditivo entregue depois do slice inicial:
 - tabela comparativa de KPIs com base de referencia na primeira empresa
 - fallback explicito para ausencia de anos em comum, erro parcial e IDs invalidos
 
+### `/setores`
+
+- hub setorial com cards de descoberta
+- snapshot por setor com `ROE`, `Margem EBIT` e `Margem Liquida`
+- navegacao principal ativa em header, footer e home
+
+### `/setores/[slug]`
+
+- detalhe setorial com breadcrumbs e CTA vindo da pagina da empresa
+- seletor anual por `ano`
+- aba `visao-geral`
+- aba `empresas`
+- fallback para `slug` inexistente via `not-found`
+- `ano` invalido ou ausente cai para o ano mais recente disponivel
+
 ## Query params publicos
 
 ### Hub
@@ -94,6 +111,14 @@ Defaults:
 Defaults:
 - `ids`: vazio ate o usuario montar a selecao inicial
 - `anos`: interseccao mais recente resolvida pelo frontend quando a URL nao informar um periodo valido
+
+### Setores
+
+- `/setores/[slug]?ano=2024&aba=visao-geral|empresas`
+
+Defaults:
+- `ano`: periodo mais recente disponivel do setor
+- `aba=visao-geral`
 
 ## Comandos locais
 
@@ -127,7 +152,6 @@ npm run test:e2e
 
 ## O que fica para a proxima fase
 
-- `/setores`
 - `/kpis`
 - `/macro`
 - deploy remoto de preview

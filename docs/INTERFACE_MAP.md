@@ -108,31 +108,55 @@ ausencia de interseccao anual e erro parcial sem derrubar a tela.
 
 ---
 
-### PG-05 - `/setores` (Sectors Hub) `planejado`
+### PG-05 - `/setores` (Sectors Hub) `live`
 
 **Objetivo**: descoberta de setores com ranking de KPIs agregados.
 
-**Status**: nao iniciado. **Aguarda endpoints de backend** (ver Pendencias).
+**Status**: rota entregue e integrada na navegacao principal. O hub lista setores
+com slug canonico, contagem de empresas, ano-base mais recente e snapshot
+agregado de ROE, margem EBIT e margem liquida.
 
-**Endpoints necessarios (nao existem ainda)**:
+**Endpoints consumidos**:
 
-| Endpoint | Dados esperados |
-|---|---|
-| `GET /sectors` | Lista de setores com slug, nome, contagem de empresas, KPIs medios (ROE, margem, etc.) |
+| Endpoint | Params | Para que serve |
+|---|---|---|
+| `GET /sectors` | - | Lista ordenada de setores com snapshot anual mais recente |
+
+**Query params publicos da rota**: nenhum na primeira entrega
+
+**Arquivos relevantes**:
+- `apps/web/app/setores/page.tsx` - page component
+- `apps/web/lib/sectors-page-data.ts` - loader do hub e do detalhe
+- `apps/web/components/sectors/sector-directory-list.tsx` - cards do hub
+- `apps/web/components/sectors/sector-hub-tracker.tsx` - tracking de visualizacao
 
 ---
 
-### PG-06 - `/setores/[slug]` (Sector Detail) `planejado`
+### PG-06 - `/setores/[slug]` (Sector Detail) `live`
 
 **Objetivo**: analise profunda de um setor - empresas do setor, ranking de KPIs, contexto.
 
-**Status**: nao iniciado. **Aguarda endpoints de backend** (ver Pendencias).
+**Status**: rota entregue com fallback para `slug` inexistente, `ano` invalido
+caindo para o ano mais recente disponivel e CTA ativo na pagina da empresa.
 
-**Endpoints necessarios (nao existem ainda)**:
+**Endpoints consumidos**:
 
-| Endpoint | Dados esperados |
-|---|---|
-| `GET /sectors/{slug}` | Metadados do setor + lista de empresas + KPIs agregados por ano |
+| Endpoint | Params | Para que serve |
+|---|---|---|
+| `GET /sectors/{slug}` | `year=` | Metadados, serie anual agregada e ranking anual de empresas |
+
+**Query params publicos da rota**: `?ano=<YYYY>&aba=visao-geral|empresas`
+
+Defaults:
+- `ano`: ano mais recente disponivel do setor
+- `aba=visao-geral`
+
+**Arquivos relevantes**:
+- `apps/web/app/setores/[slug]/page.tsx` - page component
+- `apps/web/components/sectors/sector-overview.tsx` - cards e serie anual
+- `apps/web/components/sectors/sector-company-table.tsx` - tabela anual de empresas
+- `apps/web/components/sectors/sector-year-selector.tsx` - ano em URL
+- `apps/web/components/sectors/sector-detail-tracker.tsx` - tracking de visualizacao
 
 ---
 
@@ -198,6 +222,8 @@ de produto. Nao consome endpoints de API.
 | `GET /companies/{cd_cvm}/kpis` | `/empresas/[cd_cvm]`, `/comparar` |
 | `GET /companies/{cd_cvm}/export/excel` | `/empresas/[cd_cvm]` |
 | `GET /companies/export/excel-batch` | `/comparar` |
+| `GET /sectors` | `/setores` |
+| `GET /sectors/{slug}` | `/setores/[slug]` |
 | `GET /refresh-status` | Nao consumido pelo frontend ainda |
 | `GET /base-health` | `/` (parcialmente, se trust strip expandir) |
 
@@ -206,12 +232,10 @@ de produto. Nao consome endpoints de API.
 ## Pendencias de backend
 
 Endpoints que o frontend vai precisar mas que ainda nao existem. Antes de
-iniciar PG-05 ou posterior, o backend precisa cobrir a linha correspondente.
+iniciar PG-07 ou posterior, o backend precisa cobrir a linha correspondente.
 
 | Rota frontend | Endpoint necessario | Dados minimos esperados | Status |
 |---|---|---|---|
-| PG-05 `/setores` | `GET /sectors` | slug, nome, n_empresas, KPI medio (ROE, margem) | Nao planejado |
-| PG-06 `/setores/[slug]` | `GET /sectors/{slug}` | metadados + empresas + KPIs por ano | Nao planejado |
 | PG-07 `/kpis` | `GET /kpis` | id, nome, formula, unidade, categoria | Nao planejado |
 | PG-08 `/kpis/[kpi_id]` | `GET /kpis/{kpi_id}` | definicao + distribuicao + top empresas | Nao planejado |
 
@@ -245,4 +269,4 @@ for entregue.
 
 ---
 
-_Ultima atualizacao: 2026-04-09 - issue #42_
+_Ultima atualizacao: 2026-04-09 - issue #82_

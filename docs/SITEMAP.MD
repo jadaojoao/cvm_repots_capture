@@ -2,7 +2,7 @@
 
 Status: draft approved for incremental implementation
 Owner: Product + Architecture
-Last update: 2026-04-08
+Last update: 2026-04-09
 
 ## 1) Product Context
 - Product: financial analysis platform with CVM data for Brazilian companies.
@@ -156,6 +156,11 @@ Last update: 2026-04-08
 This document is the implementation source for building pages incrementally.
 Do not implement all pages at once.
 Implement page by page following priority and acceptance criteria.
+
+## 12.1 Current delivery checkpoint
+- Live hoje: PG-01, PG-02, PG-03, PG-04, PG-05 e PG-06.
+- Proximo bloco de produto: PG-07 e PG-08 (`/kpis` e `/kpis/[kpi_id]`).
+- Macro (`PG-09` e `PG-10`) continua travado em discovery de fonte e contrato.
 
 ---
 
