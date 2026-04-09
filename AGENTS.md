@@ -115,12 +115,25 @@ duas lanes de produto, divida em child tasks separadas.
 - `shared-governance` pode acompanhar qualquer lane, mas nao autoriza misturar
   frontend e backend na mesma task.
 
+## Leitura obrigatoria por area
+
+Antes de tocar qualquer arquivo dentro das areas abaixo, leia o documento
+indicado. Nao assuma contexto de arquitetura sem ter lido.
+
+| Area | Leitura obrigatoria |
+|---|---|
+| `apps/web` | `docs/INTERFACE_MAP.md` — rotas existentes, status e endpoints consumidos |
+| `apps/api` | `docs/INTERFACE_MAP.md` + `docs/V2_API_CONTRACT.md` — contratos e quem consome cada endpoint |
+| `src/` | `docs/CONTEXT.md` — dominio Python, regras de negocio e convencoes criticas |
+| `docs/SITEMAP.MD` | `docs/INTERFACE_MAP.md` — o sitemap e derivado do mapa de interface |
+
 ## Onde registrar o que
 
 - Estado tecnico atual e sessoes: `docs/AGENTS.md`
 - Decisoes duraveis: `docs/decisions/`
 - Regras de lanes/worktrees/critical paths: `docs/governance/parallel-lanes.md`
 - Roadmap de Student Pack e backlog resumido: `docs/STUDENT_PACK_PLAN.md`
+- Mapa de rotas x endpoints: `docs/INTERFACE_MAP.md`
 - Release notes: `docs/releases/`
 
 ## Antes de marcar como concluido
