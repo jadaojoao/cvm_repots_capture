@@ -98,7 +98,7 @@ def parse_years_csv(years: str | None) -> list[int]:
         seen.add(year)
         parsed.append(year)
 
-    return parsed
+    return sorted(parsed)
 
 
 def years_dependency(years: str | None = Query(default=None)) -> list[int]:
