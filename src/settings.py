@@ -166,10 +166,10 @@ def build_settings(project_root: Path | None = None) -> AppSettings:
         _resolve_path(
             resolved_root,
             os.getenv("CVM_CANONICAL_ACCOUNTS_PATH"),
-            data_dir / "canonical_accounts.csv",
+            resolved_root / "config" / "canonical_accounts.csv",
         ),
         shared_repo_root,
-        Path("data/canonical_accounts.csv"),
+        Path("config/canonical_accounts.csv"),
     )
     account_dictionary_path = _prefer_existing_shared_path(
         _resolve_path(
