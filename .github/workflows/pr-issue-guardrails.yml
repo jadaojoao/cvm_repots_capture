@@ -7,6 +7,7 @@ on:
       - edited
       - synchronize
       - reopened
+      - ready_for_review
 
 permissions:
   contents: read
@@ -17,10 +18,16 @@ jobs:
   validate-pr-issue-contract:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate branch and issue linkage
+      - name: Validate branch, issue, lanes, and critical paths
         uses: actions/github-script@v7
         with:
           script: |
+            const riskRank = {
+              safe: 0,
+              shared: 1,
+              "contract-sensitive": 2,
+            };
+
             function extractSection(body, heading) {
               const lines = (body || "").split(/\r?\n/);
               let capturing = false;
@@ -55,8 +62,134 @@ jobs:
               return true;
             }
 
+            function normalizePath(value) {
+              return (value || "")
+                .replace(/\\/g, "/")
+                .replace(/^\.\//, "")
+                .trim();
+            }
+
+            function parseListSection(section) {
+              return (section || "")
+                .split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter(Boolean)
+                .map((line) => line.replace(/^[-*]\s*/, ""))
+                .map((line) => line.replace(/`/g, "").trim())
+                .filter(Boolean);
+            }
+
+            function expandBracePatterns(pattern) {
+              const openIndex = pattern.indexOf("{");
+              if (openIndex === -1) {
+                return [pattern];
+              }
+
+              let depth = 0;
+              let closeIndex = -1;
+              for (let index = openIndex; index < pattern.length; index += 1) {
+                const current = pattern[index];
+                if (current === "{") {
+                  depth += 1;
+                } else if (current === "}") {
+                  depth -= 1;
+                  if (depth === 0) {
+                    closeIndex = index;
+                    break;
+                  }
+                }
+              }
+
+              if (closeIndex === -1) {
+                return [pattern];
+              }
+
+              const before = pattern.slice(0, openIndex);
+              const after = pattern.slice(closeIndex + 1);
+              const inner = pattern.slice(openIndex + 1, closeIndex);
+
+              const segments = [];
+              let token = "";
+              let innerDepth = 0;
+
+              for (const current of inner) {
+                if (current === "," && innerDepth === 0) {
+                  segments.push(token);
+                  token = "";
+                  continue;
+                }
+
+                if (current === "{") {
+                  innerDepth += 1;
+                } else if (current === "}") {
+                  innerDepth -= 1;
+                }
+
+                token += current;
+              }
+
+              if (token) {
+                segments.push(token);
+              }
+
+              return segments.flatMap((segment) =>
+                expandBracePatterns(`${before}${segment}${after}`),
+              );
+            }
+
+            function escapeRegexCharacter(character) {
+              return /[|\\{}()[\]^$+?.]/.test(character)
+                ? `\\${character}`
+                : character;
+            }
+
+            function globToRegex(pattern) {
+              const normalized = normalizePath(pattern);
+              let regex = "^";
+
+              for (let index = 0; index < normalized.length; index += 1) {
+                const current = normalized[index];
+                const next = normalized[index + 1];
+
+                if (current === "*" && next === "*") {
+                  regex += ".*";
+                  index += 1;
+                  continue;
+                }
+
+                if (current === "*") {
+                  regex += "[^/]*";
+                  continue;
+                }
+
+                if (current === "?") {
+                  regex += ".";
+                  continue;
+                }
+
+                regex += escapeRegexCharacter(current);
+              }
+
+              regex += "$";
+              return new RegExp(regex);
+            }
+
+            function matchesAnyPattern(file, patterns) {
+              const normalizedFile = normalizePath(file);
+
+              return (patterns || []).some((pattern) =>
+                expandBracePatterns(pattern).some((expandedPattern) =>
+                  globToRegex(expandedPattern).test(normalizedFile),
+                ),
+              );
+            }
+
+            function highestRisk(left, right) {
+              return riskRank[left] >= riskRank[right] ? left : right;
+            }
+
             const branch = context.payload.pull_request.head.ref;
-            const branchMatch = branch.match(/^task\/(\d+)-[a-z0-9][a-z0-9-]*$/);
+            const branchMatch = branch.match(/^task\/(\d+)-([a-z0-9][a-z0-9-]*)$/);
 
             if (!branchMatch) {
               core.setFailed(
@@ -66,6 +199,7 @@ jobs:
             }
 
             const issueNumber = Number(branchMatch[1]);
+            const branchSlug = branchMatch[2];
             const body = context.payload.pull_request.body || "";
             const closesPattern = new RegExp(`\\bCloses\\s+#${issueNumber}\\b`, "i");
 
@@ -120,9 +254,21 @@ jobs:
               return;
             }
 
+            if (!requireExactlyOnePrefix(labels, "lane:", "`lane:*`")) {
+              return;
+            }
+
             const owner = extractSection(issue.body || "", "Owner atual");
+            const laneSection = extractSection(issue.body || "", "Lane oficial")
+              .toLowerCase()
+              .trim();
+            const workspace = normalizePath(
+              extractSection(issue.body || "", "Workspace da task"),
+            );
             const writeSet = extractSection(issue.body || "", "Write-set esperado");
-            const risk = extractSection(issue.body || "", "Classificacao de risco").toLowerCase();
+            const risk = extractSection(issue.body || "", "Classificacao de risco")
+              .toLowerCase()
+              .trim();
 
             if (!owner || /^a definir$/i.test(owner)) {
               core.setFailed(
@@ -154,18 +300,204 @@ jobs:
               return;
             }
 
-            if (
-              context.payload.action === "opened" &&
-              (risk === "shared" || risk === "contract-sensitive") &&
-              !context.payload.pull_request.draft
-            ) {
+            const acceptedLaneValues = ["frontend", "backend", "ops-quality"];
+            if (!acceptedLaneValues.includes(laneSection)) {
               core.setFailed(
-                `PRs de tasks ${expectedRiskLabel} devem abrir em draft para coordenacao segura.`,
+                `A issue #${issueNumber} precisa declarar "Lane oficial" como frontend, backend ou ops-quality.`,
               );
               return;
             }
 
-            if (risk === "contract-sensitive") {
+            const expectedLaneLabel = `lane:${laneSection}`;
+            if (!labels.includes(expectedLaneLabel)) {
+              core.setFailed(
+                `A issue #${issueNumber} declara lane "${laneSection}", mas nao possui o label "${expectedLaneLabel}".`,
+              );
+              return;
+            }
+
+            if (!workspace || /^a definir/i.test(workspace)) {
+              core.setFailed(
+                `A issue #${issueNumber} precisa declarar um "Workspace da task" explicito antes da PR.`,
+              );
+              return;
+            }
+
+            const expectedWorkspaceFragment = normalizePath(
+              `.claude/worktrees/${laneSection}/${issueNumber}-${branchSlug}`,
+            );
+            if (!workspace.includes(expectedWorkspaceFragment)) {
+              core.setFailed(
+                `O workspace da issue #${issueNumber} deve apontar para ".claude/worktrees/${laneSection}/${issueNumber}-${branchSlug}/". Valor atual: "${workspace}".`,
+              );
+              return;
+            }
+
+            const duplicatePrs = await github.paginate(github.rest.pulls.list, {
+              ...context.repo,
+              state: "open",
+              per_page: 100,
+            });
+
+            const conflictingPrs = duplicatePrs.filter((pullRequest) => {
+              if (pullRequest.number === context.payload.pull_request.number) {
+                return false;
+              }
+
+              const duplicateBody = pullRequest.body || "";
+              const sameIssue = new RegExp(`\\bCloses\\s+#${issueNumber}\\b`, "i").test(
+                duplicateBody,
+              );
+              const sameBranchIssue =
+                typeof pullRequest.head?.ref === "string" &&
+                pullRequest.head.ref.startsWith(`task/${issueNumber}-`);
+
+              return sameIssue || sameBranchIssue;
+            });
+
+            if (conflictingPrs.length > 0) {
+              core.setFailed(
+                `A task #${issueNumber} ja possui outra PR aberta: ${conflictingPrs
+                  .map((pullRequest) => `#${pullRequest.number}`)
+                  .join(", ")}. Use uma unica PR oficial por task.`,
+              );
+              return;
+            }
+
+            const { data: policyFile } = await github.rest.repos.getContent({
+              ...context.repo,
+              path: ".github/guardrails/path-policy.json",
+              ref: context.payload.pull_request.base.sha,
+            });
+
+            const policy = JSON.parse(
+              Buffer.from(policyFile.content, policyFile.encoding).toString("utf8"),
+            );
+
+            const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
+              ...context.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+
+            const filenames = changedFiles
+              .map((file) => normalizePath(file.filename))
+              .filter(Boolean);
+
+            if (filenames.length === 0) {
+              core.setFailed(`A PR #${context.payload.pull_request.number} nao possui arquivos alterados.`);
+              return;
+            }
+
+            const writePatterns = parseListSection(writeSet);
+            if (writePatterns.length === 0) {
+              core.setFailed(
+                `A issue #${issueNumber} precisa listar pelo menos um item em "Write-set esperado".`,
+              );
+              return;
+            }
+
+            for (const file of filenames) {
+              if (!matchesAnyPattern(file, writePatterns)) {
+                core.setFailed(
+                  `O arquivo "${file}" nao esta coberto por "Write-set esperado" da issue #${issueNumber}.`,
+                );
+                return;
+              }
+            }
+
+            let minimumRequiredRisk = "safe";
+            let requiresDraft = false;
+            let requiresCompatibility = false;
+
+            for (const file of filenames) {
+              const matchedGroups = policy.criticalGroups.filter((group) =>
+                matchesAnyPattern(file, group.patterns),
+              );
+
+              if (matchedGroups.length > 1) {
+                core.setFailed(
+                  `O arquivo "${file}" caiu em mais de um grupo critico: ${matchedGroups
+                    .map((group) => group.name)
+                    .join(", ")}. Ajuste .github/guardrails/path-policy.json para manter grupos nao sobrepostos.`,
+                );
+                return;
+              }
+
+              if (matchedGroups.length === 1) {
+                const [group] = matchedGroups;
+
+                if (!group.allowedLanes.includes(laneSection)) {
+                  core.setFailed(
+                    `A lane "${laneSection}" nao pode tocar "${file}". O grupo "${group.name}" aceita apenas: ${group.allowedLanes.join(", ")}.`,
+                  );
+                  return;
+                }
+
+                minimumRequiredRisk = highestRisk(
+                  minimumRequiredRisk,
+                  group.minimumRisk,
+                );
+                requiresDraft = requiresDraft || group.requireDraft;
+                requiresCompatibility =
+                  requiresCompatibility || group.requireCompatibility;
+                continue;
+              }
+
+              const allowedLanes = Object.entries(policy.laneAllowlists)
+                .filter(([, patterns]) => matchesAnyPattern(file, patterns))
+                .map(([lane]) => lane);
+
+              if (allowedLanes.length === 0) {
+                core.setFailed(
+                  `O arquivo "${file}" nao esta classificado em .github/guardrails/path-policy.json. Classifique o path antes de abrir ou atualizar a PR.`,
+                );
+                return;
+              }
+
+              if (!allowedLanes.includes(laneSection)) {
+                core.setFailed(
+                  `A lane "${laneSection}" nao cobre o arquivo "${file}". Lanes permitidas para este path: ${allowedLanes.join(", ")}.`,
+                );
+                return;
+              }
+            }
+
+            if (riskRank[risk] < riskRank[minimumRequiredRisk]) {
+              core.setFailed(
+                `A issue #${issueNumber} declara risco "${risk}", mas os arquivos alterados exigem no minimo "${minimumRequiredRisk}".`,
+              );
+              return;
+            }
+
+            for (const mix of policy.disallowedDomainMixes || []) {
+              const leftTouched = filenames.some((file) =>
+                matchesAnyPattern(file, mix.left),
+              );
+              const rightTouched = filenames.some((file) =>
+                matchesAnyPattern(file, mix.right),
+              );
+
+              if (leftTouched && rightTouched) {
+                core.setFailed(
+                  `A PR mistura dominios proibidos pelo guardrail "${mix.name}". Quebre o trabalho em tasks separadas por lane.`,
+                );
+                return;
+              }
+            }
+
+            if (
+              ["opened", "reopened"].includes(context.payload.action) &&
+              requiresDraft &&
+              !context.payload.pull_request.draft
+            ) {
+              core.setFailed(
+                `PRs que tocam paths criticos ou compartilhados devem abrir em draft.`,
+              );
+              return;
+            }
+
+            if (requiresCompatibility) {
               const compatibility = extractSection(body, "Compatibilidade");
               const hasPolicy =
                 compatibility.includes("additive-only") ||
@@ -173,7 +505,7 @@ jobs:
 
               if (!hasPolicy) {
                 core.setFailed(
-                  `PRs de tasks ${expectedRiskLabel} precisam documentar a politica de compatibilidade em "## Compatibilidade".`,
+                  `PRs que tocam "critical-contract" precisam documentar a politica de compatibilidade em "## Compatibilidade".`,
                 );
               }
             }

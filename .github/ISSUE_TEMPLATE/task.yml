@@ -10,7 +10,7 @@ body:
       value: |
         Toda alteracao em arquivos versionados deve estar vinculada a uma task.
         Depois de criar esta issue, aplique tambem labels `priority:*`,
-        `area:*` e `risk:*`.
+        `area:*`, `risk:*` e `lane:*`.
   - type: input
     id: parent_epic
     attributes:
@@ -25,6 +25,25 @@ body:
       label: Owner atual
       description: Quem esta responsavel pela task neste momento.
       placeholder: Codex (thread atual), Claude, humano, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: official_lane
+    attributes:
+      label: Lane oficial
+      description: Depois de criar a issue, aplique o label `lane:*` correspondente.
+      options:
+        - frontend
+        - backend
+        - ops-quality
+    validations:
+      required: true
+  - type: input
+    id: task_workspace
+    attributes:
+      label: Workspace da task
+      description: Path relativo da worktree oficial da task.
+      placeholder: .claude/worktrees/frontend/25-exemplo-task/
     validations:
       required: true
   - type: textarea
@@ -109,7 +128,7 @@ body:
       description: Edite esta lista no corpo da issue conforme o trabalho avancar.
       value: |
         - [ ] Escopo confirmado
-        - [ ] Owner, write-set e risco revisados
+        - [ ] Owner, lane, workspace, write-set e risco revisados
         - [ ] Implementacao concluida
         - [ ] Validacao executada
         - [ ] Issue/docs atualizados
