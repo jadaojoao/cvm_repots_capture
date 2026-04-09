@@ -4,10 +4,13 @@ import logging
 import os
 import time
 
+import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.starlette import StarletteIntegration
 
 from apps.api.app.dependencies import ApiError, ServiceUnavailableError, serialize_error
 from apps.api.app.presenters import ErrorResponsePayload
@@ -20,11 +23,29 @@ from src.settings import AppSettings, get_settings as get_shared_settings
 log = logging.getLogger("cvm.api")
 
 
+def _init_sentry() -> None:
+    dsn = os.getenv("SENTRY_DSN", "")
+    if not dsn:
+        return
+    sentry_sdk.init(
+        dsn=dsn,
+        environment=os.getenv("SENTRY_ENVIRONMENT", "production"),
+        integrations=[
+            StarletteIntegration(transaction_style="endpoint"),
+            FastApiIntegration(transaction_style="endpoint"),
+        ],
+        traces_sample_rate=0.1,
+        send_default_pii=False,
+    )
+    log.info("sentry_initialized environment=%s", os.getenv("SENTRY_ENVIRONMENT", "production"))
+
+
 def create_app(
     *,
     settings: AppSettings | None = None,
     read_service: CVMReadService | None = None,
 ) -> FastAPI:
+    _init_sentry()
     resolved_settings = settings or get_shared_settings()
     resolved_service = read_service or CVMReadService(settings=resolved_settings)
 
